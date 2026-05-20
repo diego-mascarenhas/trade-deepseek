@@ -1,9 +1,13 @@
 #!/bin/bash
 
 # ============================================
-# Crypto Bot Automático v5.0
-# Múltiples órdenes por ejecución
-# Totalmente configurable vía .env
+# Crypto Bot Automático v5.3
+# - TP1 manual (cálculo local, 0.8-1.5%)
+# - TP2 basado en Order Blocks (DeepSeek)
+# - Scheduler configurable (SCHEDULER_MINUTES)
+# - TOP_N configurable
+# - Filtro de símbolos (solo A-Z, 0-9)
+# - Nombre fijo: "Deepseek"
 # ============================================
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -45,9 +49,20 @@ MIN_VOLUME="${MIN_VOLUME:-5000000}"
 MAX_LOSER_CHANGE="${MAX_LOSER_CHANGE:--50}"
 MAX_GAINER_CHANGE="${MAX_GAINER_CHANGE:-50}"
 
-# Órdenes múltiples
+# Órdenes múltiples - CONFIGURABLES
+TOP_GAINERS_TO_ANALYZE="${TOP_GAINERS_TO_ANALYZE:-3}"
+TOP_LOSERS_TO_ANALYZE="${TOP_LOSERS_TO_ANALYZE:-3}"
 MAX_ORDERS_PER_RUN="${MAX_ORDERS_PER_RUN:-3}"
 DELAY_BETWEEN_ORDERS="${DELAY_BETWEEN_ORDERS:-2}"
+
+# Scheduler - CONFIGURABLE (en minutos)
+SCHEDULER_MINUTES="${SCHEDULER_MINUTES:-10}"
+
+# TP1 manual - CONFIGURABLE (porcentaje, 0.8-1.5 recomendado)
+TP1_PERCENT="${TP1_PERCENT:-1.0}"
+
+# Trailing stop - CONFIGURABLE
+TRAILING_OFS="${TRAILING_OFS:-0.8}"
 
 # ============================================
 # DIRECTORIOS Y LOGS
@@ -145,12 +160,13 @@ is_execution_time_allowed() {
 
 get_tickers() {
     local response=$(curl -s "https://api.binance.com/api/v3/ticker/24hr")
-    echo "$response" | jq -r "
+    echo "$response" | jq -r --argjson MIN_VOL "$MIN_VOLUME" '
         .[] | 
-        select(.symbol | endswith(\"USDT\")) |
-        select(.quoteVolume | tonumber > $MIN_VOLUME) |
-        \"\(.symbol)|\(.lastPrice|tonumber)|\(.priceChangePercent|tonumber)|\(.quoteVolume|tonumber)\"
-    "
+        select(.symbol | endswith("USDT")) |
+        select(.symbol | test("^[A-Z0-9]+USDT$")) |
+        select(.quoteVolume | tonumber > $MIN_VOL) |
+        "\(.symbol)|\(.lastPrice|tonumber)|\(.priceChangePercent|tonumber)|\(.quoteVolume|tonumber)"
+    '
 }
 
 get_top_gainer() {
@@ -162,7 +178,25 @@ get_top_loser() {
 }
 
 # ============================================
-# FUNCIÓN: ANALIZAR CON DEEPSEEK
+# FUNCIÓN: CALCULAR TP1 MANUALMENTE
+# ============================================
+
+calculate_tp1() {
+    local entry_price="$1"
+    local direction="$2"
+    
+    local tp1=""
+    if [ "$direction" = "LONG" ]; then
+        tp1=$(echo "$entry_price * (1 + $TP1_PERCENT/100)" | bc -l)
+    else
+        tp1=$(echo "$entry_price * (1 - $TP1_PERCENT/100)" | bc -l)
+    fi
+    
+    printf "%.8f" "$tp1"
+}
+
+# ============================================
+# FUNCIÓN: ANALIZAR CON DEEPSEEK (solo entry, SL, TP2)
 # ============================================
 
 analyze_symbol() {
@@ -180,12 +214,12 @@ Cambio 24h: $change_24h%
 Dirección: $direction
 
 Devuelve EXACTAMENTE este JSON válido:
-{"symbol":"$symbol","direction":"$direction","entry_price":0.0,"stop_loss":0.0,"take_profits":[0.0,0.0],"trailing_ofs":1.5,"leverage":5,"scheduler_minutes":240}
+{"symbol":"$symbol","direction":"$direction","entry_price":0.0,"stop_loss":0.0,"tp2_orderblock":0.0}
 
-Reemplaza:
-- entry_price: precio de entrada (si LONG < $last_price, si SHORT > $last_price)
-- stop_loss: stop loss (1.5-3% de distancia)
-- take_profits: dos objetivos
+Reglas:
+- entry_price: si LONG < $last_price, si SHORT > $last_price (distancia 0.5-1.0%)
+- stop_loss: distancia 1.5-2.5% desde entry_price
+- tp2_orderblock: precio basado en Order Block real del gráfico (distancia +2.0% a +4.0% desde entry_price)
 
 SOLO JSON. NADA MÁS.
 EOF
@@ -206,13 +240,21 @@ EOF
         return 1
     fi
     
-    # Limpiar y corregir JSON
-    content=$(echo "$content" | sed -E 's/```json\s*//g' | sed -E 's/```\s*//g' | tr -d '\n\r' | xargs)
+    # Limpiar markdown y caracteres no deseados
+    content=$(echo "$content" | sed -E 's/```json\s*//g' | sed -E 's/```\s*//g')
+    content=$(echo "$content" | tr -d '\n\r' | xargs)
+    
+    # Intentar extraer solo el JSON (entre llaves)
+    if [[ "$content" =~ \{.*\} ]]; then
+        content="${BASH_REMATCH[0]}"
+    fi
+    
+    # Corregir JSON sin comillas en keys
     content=$(echo "$content" | sed -E 's/([a-z_]+):/\"\1\":/g')
     content=$(echo "$content" | sed -E 's/:([A-Za-z][A-Za-z0-9_]*)/:\"\1\"/g')
     content=$(echo "$content" | sed -E 's/: ([A-Za-z][A-Za-z0-9_]*)/: \"\1\"/g')
-    content=$(echo "$content" | sed -E 's/^\s*\{?/{/' | sed -E 's/\}?\s*$/}/')
     
+    # Validar JSON
     if ! echo "$content" | jq empty 2>/dev/null; then
         log_error "JSON inválido: $content"
         return 1
@@ -226,7 +268,10 @@ EOF
 # ============================================
 
 send_order() {
-    local symbol="$1" direction="$2" entry="$3" sl="$4" tp1="$5" tp2="$6" trailing="$7"
+    local symbol="$1" direction="$2" entry="$3" sl="$4" tp2="$5"
+    
+    # Calcular TP1 manualmente
+    local tp1=$(calculate_tp1 "$entry" "$direction")
     
     local side="buy"
     local pos_side="long"
@@ -235,7 +280,7 @@ send_order() {
         pos_side="short"
     fi
     
-    local order_name="Deepseek_Auto_${symbol}_${direction}_$(date '+%Y%m%d_%H%M%S')"
+    local order_name="Deepseek"
     
     local payload=$(cat <<EOF
 {
@@ -247,14 +292,14 @@ send_order() {
   "open": {
     "price": "$entry",
     "schedulerMode": "min",
-    "schedulerValue": "240"
+    "schedulerValue": "$SCHEDULER_MINUTES"
   },
   "tp": {
     "enabled": true,
     "orders": [
-      {"price": "$tp1", "piece": "40.0"},
-      {"price": "$tp2", "piece": "30.0"},
-      {"ofs": "$trailing", "piece": "30.0"}
+      {"price": "$tp1", "piece": "50.0"},
+      {"price": "$tp2", "piece": "25.0"},
+      {"ofs": "$TRAILING_OFS", "piece": "25.0"}
     ]
   },
   "sl": {
@@ -266,12 +311,12 @@ EOF
 )
     
     log "📝 Orden: $order_name"
-    log "   Entry: $entry | SL: $sl | TP1: $tp1 | TP2: $tp2"
+    log "   Entry: $entry | SL: $sl | TP1: $tp1 (50% manual - ${TP1_PERCENT}%) | TP2: $tp2 (25% OB) | Trailing: ${TRAILING_OFS}% (25%)"
     
     if [ "$DRY_RUN" = true ]; then
         log "🔍 DRY-RUN: No se ejecutó la orden"
         echo "$payload" >> "$HISTORY_DIR/dry_runs.txt"
-        send_telegram "🔍 DRY-RUN: $symbol $direction Entry:$entry SL:$sl"
+        send_telegram "🔍 DRY-RUN: $symbol $direction Entry:$entry SL:$sl TP1:$tp1 TP2:$tp2"
         return 0
     fi
     
@@ -299,9 +344,9 @@ process_multiple_orders() {
     local tickers="$1"
     local orders_processed=0
     
-    # Obtener top 3 losers y top 3 gainers
-    local top_losers=$(echo "$tickers" | sort -t'|' -k3 -n | head -3)
-    local top_gainers=$(echo "$tickers" | sort -t'|' -k3 -rn | head -3)
+    # Usar TOP_N configurable desde .env
+    local top_losers=$(echo "$tickers" | sort -t'|' -k3 -n | head -$TOP_LOSERS_TO_ANALYZE)
+    local top_gainers=$(echo "$tickers" | sort -t'|' -k3 -rn | head -$TOP_GAINERS_TO_ANALYZE)
     
     local orders_to_execute=()
     
@@ -343,16 +388,14 @@ process_multiple_orders() {
         
         local entry=$(echo "$analysis" | jq -r '.entry_price // empty')
         local sl=$(echo "$analysis" | jq -r '.stop_loss // empty')
-        local tp1=$(echo "$analysis" | jq -r '.take_profits[0] // empty')
-        local tp2=$(echo "$analysis" | jq -r '.take_profits[1] // empty')
-        local trailing=$(echo "$analysis" | jq -r '.trailing_ofs // 1.5')
+        local tp2=$(echo "$analysis" | jq -r '.tp2_orderblock // empty')
         
-        if [ -z "$entry" ] || [ -z "$sl" ] || [ -z "$tp1" ] || [ -z "$tp2" ]; then
+        if [ -z "$entry" ] || [ -z "$sl" ] || [ -z "$tp2" ]; then
             log_error "Datos incompletos para $symbol"
             continue
         fi
         
-        send_order "$symbol" "$direction" "$entry" "$sl" "$tp1" "$tp2" "$trailing"
+        send_order "$symbol" "$direction" "$entry" "$sl" "$tp2"
         orders_processed=$((orders_processed + 1))
         
         if [ $orders_processed -lt $MAX_ORDERS_PER_RUN ]; then
@@ -369,7 +412,8 @@ process_multiple_orders() {
 # ============================================
 
 main() {
-    log "${BLUE}🚀 Iniciando Crypto Bot v5.0${NC}"
+    log "${BLUE}🚀 Iniciando Crypto Bot v5.3${NC}"
+    log "📋 Configuración: Scheduler=${SCHEDULER_MINUTES}min | TP1=${TP1_PERCENT}% | Trailing=${TRAILING_OFS}% | TOP_Gainers=${TOP_GAINERS_TO_ANALYZE} | TOP_Losers=${TOP_LOSERS_TO_ANALYZE}"
     
     # Validar ventana horaria
     if ! is_execution_time_allowed; then
@@ -385,7 +429,7 @@ main() {
     
     # Notificar inicio
     if [ -n "$TELEGRAM_BOT_TOKEN" ] && [ -n "$TELEGRAM_CHAT_ID" ]; then
-        send_telegram "🤖 Bot iniciado - $(date '+%H:%M:%S')"
+        send_telegram "🤖 Bot iniciado - TP1:${TP1_PERCENT}% Trailing:${TRAILING_OFS}%"
     fi
     
     # Obtener datos del mercado
@@ -409,7 +453,7 @@ main() {
     process_multiple_orders "$tickers"
     
     log "${GREEN}✅ Bot finalizado${NC}"
-    send_telegram "✅ Bot finalizado - $(date '+%H:%M:%S')"
+    send_telegram "✅ Bot finalizado"
 }
 
 # ============================================
