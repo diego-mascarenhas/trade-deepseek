@@ -7,9 +7,11 @@
 # - Scheduler configurable (SCHEDULER_MINUTES)
 # - TOP_N configurable
 # - Filtro de símbolos (solo A-Z, 0-9)
-# - Nombre fijo: "Deepseek"
+# - Nombre de orden: "Deepseek vX.Y.Z"
 # - Fix: xargs rompía comillas del JSON de DeepSeek
 # ============================================
+
+BOT_VERSION="v5.3.1"
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$SCRIPT_DIR"
@@ -306,7 +308,7 @@ send_order() {
         pos_side="short"
     fi
     
-    local order_name="Deepseek"
+    local order_name="Deepseek ${BOT_VERSION}"
     
     local payload=$(cat <<EOF
 {
@@ -438,7 +440,7 @@ process_multiple_orders() {
 # ============================================
 
 main() {
-    log "${BLUE}🚀 Iniciando Crypto Bot v5.3.1${NC}"
+    log "${BLUE}🚀 Iniciando Crypto Bot ${BOT_VERSION}${NC}"
     log "📋 Configuración: Scheduler=${SCHEDULER_MINUTES}min | TP1=${TP1_PERCENT}% | Trailing=${TRAILING_OFS}% | TOP_Gainers=${TOP_GAINERS_TO_ANALYZE} | TOP_Losers=${TOP_LOSERS_TO_ANALYZE}"
     
     # Validar ventana horaria

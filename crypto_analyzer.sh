@@ -1,8 +1,11 @@
 #!/bin/bash
 
 # ============================================
-# Crypto Analyzer Interactivo
+# Crypto Analyzer Interactivo v1.0
+# - Nombre de orden: "Deepseek Analyzer vX.Y.Z"
 # ============================================
+
+BOT_VERSION="v1.0"
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$SCRIPT_DIR"
@@ -45,6 +48,36 @@ fi
 # ============================================
 # FUNCIONES
 # ============================================
+
+parse_deepseek_json() {
+    local raw="$1"
+    local content="$raw"
+    
+    content=$(echo "$content" | sed -E 's/```json\s*//g' | sed -E 's/```\s*//g')
+    content=$(echo "$content" | tr -d '\n\r')
+    content="${content#"${content%%[![:space:]]*}"}"
+    content="${content%"${content##*[![:space:]]}"}"
+    
+    if [[ "$content" =~ (\{[[:print:]]+\}) ]]; then
+        content="${BASH_REMATCH[1]}"
+    fi
+    
+    if echo "$content" | jq empty 2>/dev/null; then
+        echo "$content"
+        return 0
+    fi
+    
+    local fixed="$content"
+    fixed=$(echo "$fixed" | sed -E 's/([{,][[:space:]]*)([a-z_][a-z0-9_]*):/\1"\2":/g')
+    fixed=$(echo "$fixed" | sed -E 's/:([[:space:]]*)([A-Za-z][A-Za-z0-9_]*)([,}])/: "\2"\3/g')
+    
+    if echo "$fixed" | jq empty 2>/dev/null; then
+        echo "$fixed"
+        return 0
+    fi
+    
+    return 1
+}
 
 get_tickers() {
     local response=$(curl -s "https://api.binance.com/api/v3/ticker/24hr")
@@ -121,15 +154,9 @@ EOF
         return 1
     fi
     
-    # Limpiar y corregir JSON
-    content=$(echo "$content" | sed -E 's/```json\s*//g' | sed -E 's/```\s*//g' | tr -d '\n\r' | xargs)
-    content=$(echo "$content" | sed -E 's/([a-z_]+):/\"\1\":/g')
-    content=$(echo "$content" | sed -E 's/:([A-Za-z][A-Za-z0-9_]*)/:\"\1\"/g')
-    content=$(echo "$content" | sed -E 's/: ([A-Za-z][A-Za-z0-9_]*)/: \"\1\"/g')
-    content=$(echo "$content" | sed -E 's/^\s*\{?/{/' | sed -E 's/\}?\s*$/}/')
-    
-    if ! echo "$content" | jq empty 2>/dev/null; then
-        echo -e "${RED}❌ JSON inválido: $content${NC}"
+    content=$(parse_deepseek_json "$content")
+    if [ $? -ne 0 ] || [ -z "$content" ]; then
+        echo -e "${RED}❌ JSON inválido en respuesta DeepSeek${NC}"
         return 1
     fi
     
@@ -141,8 +168,10 @@ generate_curl() {
     local side="buy"; local pos_side="long"
     [ "$direction" = "SHORT" ] && side="sell" && pos_side="short"
     
+    local order_name="Deepseek Analyzer ${BOT_VERSION}"
+    
     cat <<EOF
-curl -X POST "$FINANDY_WEBHOOK" -H "Content-Type: application/json" -d '{"name":"Deepseek_${symbol}_${direction}","secret":"$FINANDY_SECRET","symbol":"$symbol","side":"$side","positionSide":"$pos_side","open":{"price":"$entry","schedulerMode":"min","schedulerValue":"240"},"tp":{"enabled":true,"orders":[{"price":"$tp1","piece":"40.0"},{"price":"$tp2","piece":"30.0"},{"ofs":"$trailing","piece":"30.0"}]},"sl":{"price":"$sl","enabled":true}}'
+curl -X POST "$FINANDY_WEBHOOK" -H "Content-Type: application/json" -d '{"name":"${order_name}","secret":"$FINANDY_SECRET","symbol":"$symbol","side":"$side","positionSide":"$pos_side","open":{"price":"$entry","schedulerMode":"min","schedulerValue":"240"},"tp":{"enabled":true,"orders":[{"price":"$tp1","piece":"40.0"},{"price":"$tp2","piece":"30.0"},{"ofs":"$trailing","piece":"30.0"}]},"sl":{"price":"$sl","enabled":true}}'
 EOF
 }
 
@@ -151,6 +180,7 @@ EOF
 # ============================================
 
 main() {
+    echo -e "${BLUE}🔍 Crypto Analyzer ${BOT_VERSION}${NC}"
     local tickers=$(get_tickers)
     
     show_gainers "$tickers"

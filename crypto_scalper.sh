@@ -5,7 +5,10 @@
 # - Soporta modo dry-run
 # - Señales locales: aggTrades (ticks), order book y klines (sin IA)
 # - Loop continuo (SCALPER_LOOP_SECONDS, default 2s)
+# - Nombre de orden: "Scalper vX.Y.Z"
 # ============================================
+
+BOT_VERSION="v1.4"
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$SCRIPT_DIR"
@@ -163,11 +166,14 @@ send_telegram() {
         return 1
     fi
     
-    local escaped=$(echo "$message" | sed 's/\\/\\\\/g' | sed 's/\-/\\-/g' | sed 's/\./\\\\./g')
+    local payload=$(jq -n \
+        --arg chat_id "$TELEGRAM_CHAT_ID" \
+        --arg text "$message" \
+        '{chat_id: $chat_id, text: $text}')
     
     curl -s -X POST "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
         -H "Content-Type: application/json" \
-        -d "{\"chat_id\": \"${TELEGRAM_CHAT_ID}\", \"text\": \"${escaped}\"}" > /dev/null
+        -d "$payload" > /dev/null
 }
 
 # ============================================
@@ -535,7 +541,7 @@ send_scalp_order() {
         pos_side="short"
     fi
     
-    local order_name="Scalp_${symbol}_${direction}_$(date '+%Y%m%d_%H%M%S')"
+    local order_name="Scalper ${BOT_VERSION}"
     
     local payload=$(cat <<EOF
 {
@@ -708,14 +714,14 @@ scalp_cycle() {
 # ============================================
 
 main() {
-    log "${BLUE}⚡ Scalper v1.4 — loop continuo cada ${SCALPER_LOOP_SECONDS}s${NC}"
+    log "${BLUE}⚡ Scalper ${BOT_VERSION} — loop continuo cada ${SCALPER_LOOP_SECONDS}s${NC}"
     log "📋 TP=${SCALPER_TP_PERCENT}% SL=${SCALPER_SL_PERCENT}% | ticks=${SCALPER_TICK_WINDOW_SECONDS}s | watchlist=${SCALPER_WATCHLIST_MODE}"
     log "🔍 Modo: $([ "$DRY_RUN" = true ] && echo "DRY-RUN" || echo "REAL") | Verbose: $SCALPER_VERBOSE"
 
     if [ "$DRY_RUN" = true ]; then
-        send_telegram "🔍 DRY-RUN Scalper v1.4 loop ${SCALPER_LOOP_SECONDS}s ticks ${SCALPER_TICK_WINDOW_SECONDS}s"
+        send_telegram "🔍 DRY-RUN Scalper ${BOT_VERSION} loop ${SCALPER_LOOP_SECONDS}s ticks ${SCALPER_TICK_WINDOW_SECONDS}s"
     else
-        send_telegram "⚡ Scalper v1.4 loop ${SCALPER_LOOP_SECONDS}s"
+        send_telegram "⚡ Scalper ${BOT_VERSION} loop ${SCALPER_LOOP_SECONDS}s"
     fi
 
     local cycle=0
