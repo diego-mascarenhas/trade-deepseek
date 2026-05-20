@@ -1,13 +1,14 @@
 #!/bin/bash
 
 # ============================================
-# Crypto Bot Automático v5.3
+# Crypto Bot Automático v5.3.1
 # - TP1 manual (cálculo local, 0.8-1.5%)
 # - TP2 basado en Order Blocks (DeepSeek)
 # - Scheduler configurable (SCHEDULER_MINUTES)
 # - TOP_N configurable
 # - Filtro de símbolos (solo A-Z, 0-9)
 # - Nombre fijo: "Deepseek"
+# - Fix: xargs rompía comillas del JSON de DeepSeek
 # ============================================
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -104,12 +105,14 @@ send_telegram() {
         return 1
     fi
     
+    local payload=$(jq -n \
+        --arg chat_id "$TELEGRAM_CHAT_ID" \
+        --arg text "$message" \
+        '{chat_id: $chat_id, text: $text}')
+    
     local response=$(curl -s -X POST "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
         -H "Content-Type: application/json" \
-        -d "{
-            \"chat_id\": \"${TELEGRAM_CHAT_ID}\",
-            \"text\": \"${message}\"
-        }")
+        -d "$payload")
     
     if echo "$response" | grep -q '"ok":true'; then
         echo -e "${GREEN}📱 Telegram enviado${NC}"
@@ -196,6 +199,43 @@ calculate_tp1() {
 }
 
 # ============================================
+# FUNCIÓN: PARSEAR JSON DE DEEPSEEK
+# ============================================
+
+parse_deepseek_json() {
+    local raw="$1"
+    local content="$raw"
+    
+    # Quitar markdown; NO usar xargs (elimina comillas del JSON)
+    content=$(echo "$content" | sed -E 's/```json\s*//g' | sed -E 's/```\s*//g')
+    content=$(echo "$content" | tr -d '\n\r')
+    content="${content#"${content%%[![:space:]]*}"}"
+    content="${content%"${content##*[![:space:]]}"}"
+    
+    if [[ "$content" =~ (\{[[:print:]]+\}) ]]; then
+        content="${BASH_REMATCH[1]}"
+    fi
+    
+    # JSON válido tal cual
+    if echo "$content" | jq empty 2>/dev/null; then
+        echo "$content"
+        return 0
+    fi
+    
+    # Fallback: keys/valores sin comillas (respuestas no estrictas)
+    local fixed="$content"
+    fixed=$(echo "$fixed" | sed -E 's/([{,][[:space:]]*)([a-z_][a-z0-9_]*):/\1"\2":/g')
+    fixed=$(echo "$fixed" | sed -E 's/:([[:space:]]*)([A-Za-z][A-Za-z0-9_]*)([,}])/: "\2"\3/g')
+    
+    if echo "$fixed" | jq empty 2>/dev/null; then
+        echo "$fixed"
+        return 0
+    fi
+    
+    return 1
+}
+
+# ============================================
 # FUNCIÓN: ANALIZAR CON DEEPSEEK (solo entry, SL, TP2)
 # ============================================
 
@@ -240,23 +280,9 @@ EOF
         return 1
     fi
     
-    # Limpiar markdown y caracteres no deseados
-    content=$(echo "$content" | sed -E 's/```json\s*//g' | sed -E 's/```\s*//g')
-    content=$(echo "$content" | tr -d '\n\r' | xargs)
-    
-    # Intentar extraer solo el JSON (entre llaves)
-    if [[ "$content" =~ \{.*\} ]]; then
-        content="${BASH_REMATCH[0]}"
-    fi
-    
-    # Corregir JSON sin comillas en keys
-    content=$(echo "$content" | sed -E 's/([a-z_]+):/\"\1\":/g')
-    content=$(echo "$content" | sed -E 's/:([A-Za-z][A-Za-z0-9_]*)/:\"\1\"/g')
-    content=$(echo "$content" | sed -E 's/: ([A-Za-z][A-Za-z0-9_]*)/: \"\1\"/g')
-    
-    # Validar JSON
-    if ! echo "$content" | jq empty 2>/dev/null; then
-        log_error "JSON inválido: $content"
+    content=$(parse_deepseek_json "$content")
+    if [ $? -ne 0 ] || [ -z "$content" ]; then
+        log_error "JSON inválido en respuesta DeepSeek para $symbol"
         return 1
     fi
     
@@ -388,7 +414,7 @@ process_multiple_orders() {
         
         local entry=$(echo "$analysis" | jq -r '.entry_price // empty')
         local sl=$(echo "$analysis" | jq -r '.stop_loss // empty')
-        local tp2=$(echo "$analysis" | jq -r '.tp2_orderblock // empty')
+        local tp2=$(echo "$analysis" | jq -r '.tp2_orderblock // .take_profits[1] // empty')
         
         if [ -z "$entry" ] || [ -z "$sl" ] || [ -z "$tp2" ]; then
             log_error "Datos incompletos para $symbol"
@@ -412,7 +438,7 @@ process_multiple_orders() {
 # ============================================
 
 main() {
-    log "${BLUE}🚀 Iniciando Crypto Bot v5.3${NC}"
+    log "${BLUE}🚀 Iniciando Crypto Bot v5.3.1${NC}"
     log "📋 Configuración: Scheduler=${SCHEDULER_MINUTES}min | TP1=${TP1_PERCENT}% | Trailing=${TRAILING_OFS}% | TOP_Gainers=${TOP_GAINERS_TO_ANALYZE} | TOP_Losers=${TOP_LOSERS_TO_ANALYZE}"
     
     # Validar ventana horaria
