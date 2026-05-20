@@ -1,0 +1,716 @@
+#!/bin/bash
+
+# ============================================
+# Scalper Bot v5.0 - CON CONTROL DE POSICIONES
+# - Evita múltiples órdenes del mismo símbolo
+# - Order Book funcional
+# - Envío directo a Binance REST
+# ============================================
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+cd "$SCRIPT_DIR"
+
+if [ -f .env ]; then
+    source .env
+fi
+
+DRY_RUN=false
+if [[ "$1" == "--dry-run" ]] || [[ "$1" == "-d" ]]; then
+    DRY_RUN=true
+    echo "🔍 DRY-RUN MODE"
+fi
+
+# ============================================
+# CONFIGURATION
+# ============================================
+
+SYMBOLS="${SCALPER_SYMBOLS:-BTCUSDT,ETHUSDT,SOLUSDT}"
+DEPTH="${SCALPER_OB_DEPTH:-10}"
+SPEED="${SCALPER_WS_SPEED:-500ms}"
+ORDER_EXECUTION_MODE="${ORDER_EXECUTION_MODE:-rest}"
+
+# Trading parameters
+TP_PERCENT="${SCALPER_TP_PERCENT:-0.5}"
+SL_PERCENT="${SCALPER_SL_PERCENT:-0.4}"
+MIN_CONFIDENCE="${SCALPER_MIN_CONFIDENCE:-50}"
+
+# Volatile settings
+VOLATILE_THRESHOLD="${SCALPER_VOLATILE_THRESHOLD:-15}"
+SL_VOLATILE_MIN="${SCALPER_SL_VOLATILE_MIN:-0.8}"
+TP_VOLATILE_MIN="${SCALPER_TP_VOLATILE_MIN:-1.0}"
+MIN_SL_SPREAD_MULT="${SCALPER_MIN_SL_SPREAD_MULT:-3}"
+
+# Position size
+POSITION_SIZE_USDT="${SCALPER_POSITION_SIZE_USDT:-50}"
+LEVERAGE="${SCALPER_LEVERAGE:-5}"
+
+# Cooldown between orders for same symbol (seconds)
+ORDER_COOLDOWN_SECONDS="${SCALPER_ORDER_COOLDOWN:-300}"
+
+# Binance API
+BINANCE_API_KEY="${BINANCE_API_KEY:-}"
+BINANCE_SECRET_KEY="${BINANCE_SECRET_KEY:-}"
+
+# Finandy (fallback)
+FINANDY_SECRET="${FINANDY_SECRET:-d1a01uf5uoe}"
+FINANDY_WEBHOOK="${FINANDY_WEBHOOK:-https://hook.finandy.com/LMEnRji-3GvFkm7wqFUK}"
+
+# Telegram
+TELEGRAM_BOT_TOKEN="${TELEGRAM_BOT_TOKEN:-}"
+TELEGRAM_CHAT_ID="${TELEGRAM_CHAT_ID:-}"
+
+LOG_DIR="$SCRIPT_DIR/logs"
+mkdir -p "$LOG_DIR"
+
+# Colors
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+CYAN='\033[0;36m'
+WHITE='\033[1;37m'
+BOLD='\033[1m'
+NC='\033[0m'
+
+# ============================================
+# CONTROL DE POSICIONES ABIERTAS
+# ============================================
+
+declare -A ACTIVE_POSITIONS
+declare -A ACTIVE_TIMESTAMP
+declare -A POSITION_DIRECTION
+
+# ============================================
+# FUNCIONES
+# ============================================
+
+log() {
+    echo -e "[$(date '+%Y-%m-%d %H:%M:%S')] $1" | tee -a "$LOG_DIR/scalper.log"
+}
+
+log_error() {
+    echo -e "${RED}[$(date '+%Y-%m-%d %H:%M:%S')] ERROR: $1${NC}" | tee -a "$LOG_DIR/errors.log"
+}
+
+send_telegram() {
+    [ -z "$TELEGRAM_BOT_TOKEN" ] || [ -z "$TELEGRAM_CHAT_ID" ] && return 1
+    local msg=$(echo "$1" | sed 's/\\/\\\\/g')
+    curl -s -X POST "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
+        -H "Content-Type: application/json" \
+        -d "{\"chat_id\": \"${TELEGRAM_CHAT_ID}\", \"text\": \"${msg}\"}" > /dev/null
+}
+
+# ============================================
+# CHECK POSITION VIA BINANCE API
+# ============================================
+
+check_open_position() {
+    local symbol="$1"
+    
+    if [ -z "$BINANCE_API_KEY" ] || [ -z "$BINANCE_SECRET_KEY" ]; then
+        # Fallback: usar memoria local
+        if [ "${ACTIVE_POSITIONS[$symbol]}" = "true" ]; then
+            local elapsed=$(($(date +%s) - ${ACTIVE_TIMESTAMP[$symbol]}))
+            if [ $elapsed -lt $ORDER_COOLDOWN_SECONDS ]; then
+                echo "active"
+                return 0
+            else
+                ACTIVE_POSITIONS[$symbol]="false"
+                echo "none"
+                return 1
+            fi
+        else
+            echo "none"
+            return 1
+        fi
+    fi
+    
+    # Consultar API de Binance
+    local timestamp=$(date +%s%3N)
+    local query_string="timestamp=$timestamp&recvWindow=5000"
+    local signature=$(echo -n "$query_string" | openssl dgst -sha256 -hmac "$BINANCE_SECRET_KEY" | cut -d' ' -f2)
+    
+    local positions=$(curl -s -X GET "https://fapi.binance.com/fapi/v2/positionRisk?$query_string&signature=$signature" \
+        -H "X-MBX-APIKEY: $BINANCE_API_KEY" 2>/dev/null)
+    
+    local position_amt=$(echo "$positions" | jq -r ".[] | select(.symbol==\"$symbol\") | .positionAmt // 0" 2>/dev/null)
+    
+    if [ -n "$position_amt" ] && [ "$position_amt" != "0" ] && [ "$position_amt" != "null" ]; then
+        echo "active"
+        return 0
+    fi
+    
+    echo "none"
+    return 1
+}
+
+# ============================================
+# SET LEVERAGE
+# ============================================
+
+set_leverage() {
+    local symbol="$1"
+    
+    if [ -z "$BINANCE_API_KEY" ] || [ -z "$BINANCE_SECRET_KEY" ]; then
+        return 1
+    fi
+    
+    local timestamp=$(date +%s%3N)
+    local query_string="symbol=$symbol&leverage=$LEVERAGE&timestamp=$timestamp&recvWindow=5000"
+    local signature=$(echo -n "$query_string" | openssl dgst -sha256 -hmac "$BINANCE_SECRET_KEY" | cut -d' ' -f2)
+    
+    curl -s -X POST "https://fapi.binance.com/fapi/v1/leverage" \
+        -H "X-MBX-APIKEY: $BINANCE_API_KEY" \
+        -d "$query_string&signature=$signature" > /dev/null 2>&1
+}
+
+# ============================================
+# CALCULATE QUANTITY
+# ============================================
+
+calculate_quantity() {
+    local symbol="$1"
+    local entry_price="$2"
+    
+    local raw_quantity=$(echo "$POSITION_SIZE_USDT / $entry_price" | bc -l 2>/dev/null)
+    local quantity=$(printf "%.3f" "$raw_quantity")
+    
+    if (( $(echo "$quantity < 0.001" | bc -l 2>/dev/null) )); then
+        quantity="0.001"
+    fi
+    
+    echo "$quantity"
+}
+
+# ============================================
+# SEND ORDER TO BINANCE REST
+# ============================================
+
+send_order_binance_rest() {
+    local symbol="$1" direction="$2" entry="$3" sl="$4" tp="$5"
+    
+    if [ -z "$BINANCE_API_KEY" ] || [ -z "$BINANCE_SECRET_KEY" ]; then
+        log_error "Binance API keys not configured"
+        return 1
+    fi
+    
+    local quantity=$(calculate_quantity "$symbol" "$entry")
+    local side="BUY"
+    if [ "$direction" = "SHORT" ]; then
+        side="SELL"
+    fi
+    
+    set_leverage "$symbol"
+    sleep 0.3
+    
+    local timestamp=$(date +%s%3N)
+    local recv_window=5000
+    local order_name="Deepseek"
+    
+    local query_string="symbol=$symbol&side=$side&type=LIMIT&timeInForce=GTC&quantity=$quantity&price=$entry&newClientOrderId=$order_name&timestamp=$timestamp&recvWindow=$recv_window"
+    local signature=$(echo -n "$query_string" | openssl dgst -sha256 -hmac "$BINANCE_SECRET_KEY" | cut -d' ' -f2)
+    
+    log "📝 [REST] $symbol $direction | Entry:$entry SL:$sl TP:$tp | Qty:$quantity"
+    
+    if [ "$DRY_RUN" = true ]; then
+        log "🔍 DRY-RUN: Would execute"
+        send_telegram "🔍 DRY-RUN: $symbol $direction Entry:$entry"
+        return 0
+    fi
+    
+    local response=$(curl -s -X POST "https://fapi.binance.com/fapi/v1/order" \
+        -H "X-MBX-APIKEY: $BINANCE_API_KEY" \
+        -d "$query_string&signature=$signature")
+    
+    if echo "$response" | jq -e '.orderId' >/dev/null 2>&1; then
+        log "✅ Order executed: $symbol"
+        send_telegram "✅ ORDER: $symbol $direction Entry:$entry TP:$tp SL:$sl"
+        
+        # Marcar posición como activa
+        ACTIVE_POSITIONS[$symbol]="true"
+        ACTIVE_TIMESTAMP[$symbol]=$(date +%s)
+        POSITION_DIRECTION[$symbol]="$direction"
+        return 0
+    else
+        log_error "Order failed: $response"
+        send_telegram "❌ ORDER FAILED: $symbol $direction"
+        return 1
+    fi
+}
+
+# ============================================
+# FALLBACK: FINANDY
+# ============================================
+
+send_order_finandy() {
+    local symbol="$1" direction="$2" entry="$3" sl="$4" tp="$5"
+    
+    local side="buy" pos_side="long"
+    if [ "$direction" = "SHORT" ]; then
+        side="sell"
+        pos_side="short"
+    fi
+    
+    local order_name="Deepseek_${symbol}_${direction}"
+    
+    local payload=$(cat <<EOF
+{
+  "name": "$order_name",
+  "secret": "$FINANDY_SECRET",
+  "symbol": "$symbol",
+  "side": "$side",
+  "positionSide": "$pos_side",
+  "open": {
+    "price": "$entry",
+    "schedulerMode": "min",
+    "scheduleValue": "5"
+  },
+  "tp": {
+    "enabled": true,
+    "orders": [{"price": "$tp", "piece": "100.0"}]
+  },
+  "sl": {"price": "$sl", "enabled": true}
+}
+EOF
+)
+    
+    log "📝 [FINANDY] $symbol $direction | Entry:$entry SL:$sl TP:$tp"
+    
+    if [ "$DRY_RUN" = true ]; then
+        return 0
+    fi
+    
+    local response=$(curl -s -X POST "$FINANDY_WEBHOOK" -H "Content-Type: application/json" -d "$payload")
+    
+    if echo "$response" | jq -e '.code == 200 or .success == true' >/dev/null 2>&1; then
+        log "✅ Order executed via Finandy"
+        send_telegram "✅ ORDER: $symbol $direction Entry:$entry"
+        ACTIVE_POSITIONS[$symbol]="true"
+        ACTIVE_TIMESTAMP[$symbol]=$(date +%s)
+    else
+        log_error "Order failed: $response"
+    fi
+}
+
+# ============================================
+# DISPATCH ORDER
+# ============================================
+
+send_order() {
+    local symbol="$1" direction="$2" entry="$3" sl="$4" tp="$5"
+    
+    # Verificar si ya hay posición activa
+    local position_status=$(check_open_position "$symbol")
+    if [ "$position_status" = "active" ]; then
+        log "⏸️ Position already active for $symbol - skipping order"
+        echo -e "  ${YELLOW}⏸️ Position already open - skipping${NC}"
+        return 0
+    fi
+    
+    case "$ORDER_EXECUTION_MODE" in
+        "rest")
+            send_order_binance_rest "$symbol" "$direction" "$entry" "$sl" "$tp"
+            ;;
+        "finandy")
+            send_order_finandy "$symbol" "$direction" "$entry" "$sl" "$tp"
+            ;;
+        *)
+            send_order_binance_rest "$symbol" "$direction" "$entry" "$sl" "$tp"
+            ;;
+    esac
+}
+
+# ============================================
+# MARKET DATA FUNCTIONS
+# ============================================
+
+get_24h_change() {
+    local symbol="$1"
+    local ticker=$(curl -s "https://api.binance.com/api/v3/ticker/24hr?symbol=$symbol" 2>/dev/null)
+    echo "$ticker" | jq -r '.priceChangePercent // 0' 2>/dev/null
+}
+
+# ============================================
+# GLOBAL VARIABLES FOR OB DATA
+# ============================================
+
+declare -A CURRENT_PRICE
+declare -A BEST_BID
+declare -A BEST_ASK
+declare -A SUPPORT_LEVEL
+declare -A RESISTANCE_LEVEL
+declare -A CHANGE_24H
+
+# ============================================
+# ANALYZE ORDER BOOK
+# ============================================
+
+analyze_order_book() {
+    local symbol="$1"
+    local bids="$2"
+    local asks="$3"
+    
+    BEST_BID[$symbol]=$(echo "$bids" | jq -r '.[0][0] // "0"' 2>/dev/null)
+    BEST_ASK[$symbol]=$(echo "$asks" | jq -r '.[0][0] // "0"' 2>/dev/null)
+    
+    # Find support (strongest bid wall)
+    local max_bid_vol=0
+    local support="0"
+    local bid_count=$(echo "$bids" | jq length 2>/dev/null)
+    
+    for i in $(seq 0 $((bid_count - 1))); do
+        local price=$(echo "$bids" | jq -r ".[$i][0]" 2>/dev/null)
+        local vol=$(echo "$bids" | jq -r ".[$i][1]" 2>/dev/null)
+        if [ -n "$vol" ] && [ "$vol" != "null" ] && [ -n "$price" ] && [ "$price" != "null" ]; then
+            if (( $(echo "$vol > $max_bid_vol" | bc -l 2>/dev/null) )); then
+                max_bid_vol=$vol
+                support=$price
+            fi
+        fi
+    done
+    
+    # Find resistance (strongest ask wall)
+    local max_ask_vol=0
+    local resistance="0"
+    local ask_count=$(echo "$asks" | jq length 2>/dev/null)
+    
+    for i in $(seq 0 $((ask_count - 1))); do
+        local price=$(echo "$asks" | jq -r ".[$i][0]" 2>/dev/null)
+        local vol=$(echo "$asks" | jq -r ".[$i][1]" 2>/dev/null)
+        if [ -n "$vol" ] && [ "$vol" != "null" ] && [ -n "$price" ] && [ "$price" != "null" ]; then
+            if (( $(echo "$vol > $max_ask_vol" | bc -l 2>/dev/null) )); then
+                max_ask_vol=$vol
+                resistance=$price
+            fi
+        fi
+    done
+    
+    SUPPORT_LEVEL[$symbol]=$support
+    RESISTANCE_LEVEL[$symbol]=$resistance
+}
+
+# ============================================
+# DETERMINE SIGNAL (with position check)
+# ============================================
+
+determine_signal() {
+    local symbol="$1"
+    local current_price="$2"
+    local change_24h="$3"
+    
+    # Check if position already active
+    local position_status=$(check_open_position "$symbol")
+    if [ "$position_status" = "active" ]; then
+        echo "NEUTRAL|0|0|Position already open"
+        return
+    fi
+    
+    local support="${SUPPORT_LEVEL[$symbol]:-0}"
+    local resistance="${RESISTANCE_LEVEL[$symbol]:-0}"
+    
+    local signal="NEUTRAL"
+    local confidence=0
+    local entry="$current_price"
+    local reasons=""
+    
+    # Strategy 1: Order Book based
+    if [ "$support" != "0" ] && [ "$support" != "null" ] && [ "$resistance" != "0" ] && [ "$resistance" != "null" ]; then
+        local range=$(echo "$resistance - $support" | bc -l 2>/dev/null)
+        
+        if [ -n "$range" ] && (( $(echo "$range > 0" | bc -l 2>/dev/null) )); then
+            local position=$(echo "($current_price - $support) / $range * 100" | bc -l 2>/dev/null)
+            
+            if [ -n "$position" ] && (( $(echo "$position < 25" | bc -l 2>/dev/null) )); then
+                signal="LONG"
+                confidence=65
+                entry=$(printf "%.5f" $(echo "$support * 1.001" | bc -l))
+                reasons="OB: near support"
+                
+                if (( $(echo "$change_24h < -3" | bc -l 2>/dev/null) )); then
+                    confidence=$((confidence + 15))
+                    reasons="$reasons + reversal"
+                fi
+                
+            elif [ -n "$position" ] && (( $(echo "$position > 75" | bc -l 2>/dev/null) )); then
+                signal="SHORT"
+                confidence=65
+                entry=$(printf "%.5f" $(echo "$resistance * 0.999" | bc -l))
+                reasons="OB: near resistance"
+                
+                if (( $(echo "$change_24h > 3" | bc -l 2>/dev/null) )); then
+                    confidence=$((confidence + 15))
+                    reasons="$reasons + reversal"
+                fi
+            fi
+        fi
+    fi
+    
+    # Strategy 2: Fallback based on 24h change
+    if [ "$signal" = "NEUTRAL" ]; then
+        if (( $(echo "$change_24h > 5" | bc -l 2>/dev/null) )); then
+            signal="SHORT"
+            confidence=50
+            entry=$(printf "%.5f" $(echo "$current_price * 0.998" | bc -l))
+            reasons="24h extreme gain (+${change_24h}%)"
+        elif (( $(echo "$change_24h < -5" | bc -l 2>/dev/null) )); then
+            signal="LONG"
+            confidence=50
+            entry=$(printf "%.5f" $(echo "$current_price * 1.002" | bc -l))
+            reasons="24h extreme loss (${change_24h}%)"
+        elif (( $(echo "$change_24h > 2" | bc -l 2>/dev/null) )); then
+            signal="LONG"
+            confidence=40
+            entry=$(printf "%.5f" $(echo "$current_price * 1.001" | bc -l))
+            reasons="uptrend (+${change_24h}%)"
+        elif (( $(echo "$change_24h < -2" | bc -l 2>/dev/null) )); then
+            signal="SHORT"
+            confidence=40
+            entry=$(printf "%.5f" $(echo "$current_price * 0.999" | bc -l))
+            reasons="downtrend (${change_24h}%)"
+        fi
+    fi
+    
+    echo "$signal|$confidence|$entry|$reasons"
+}
+
+# ============================================
+# CALCULATE TP/SL
+# ============================================
+
+calculate_tp_sl() {
+    local entry="$1" direction="$2" change_24h="$3" spread="$4"
+    
+    local sl_pct="$SL_PERCENT"
+    local tp_pct="$TP_PERCENT"
+    
+    local abs_change=$(echo "$change_24h" | tr -d '-')
+    if (( $(echo "$abs_change >= $VOLATILE_THRESHOLD" | bc -l 2>/dev/null) )); then
+        sl_pct="$SL_VOLATILE_MIN"
+        tp_pct="$TP_VOLATILE_MIN"
+    fi
+    
+    if [ -n "$spread" ] && (( $(echo "$spread > 0" | bc -l 2>/dev/null) )); then
+        local min_sl=$(echo "$spread * $MIN_SL_SPREAD_MULT" | bc -l)
+        local min_sl_pct=$(echo "$min_sl / $entry * 100" | bc -l)
+        if (( $(echo "$min_sl_pct > $sl_pct" | bc -l 2>/dev/null) )); then
+            sl_pct="$min_sl_pct"
+        fi
+    fi
+    
+    local sl=""
+    local tp=""
+    
+    if [ "$direction" = "LONG" ]; then
+        sl=$(printf "%.5f" $(echo "$entry * (1 - $sl_pct/100)" | bc -l))
+        tp=$(printf "%.5f" $(echo "$entry * (1 + $tp_pct/100)" | bc -l))
+    else
+        sl=$(printf "%.5f" $(echo "$entry * (1 + $sl_pct/100)" | bc -l))
+        tp=$(printf "%.5f" $(echo "$entry * (1 - $tp_pct/100)" | bc -l))
+    fi
+    
+    echo "$sl|$tp|$sl_pct|$tp_pct"
+}
+
+# ============================================
+# PROCESS WEBSOCKET
+# ============================================
+
+process_message() {
+    local msg="$1"
+    local symbol=$(echo "$msg" | jq -r '.s // empty' 2>/dev/null)
+    
+    [ -z "$symbol" ] && return
+    
+    local bids=$(echo "$msg" | jq -c '.b' 2>/dev/null)
+    local asks=$(echo "$msg" | jq -c '.a' 2>/dev/null)
+    
+    if [ -n "$bids" ] && [ -n "$asks" ]; then
+        analyze_order_book "$symbol" "$bids" "$asks"
+        CURRENT_PRICE[$symbol]=$(echo "$msg" | jq -r '.b[0][0] // .a[0][0]' 2>/dev/null)
+    fi
+}
+
+# ============================================
+# UPDATE 24H CHANGES
+# ============================================
+
+update_24h_changes() {
+    for symbol in "${SYMBOL_ARRAY[@]}"; do
+        CHANGE_24H[$symbol]=$(get_24h_change "$symbol")
+    done
+}
+
+# ============================================
+# DISPLAY AND EXECUTE
+# ============================================
+
+draw_and_execute() {
+    clear
+    echo -e "${CYAN}${BOLD}════════════════════════════════════════════════════════════════════════════════════════════════════════════${NC}"
+    echo -e "${CYAN}${BOLD}  SCALPER BOT v5.0 - CON CONTROL DE POSICIONES - $(date '+%Y-%m-%d %H:%M:%S')${NC}"
+    echo -e "${CYAN}${BOLD}════════════════════════════════════════════════════════════════════════════════════════════════════════════${NC}"
+    echo -e "${YELLOW}  Mode: $([ "$DRY_RUN" = true ] && echo "DRY-RUN" || echo "LIVE") | Min Confidence: ${MIN_CONFIDENCE}% | Cooldown: ${ORDER_COOLDOWN_SECONDS}s${NC}"
+    echo -e "${CYAN}────────────────────────────────────────────────────────────────────────────────────────────────────────────────${NC}"
+    echo ""
+    
+    for symbol in "${SYMBOL_ARRAY[@]}"; do
+        local price="${CURRENT_PRICE[$symbol]:-0}"
+        local best_bid="${BEST_BID[$symbol]:-0}"
+        local best_ask="${BEST_ASK[$symbol]:-0}"
+        local support="${SUPPORT_LEVEL[$symbol]:-0}"
+        local resistance="${RESISTANCE_LEVEL[$symbol]:-0}"
+        local change="${CHANGE_24H[$symbol]:-0}"
+        
+        # Check if position is active for display
+        local position_active=""
+        if [ "${ACTIVE_POSITIONS[$symbol]}" = "true" ]; then
+            position_active=" ${RED}[POSITION ACTIVE]${NC}"
+        fi
+        
+        # Calculate spread
+        local spread=0
+        if [ "$best_bid" != "0" ] && [ "$best_ask" != "0" ] && [ "$best_bid" != "null" ] && [ "$best_ask" != "null" ]; then
+            spread=$(echo "$best_ask - $best_bid" | bc -l 2>/dev/null)
+        fi
+        
+        # Get signal
+        local signal_data=$(determine_signal "$symbol" "$price" "$change")
+        local signal=$(echo "$signal_data" | cut -d'|' -f1)
+        local confidence=$(echo "$signal_data" | cut -d'|' -f2)
+        local entry=$(echo "$signal_data" | cut -d'|' -f3)
+        local reasons=$(echo "$signal_data" | cut -d'|' -f4)
+        
+        # Calculate TP/SL
+        local tp_sl_data=$(calculate_tp_sl "$entry" "$signal" "$change" "$spread")
+        local sl=$(echo "$tp_sl_data" | cut -d'|' -f1)
+        local tp=$(echo "$tp_sl_data" | cut -d'|' -f2)
+        local sl_pct=$(echo "$tp_sl_data" | cut -d'|' -f3)
+        local tp_pct=$(echo "$tp_sl_data" | cut -d'|' -f4)
+        
+        # Display
+        if [ "$signal" != "NEUTRAL" ] && [ "$confidence" -ge "$MIN_CONFIDENCE" ]; then
+            echo -e "${GREEN}${BOLD}▶ $symbol - CONFIRMED ${signal} (${confidence}%)${position_active}${NC}"
+            echo -e "   Entry: $entry | TP: $tp (${tp_pct}%) | SL: $sl (${sl_pct}%)"
+            echo -e "   Reasons: $reasons"
+            
+            # Execute order
+            if [ "$DRY_RUN" = false ] && [ "${ACTIVE_POSITIONS[$symbol]}" != "true" ]; then
+                send_order "$symbol" "$signal" "$entry" "$sl" "$tp"
+            elif [ "${ACTIVE_POSITIONS[$symbol]}" = "true" ]; then
+                echo -e "   ${YELLOW}⏸️ Position already active - skipping${NC}"
+            fi
+            
+        elif [ "$signal" != "NEUTRAL" ]; then
+            echo -e "${YELLOW}▶ $symbol - WATCH ${signal} (${confidence}%) - needs ${MIN_CONFIDENCE}%${position_active}${NC}"
+            echo -e "   Entry: $entry | TP: $tp | SL: $sl"
+            echo -e "   Reasons: $reasons"
+        else
+            echo -e "${WHITE}▶ $symbol - NEUTRAL${position_active}${NC}"
+        fi
+        
+        echo -e "   Price: $price | 24h: ${change}% | Spread: $spread"
+        echo -e "   Best Bid: $best_bid | Best Ask: $best_ask"
+        echo -e "   Support: $support | Resistance: $resistance"
+        echo ""
+    done
+    
+    echo -e "${CYAN}────────────────────────────────────────────────────────────────────────────────────────────────────────────────${NC}"
+    echo -e "${YELLOW}⏰ $(date '+%H:%M:%S') | Cycle every 5s | Ctrl+C to exit${NC}"
+}
+
+# ============================================
+# WEBSOCKET SETUP
+# ============================================
+
+IFS=',' read -ra SYMBOL_ARRAY <<< "$SYMBOLS"
+NUM_SYMBOLS=${#SYMBOL_ARRAY[@]}
+CURRENT_INDEX=0
+LAST_CYCLE_TIME=0
+
+build_ws_url() {
+    local streams=""
+    local first=true
+    for symbol in "${SYMBOL_ARRAY[@]}"; do
+        local lower=$(echo "$symbol" | tr '[:upper:]' '[:lower:]')
+        if [ "$first" = true ]; then
+            streams="${lower}@depth${DEPTH}@${SPEED}"
+            first=false
+        else
+            streams="${streams}/${lower}@depth${DEPTH}@${SPEED}"
+        fi
+    done
+    echo "wss://fstream.binance.com/public/stream?streams=${streams}"
+}
+
+run_cycle() {
+    local current_time=$(date +%s)
+    if (( current_time - LAST_CYCLE_TIME < 5 )); then
+        return
+    fi
+    LAST_CYCLE_TIME=$current_time
+    
+    update_24h_changes
+    draw_and_execute
+}
+
+connect_websocket() {
+    local ws_url=$(build_ws_url)
+    
+    log "🔌 Connecting to Binance WebSocket..."
+    
+    if ! command -v websocat &> /dev/null; then
+        log_error "websocat not installed. Run: brew install websocat"
+        exit 1
+    fi
+    
+    while true; do
+        websocat --text "$ws_url" 2>/dev/null | while read -r line; do
+            if [ -n "$line" ]; then
+                local data=$(echo "$line" | jq -r '.data // empty' 2>/dev/null)
+                if [ -n "$data" ]; then
+                    process_message "$data"
+                fi
+                run_cycle
+            fi
+        done
+        
+        log_error "Connection lost. Reconnecting in 5 seconds..."
+        sleep 5
+    done
+}
+
+# ============================================
+# MAIN
+# ============================================
+
+main() {
+    echo -e "${BLUE}${BOLD}"
+    echo "╔════════════════════════════════════════════════════════════════════════════════════╗"
+    echo "║                    SCALPER BOT v5.0 - CONTROL DE POSICIONES                        ║"
+    echo "╚════════════════════════════════════════════════════════════════════════════════════╝"
+    echo -e "${NC}"
+    
+    log "🚀 Starting Scalper Bot v5.0"
+    log "📋 Mode: $([ "$DRY_RUN" = true ] && echo "DRY-RUN" || echo "LIVE")"
+    log "📊 Symbols: ${SYMBOLS}"
+    log "🎯 Min Confidence: ${MIN_CONFIDENCE}%"
+    log "⏰ Order Cooldown: ${ORDER_COOLDOWN_SECONDS}s per symbol"
+    
+    if ! command -v jq &> /dev/null; then
+        log_error "jq not installed. Run: brew install jq"
+        exit 1
+    fi
+    
+    if ! command -v websocat &> /dev/null; then
+        log_error "websocat not installed. Run: brew install websocat"
+        exit 1
+    fi
+    
+    send_telegram "🤖 Scalper Bot v5.0 Started - Mode: $([ "$DRY_RUN" = true ] && echo "DRY-RUN" || echo "LIVE") | Cooldown: ${ORDER_COOLDOWN_SECONDS}s"
+    
+    connect_websocket
+}
+
+trap 'echo -e "\n${YELLOW}👋 Shutting down...${NC}"; send_telegram "🛑 Bot Stopped"; exit 0' INT
+
+main "$@"
