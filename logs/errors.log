@@ -1,3 +1,6 @@
 [0;31m[2026-05-19 21:00:05] ERROR: Fallo en orden: {"success":false,"error":"Hook 173508 access denied from 192.99.154.223"}[0m
 [0;31m[2026-05-20 19:51:50] ERROR: Connection lost. Reconnecting in 5 seconds...[0m
 [0;31m[2026-05-20 19:51:58] ERROR: Connection lost. Reconnecting in 5 seconds...[0m
+[0;31m[2026-05-20 20:15:26] ERROR: Connection lost. Reconnecting in 5 seconds...[0m
+[0;31m[2026-05-20 20:32:58] ERROR: Connection lost. Reconnecting in 5 seconds...[0m
+[0;31m[2026-05-20 21:18:11] ERROR: Connection lost. Reconnecting in 5 seconds...[0m
