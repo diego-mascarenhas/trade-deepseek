@@ -1,0 +1,88 @@
+{
+  "name": "Scalp_ZECUSDT_LONG_20260520_155601",
+  "secret": "d1a01uf5uoe",
+  "symbol": "ZECUSDT",
+  "side": "buy",
+  "positionSide": "long",
+  "open": {
+    "price": "591.32000000",
+    "schedulerMode": "min",
+    "schedulerValue": "2"
+  },
+  "tp": {
+    "enabled": true,
+    "orders": [
+      {"price": "594.28000000", "piece": "100.0"}
+    ]
+  },
+  "sl": {
+    "price": "588.98000000",
+    "enabled": true
+  }
+}
+{
+  "name": "Scalp_ZECUSDT_LONG_20260520_155718",
+  "secret": "d1a01uf5uoe",
+  "symbol": "ZECUSDT",
+  "side": "buy",
+  "positionSide": "long",
+  "open": {
+    "price": "591.8413",
+    "schedulerMode": "min",
+    "schedulerValue": "2"
+  },
+  "tp": {
+    "enabled": true,
+    "orders": [
+      {"price": "594.8015", "piece": "100.0"}
+    ]
+  },
+  "sl": {
+    "price": "590.0659",
+    "enabled": true
+  }
+}
+{
+  "name": "Scalp_ZECUSDT_LONG_20260520_160936",
+  "secret": "d1a01uf5uoe",
+  "symbol": "ZECUSDT",
+  "side": "buy",
+  "positionSide": "long",
+  "open": {
+    "price": "597.28689",
+    "schedulerMode": "min",
+    "schedulerValue": "2"
+  },
+  "tp": {
+    "enabled": true,
+    "orders": [
+      {"price": "600.27330", "piece": "100.0"}
+    ]
+  },
+  "sl": {
+    "price": "595.49592",
+    "enabled": true
+  }
+}
+{
+  "name": "Scalp_EDENUSDT_LONG_20260520_161201",
+  "secret": "d1a01uf5uoe",
+  "symbol": "EDENUSDT",
+  "side": "buy",
+  "positionSide": "long",
+  "open": {
+    "price": "0.08128100",
+    "schedulerMode": "min",
+    "schedulerValue": "2"
+  },
+  "tp": {
+    "enabled": true,
+    "orders": [
+      {"price": "0.08168700", "piece": "100.0"}
+    ]
+  },
+  "sl": {
+    "price": "0.08103700",
+    "enabled": true
+  }
+}

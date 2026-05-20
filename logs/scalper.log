@@ -1,0 +1,698 @@
+#!/bin/bash
+
+# ============================================
+# Crypto Scalper 1 Minuto v2.0
+# - Simplificado y robusto
+# - Fallback automático cuando DeepSeek falla
+# ============================================
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+cd "$SCRIPT_DIR"
+
+# ============================================
+# CARGAR CONFIGURACIÓN
+# ============================================
+
+if [ -f .env ]; then
+    source .env
+else
+    echo "❌ Error: .env no encontrado"
+    exit 1
+fi
+
+# ============================================
+# MODO DRY-RUN
+# ============================================
+
+DRY_RUN=false
+if [[ "$1" == "--dry-run" ]] || [[ "$1" == "-d" ]]; then
+    DRY_RUN=true
+    echo "🔍 MODO DRY-RUN"
+fi
+
+# ============================================
+# CONFIGURACIÓN
+# ============================================
+
+DEEPSEEK_API_KEY="${DEEPSEEK_API_KEY:-}"
+FINANDY_SECRET="${FINANDY_SECRET:-d1a01uf5uoe}"
+FINANDY_WEBHOOK="${FINANDY_WEBHOOK:-https://hook.finandy.com/LMEnRji-3GvFkm7wqFUK}"
+TELEGRAM_BOT_TOKEN="${TELEGRAM_BOT_TOKEN:-}"
+TELEGRAM_CHAT_ID="${TELEGRAM_CHAT_ID:-}"
+
+SCALPER_TP_PERCENT="${SCALPER_TP_PERCENT:-0.5}"
+SCALPER_SL_PERCENT="${SCALPER_SL_PERCENT:-0.3}"
+SCALPER_MAX_SYMBOLS="${SCALPER_MAX_SYMBOLS:-3}"
+SCALPER_SCHEDULER_MINUTES="${SCALPER_SCHEDULER_MINUTES:-2}"
+
+LOG_DIR="$SCRIPT_DIR/logs"
+mkdir -p "$LOG_DIR"
+
+RED='\033[0;31m'; GREEN='\033[0;32m'; YELLOW='\033[1;33m'; BLUE='\033[0;34m'; NC='\033[0m'
+
+# ============================================
+# FUNCIONES BÁSICAS
+# ============================================
+
+log() {
+    echo -e "[$(date '+%Y-%m-%d %H:%M:%S')] $1" | tee -a "$LOG_DIR/scalper.log"
+}
+
+log_error() {
+    echo -e "${RED}[$(date '+%Y-%m-%d %H:%M:%S')] ERROR: $1${NC}" | tee -a "$LOG_DIR/scalper_errors.log"
+}
+
+send_telegram() {
+    [ -z "$TELEGRAM_BOT_TOKEN" ] || [ -z "$TELEGRAM_CHAT_ID" ] && return 1
+    local msg=$(echo "$1" | sed 's/\\/\\\\/g' | sed 's/\-/\\-/g' | sed 's/\./\\\\./g')
+    curl -s -X POST "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
+        -H "Content-Type: application/json" \
+        -d "{\"chat_id\": \"${TELEGRAM_CHAT_ID}\", \"text\": \"${msg}\"}" > /dev/null
+}
+
+# ============================================
+# FUNCIONES DE BINANCE
+# ============================================
+
+get_current_price() {
+    local symbol="$1"
+    local ticker=$(curl -s "https://api.binance.com/api/v3/ticker/price?symbol=$symbol" 2>/dev/null)
+    echo "$ticker" | jq -r '.price // 0' 2>/dev/null
+}
+
+get_24h_change() {
+    local symbol="$1"
+    local ticker=$(curl -s "https://api.binance.com/api/v3/ticker/24hr?symbol=$symbol" 2>/dev/null)
+    echo "$ticker" | jq -r '.priceChangePercent // 0' 2>/dev/null
+}
+
+get_order_book_levels() {
+    local symbol="$1"
+    local depth="${2:-5}"
+    local order_book=$(curl -s "https://api.binance.com/api/v3/depth?symbol=$symbol&limit=$depth" 2>/dev/null)
+    
+    local support=""
+    local resistance=""
+    
+    # Extraer mejor bid (compra) - soporte
+    local best_bid=$(echo "$order_book" | jq -r '.bids[0][0] // ""' 2>/dev/null)
+    # Extraer mejor ask (venta) - resistencia
+    local best_ask=$(echo "$order_book" | jq -r '.asks[0][0] // ""' 2>/dev/null)
+    
+    if [ -n "$best_bid" ] && [ "$best_bid" != "null" ] && [ "$best_bid" != "0" ]; then
+        support="$best_bid"
+    fi
+    if [ -n "$best_ask" ] && [ "$best_ask" != "null" ] && [ "$best_ask" != "0" ]; then
+        resistance="$best_ask"
+    fi
+    
+    echo "$support|$resistance"
+}
+
+# ============================================
+# DETERMINAR ESTRATEGIA (sin DeepSeek)
+# ============================================
+
+determine_strategy() {
+    local symbol="$1"
+    local current_price="$2"
+    local change_24h="$3"
+    local support="$4"
+    local resistance="$5"
+    
+    local trend="NEUTRAL"
+    local confidence=0
+    local entry_price="$current_price"
+    local sl=""
+    local tp=""
+    
+    # Estrategia 1: Basada en soporte/resistencia del order book
+    if [ -n "$support" ] && [ -n "$resistance" ]; then
+        # Calcular posición del precio en el rango
+        local range=$(echo "$resistance - $support" | bc -l 2>/dev/null)
+        if [ -n "$range" ] && (( $(echo "$range > 0" | bc -l 2>/dev/null) )); then
+            local position=$(echo "($current_price - $support) / $range * 100" | bc -l 2>/dev/null)
+            
+            if (( $(echo "$position < 20" | bc -l 2>/dev/null) )); then
+                trend="LONG"
+                confidence=70
+                entry_price=$(printf "%.8f" $(echo "$support * 1.001" | bc -l))
+            elif (( $(echo "$position > 80" | bc -l 2>/dev/null) )); then
+                trend="SHORT"
+                confidence=70
+                entry_price=$(printf "%.8f" $(echo "$resistance * 0.999" | bc -l))
+            fi
+        fi
+    fi
+    
+    # Estrategia 2: Basada en cambio 24h (fallback)
+    if [ "$trend" = "NEUTRAL" ]; then
+        if (( $(echo "$change_24h > 5" | bc -l 2>/dev/null || echo "0") )); then
+            trend="SHORT"
+            confidence=50
+            entry_price=$(printf "%.8f" $(echo "$current_price * 0.999" | bc -l))
+        elif (( $(echo "$change_24h < -5" | bc -l 2>/dev/null || echo "0") )); then
+            trend="LONG"
+            confidence=50
+            entry_price=$(printf "%.8f" $(echo "$current_price * 1.001" | bc -l))
+        else
+            trend="NEUTRAL"
+            confidence=30
+        fi
+    fi
+    
+    # Calcular SL y TP basados en la tendencia
+    if [ "$trend" = "LONG" ]; then
+        sl=$(printf "%.8f" $(echo "$entry_price * (1 - $SCALPER_SL_PERCENT/100)" | bc -l))
+        tp=$(printf "%.8f" $(echo "$entry_price * (1 + $SCALPER_TP_PERCENT/100)" | bc -l))
+    elif [ "$trend" = "SHORT" ]; then
+        sl=$(printf "%.8f" $(echo "$entry_price * (1 + $SCALPER_SL_PERCENT/100)" | bc -l))
+        tp=$(printf "%.8f" $(echo "$entry_price * (1 - $SCALPER_TP_PERCENT/100)" | bc -l))
+    fi
+    
+    echo "$trend|$confidence|$entry_price|$sl|$tp"
+}
+
+# ============================================
+# ENVIAR ORDEN
+# ============================================
+
+send_order() {
+    local symbol="$1" direction="$2" entry="$3" sl="$4" tp="$5"
+    
+    local side="buy" pos_side="long"
+    if [ "$direction" = "SHORT" ]; then
+        side="sell" pos_side="short"
+    fi
+    
+    local order_name="Scalp_${symbol}_$(date '+%Y%m%d_%H%M%S')"
+    
+    local payload=$(cat <<EOF
+{
+  "name": "$order_name",
+  "secret": "$FINANDY_SECRET",
+  "symbol": "$symbol",
+  "side": "$side",
+  "positionSide": "$pos_side",
+  "open": {
+    "price": "$entry",
+    "schedulerMode": "min",
+    "schedulerValue": "$SCALPER_SCHEDULER_MINUTES"
+  },
+  "tp": {
+    "enabled": true,
+    "orders": [{"price": "$tp", "piece": "100.0"}]
+  },
+  "sl": {"price": "$sl", "enabled": true}
+}
+EOF
+)
+    
+    log "📝 SCALP: $symbol $direction | Entry:$entry SL:$sl TP:$tp"
+    
+    if [ "$DRY_RUN" = true ]; then
+        log "🔍 DRY-RUN: No se ejecutó"
+        send_telegram "🔍 DRY-RUN: $symbol $direction Entry:$entry TP:$tp"
+        return 0
+    fi
+    
+    local response=$(curl -s -X POST "$FINANDY_WEBHOOK" -H "Content-Type: application/json" -d "$payload")
+    
+    if echo "$response" | jq -e '.code == 200 or .success == true' >/dev/null 2>&1; then
+        log "✅ Orden ejecutada: $symbol"
+        send_telegram "⚡ SCALP: $symbol $direction Entry:$entry TP:$tp"
+    else
+        log_error "Fallo: $response"
+    fi
+}
+
+# ============================================
+# OBTENER TOP MOVERS
+# ============================================
+
+get_top_movers() {
+    local response=$(curl -s "https://api.binance.com/api/v3/ticker/24hr" 2>/dev/null)
+    
+    local gainers=$(echo "$response" | jq -r '
+        .[] | 
+        select(.symbol | endswith("USDT")) |
+        select(.symbol | test("^[A-Z0-9]+USDT$")) |
+        select(.priceChangePercent | tonumber > 3) |
+        .symbol
+    ' 2>/dev/null | head -"$SCALPER_MAX_SYMBOLS")
+    
+    local losers=$(echo "$response" | jq -r '
+        .[] | 
+        select(.symbol | endswith("USDT")) |
+        select(.symbol | test("^[A-Z0-9]+USDT$")) |
+        select(.priceChangePercent | tonumber < -3) |
+        .symbol
+    ' 2>/dev/null | head -"$SCALPER_MAX_SYMBOLS")
+    
+    echo "$gainers|$losers"
+}
+
+# ============================================
+# PROCESAR UN SÍMBOLO
+# ============================================
+
+process_symbol() {
+    local symbol="$1"
+    
+    log "${YELLOW}🔍 Analizando $symbol${NC}"
+    
+    # Obtener datos
+    local current_price=$(get_current_price "$symbol")
+    if [ -z "$current_price" ] || [ "$current_price" = "0" ] || [ "$current_price" = "null" ]; then
+        log_error "No se pudo obtener precio para $symbol"
+        return 1
+    fi
+    
+    local change_24h=$(get_24h_change "$symbol")
+    local ob_levels=$(get_order_book_levels "$symbol")
+    local support=$(echo "$ob_levels" | cut -d'|' -f1)
+    local resistance=$(echo "$ob_levels" | cut -d'|' -f2)
+    
+    log "📊 $symbol | Precio: $current_price | 24h: ${change_24h}%"
+    [ -n "$support" ] && log "   Soporte OB: $support | Resistencia OB: $resistance"
+    
+    # Determinar estrategia
+    local strategy=$(determine_strategy "$symbol" "$current_price" "$change_24h" "$support" "$resistance")
+    local trend=$(echo "$strategy" | cut -d'|' -f1)
+    local confidence=$(echo "$strategy" | cut -d'|' -f2)
+    local entry=$(echo "$strategy" | cut -d'|' -f3)
+    local sl=$(echo "$strategy" | cut -d'|' -f4)
+    local tp=$(echo "$strategy" | cut -d'|' -f5)
+    
+    log "🎯 Estrategia: $trend (confianza: ${confidence}%)"
+    
+    if [ "$trend" = "NEUTRAL" ] || [ "$confidence" -lt 50 ]; then
+        log "⏸️ Sin señal clara, saltando"
+        return 0
+    fi
+    
+    send_order "$symbol" "$trend" "$entry" "$sl" "$tp"
+}
+
+# ============================================
+# LOOP PRINCIPAL
+# ============================================
+
+main() {
+    log "${BLUE}⚡ Scalper 1M v2.0 iniciado${NC}"
+    log "📋 TP:${SCALPER_TP_PERCENT}% SL:${SCALPER_SL_PERCENT}%"
+    
+    if [ "$DRY_RUN" = true ]; then
+        send_telegram "🔍 DRY-RUN: Scalper 1M iniciado"
+    else
+        send_telegram "⚡ Scalper 1M iniciado - TP:${SCALPER_TP_PERCENT}% SL:${SCALPER_SL_PERCENT}%"
+    fi
+    
+    local cycle=0
+    while true; do
+        cycle=$((cycle + 1))
+        log "${BLUE}━━━━━━━ Ciclo #$cycle ━━━━━━━${NC}"
+        
+        local movers=$(get_top_movers)
+        local gainers=$(echo "$movers" | cut -d'|' -f1)
+        local losers=$(echo "$movers" | cut -d'|' -f2)
+        
+        log "📈 Gainers: $(echo "$gainers" | tr '\n' ' ')"
+        log "📉 Losers: $(echo "$losers" | tr '\n' ' ')"
+        
+        local processed=0
+        
+        for symbol in $gainers; do
+            [ $processed -ge $SCALPER_MAX_SYMBOLS ] && break
+            process_symbol "$symbol"
+            processed=$((processed + 1))
+            sleep 2
+        done
+        
+        for symbol in $losers; do
+            [ $processed -ge $SCALPER_MAX_SYMBOLS ] && break
+            process_symbol "$symbol"
+            processed=$((processed + 1))
+            sleep 2
+        done
+        
+        log "${GREEN}✅ Ciclo completado - ${processed} símbolos${NC}"
+        log "⏰ Esperando 60 segundos..."
+        sleep 60
+    done
+}
+
+main "$@"[2026-05-20 16:05:10] [0;34m⚡ Servicio Scalper 1 Minuto v1.2 Iniciado[0m
+[2026-05-20 16:05:10] 📋 Configuración: TP=0.5% SL=0.3% Confianza mínima=50%
+[2026-05-20 16:05:10] 🔍 Modo: DRY-RUN
+[2026-05-20 16:05:11] [0;34m📊 Ciclo #1[0m
+[2026-05-20 16:05:11] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-20 16:05:11] [0;34m⚡ Ciclo de Scalping - 2026-05-20 16:05:11[0m
+[2026-05-20 16:05:11] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-20 16:05:13] 📈 Top Gainers: WAVESUSDT XMRUSDT ZECUSDT 
+[2026-05-20 16:05:13] 📉 Top Losers: ONTUSDT NULSUSDT MITHUSDT 
+[2026-05-20 16:05:13] [1;33m🔍 Analizando WAVESUSDT[0m
+[2026-05-20 16:05:14] 📊 WAVESUSDT | Precio: 1.07600000 | 24h: 11.967%
+[2026-05-20 16:05:14]    Soporte:  | Resistencia: 
+[2026-05-20 16:05:14]    Volumen Bid:  | Ask: 
+[2026-05-20 16:05:15] 🎯 DeepSeek: trend=NEUTRAL confidence=40%
+[2026-05-20 16:05:15] ⏸️ Confianza baja (40% < 50%), saltando
+[2026-05-20 16:05:17] [1;33m🔍 Analizando XMRUSDT[0m
+[2026-05-20 16:05:18] 📊 XMRUSDT | Precio: 118.70000000 | 24h: 4.766%
+[2026-05-20 16:05:18]    Soporte:  | Resistencia: 
+[2026-05-20 16:05:18]    Volumen Bid:  | Ask: 
+[2026-05-20 16:05:20] 🎯 DeepSeek: trend=NEUTRAL confidence=0%
+[2026-05-20 16:05:20] ⏸️ Confianza baja (0% < 50%), saltando
+[2026-05-20 16:05:22] [1;33m🔍 Analizando ZECUSDT[0m
+[2026-05-20 16:05:23] 📊 ZECUSDT | Precio: 594.81000000 | 24h: 4.990%
+[2026-05-20 16:05:23]    Soporte: 594.87000000 | Resistencia: 594.88000000
+[2026-05-20 16:05:23]    Volumen Bid: 3.10300000 | Ask: 7.73800000
+[2026-05-20 16:05:24] 🎯 DeepSeek: trend= confidence=%
+[2026-05-20 16:05:26] [0;32m✅ Ciclo completado - 3 símbolos procesados[0m
+[2026-05-20 16:05:26] ⏰ Esperando 60 segundos para próximo ciclo...
+[2026-05-20 16:06:26] [0;34m📊 Ciclo #2[0m
+[2026-05-20 16:06:26] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-20 16:06:26] [0;34m⚡ Ciclo de Scalping - 2026-05-20 16:06:26[0m
+[2026-05-20 16:06:26] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-20 16:06:28] 📈 Top Gainers: WAVESUSDT XMRUSDT ZECUSDT 
+[2026-05-20 16:06:28] 📉 Top Losers: ONTUSDT NULSUSDT MITHUSDT 
+[2026-05-20 16:06:28] [1;33m🔍 Analizando WAVESUSDT[0m
+[2026-05-20 16:06:29] 📊 WAVESUSDT | Precio: 1.07600000 | 24h: 11.967%
+[2026-05-20 16:06:29]    Soporte:  | Resistencia: 
+[2026-05-20 16:06:29]    Volumen Bid:  | Ask: 
+[2026-05-20 16:06:30] 🎯 DeepSeek: trend= confidence=%
+[2026-05-20 16:06:32] [1;33m🔍 Analizando XMRUSDT[0m
+[2026-05-20 16:06:33] 📊 XMRUSDT | Precio: 118.70000000 | 24h: 4.766%
+[2026-05-20 16:06:33]    Soporte:  | Resistencia: 
+[2026-05-20 16:06:33]    Volumen Bid:  | Ask: 
+[2026-05-20 16:06:35] 🎯 DeepSeek: trend=NEUTRAL confidence=0%
+[2026-05-20 16:06:35] ⏸️ Confianza baja (0% < 50%), saltando
+[2026-05-20 16:06:37] [1;33m🔍 Analizando ZECUSDT[0m
+[2026-05-20 16:06:38] 📊 ZECUSDT | Precio: 596.31000000 | 24h: 5.430%
+[2026-05-20 16:06:38]    Soporte: 596.07000000 | Resistencia: 596.08000000
+[2026-05-20 16:06:38]    Volumen Bid: 28.28100000 | Ask: 5.43500000
+[2026-05-20 16:06:39] 🎯 DeepSeek: trend= confidence=%
+[2026-05-20 16:06:41] [0;32m✅ Ciclo completado - 3 símbolos procesados[0m
+[2026-05-20 16:06:41] ⏰ Esperando 60 segundos para próximo ciclo...
+[2026-05-20 16:07:41] [0;34m📊 Ciclo #3[0m
+[2026-05-20 16:07:41] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-20 16:07:41] [0;34m⚡ Ciclo de Scalping - 2026-05-20 16:07:41[0m
+[2026-05-20 16:07:41] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-20 16:07:43] 📈 Top Gainers: WAVESUSDT XMRUSDT ZECUSDT 
+[2026-05-20 16:07:43] 📉 Top Losers: ONTUSDT NULSUSDT MITHUSDT 
+[2026-05-20 16:07:43] [1;33m🔍 Analizando WAVESUSDT[0m
+[2026-05-20 16:07:44] 📊 WAVESUSDT | Precio: 1.07600000 | 24h: 11.967%
+[2026-05-20 16:07:44]    Soporte:  | Resistencia: 
+[2026-05-20 16:07:44]    Volumen Bid:  | Ask: 
+[2026-05-20 16:07:46] 🎯 DeepSeek: trend=NEUTRAL confidence=0%
+[2026-05-20 16:07:46] ⏸️ Confianza baja (0% < 50%), saltando
+[2026-05-20 16:07:48] [1;33m🔍 Analizando XMRUSDT[0m
+[2026-05-20 16:07:49] 📊 XMRUSDT | Precio: 118.70000000 | 24h: 4.766%
+[2026-05-20 16:07:49]    Soporte:  | Resistencia: 
+[2026-05-20 16:07:49]    Volumen Bid:  | Ask: 
+[2026-05-20 16:07:50] 🎯 DeepSeek: trend=NEUTRAL confidence=0%
+[2026-05-20 16:07:50] ⏸️ Confianza baja (0% < 50%), saltando
+[2026-05-20 16:07:52] [1;33m🔍 Analizando ZECUSDT[0m
+[2026-05-20 16:07:53] 📊 ZECUSDT | Precio: 595.83000000 | 24h: 5.736%
+[2026-05-20 16:07:53]    Soporte: 595.83000000 | Resistencia: 595.84000000
+[2026-05-20 16:07:53]    Volumen Bid: 3.04700000 | Ask: 6.20300000
+[2026-05-20 16:07:55] 🎯 DeepSeek: trend= confidence=%
+[2026-05-20 16:07:57] [0;32m✅ Ciclo completado - 3 símbolos procesados[0m
+[2026-05-20 16:07:57] ⏰ Esperando 60 segundos para próximo ciclo...
+[2026-05-20 16:08:28] [0;34m⚡ Servicio Scalper 1 Minuto v1.2 Iniciado[0m
+[2026-05-20 16:08:28] 📋 Configuración: TP=0.5% SL=0.3% Confianza mínima=50%
+[2026-05-20 16:08:28] 🔍 Modo: REAL
+[2026-05-20 16:08:28] [0;34m📊 Ciclo #1[0m
+[2026-05-20 16:08:28] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-20 16:08:28] [0;34m⚡ Ciclo de Scalping - 2026-05-20 16:08:28[0m
+[2026-05-20 16:08:28] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-20 16:08:30] 📈 Top Gainers: ZECUSDT EDENUSDT ONDOUSDT 
+[2026-05-20 16:08:30] 📉 Top Losers: BCHUSDT ENJUSDT FOGOUSDT 
+[2026-05-20 16:08:30] [1;33m🔍 Analizando ZECUSDT[0m
+[2026-05-20 16:08:31] 📊 ZECUSDT | Precio: 596.37000000 | 24h: 5.839%
+[2026-05-20 16:08:31]    Soporte: 596.38000000 | Resistencia: 596.39000000
+[2026-05-20 16:08:31]    Volumen Bid:  | Ask: 
+[2026-05-20 16:08:33] 🎯 DeepSeek: trend=NEUTRAL confidence=0%
+[2026-05-20 16:08:33] ⏸️ Confianza baja (0% < 50%), saltando
+[2026-05-20 16:08:35] [1;33m🔍 Analizando EDENUSDT[0m
+[2026-05-20 16:08:36] 📊 EDENUSDT | Precio: 0.08110000 | 24h: 30.177%
+[2026-05-20 16:08:36]    Soporte: 0.08110000 | Resistencia: 0.08120000
+[2026-05-20 16:08:36]    Volumen Bid:  | Ask: 
+[2026-05-20 16:08:37] 🎯 DeepSeek: trend=NEUTRAL confidence=0%
+[2026-05-20 16:08:37] ⏸️ Confianza baja (0% < 50%), saltando
+[2026-05-20 16:08:39] [1;33m🔍 Analizando ONDOUSDT[0m
+[2026-05-20 16:08:40] 📊 ONDOUSDT | Precio: 0.38370000 | 24h: 3.759%
+[2026-05-20 16:08:40]    Soporte: 0.38380000 | Resistencia: 0.38390000
+[2026-05-20 16:08:40]    Volumen Bid:  | Ask: 
+[2026-05-20 16:08:41] 🎯 DeepSeek: trend=NEUTRAL confidence=0%
+[2026-05-20 16:08:41] ⏸️ Confianza baja (0% < 50%), saltando
+[2026-05-20 16:08:44] [0;32m✅ Ciclo completado - 3 símbolos procesados[0m
+[2026-05-20 16:08:44] ⏰ Esperando 60 segundos para próximo ciclo...
+[2026-05-20 16:08:57] [0;34m📊 Ciclo #4[0m
+[2026-05-20 16:08:57] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-20 16:08:57] [0;34m⚡ Ciclo de Scalping - 2026-05-20 16:08:57[0m
+[2026-05-20 16:08:57] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-20 16:08:59] 📈 Top Gainers: WAVESUSDT XMRUSDT ZECUSDT 
+[2026-05-20 16:08:59] 📉 Top Losers: ONTUSDT NULSUSDT MITHUSDT 
+[2026-05-20 16:08:59] [1;33m🔍 Analizando WAVESUSDT[0m
+[2026-05-20 16:09:00] 📊 WAVESUSDT | Precio: 1.07600000 | 24h: 11.967%
+[2026-05-20 16:09:00]    Soporte:  | Resistencia: 
+[2026-05-20 16:09:00]    Volumen Bid:  | Ask: 
+[2026-05-20 16:09:02] 🎯 DeepSeek: trend=NEUTRAL confidence=35%
+[2026-05-20 16:09:02] ⏸️ Confianza baja (35% < 50%), saltando
+[2026-05-20 16:09:04] [1;33m🔍 Analizando XMRUSDT[0m
+[2026-05-20 16:09:05] 📊 XMRUSDT | Precio: 118.70000000 | 24h: 4.766%
+[2026-05-20 16:09:05]    Soporte:  | Resistencia: 
+[2026-05-20 16:09:05]    Volumen Bid:  | Ask: 
+[2026-05-20 16:09:06] 🎯 DeepSeek: trend=NEUTRAL confidence=0%
+[2026-05-20 16:09:06] ⏸️ Confianza baja (0% < 50%), saltando
+[2026-05-20 16:09:08] [1;33m🔍 Analizando ZECUSDT[0m
+[2026-05-20 16:09:09] 📊 ZECUSDT | Precio: 596.89000000 | 24h: 5.875%
+[2026-05-20 16:09:09]    Soporte: 596.91000000 | Resistencia: 596.93000000
+[2026-05-20 16:09:09]    Volumen Bid: 4.98600000 | Ask: 3.90600000
+[2026-05-20 16:09:11] 🎯 DeepSeek: trend= confidence=%
+[2026-05-20 16:09:13] [0;32m✅ Ciclo completado - 3 símbolos procesados[0m
+[2026-05-20 16:09:13] ⏰ Esperando 60 segundos para próximo ciclo...
+[2026-05-20 16:09:31] [0;34m⚡ Servicio Scalper 1 Minuto v1.2 Iniciado[0m
+[2026-05-20 16:09:31] 📋 Configuración: TP=0.5% SL=0.3% Confianza mínima=50%
+[2026-05-20 16:09:31] 🔍 Modo: DRY-RUN
+[2026-05-20 16:09:31] [0;34m📊 Ciclo #1[0m
+[2026-05-20 16:09:31] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-20 16:09:31] [0;34m⚡ Ciclo de Scalping - 2026-05-20 16:09:31[0m
+[2026-05-20 16:09:31] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-20 16:09:34] 📈 Top Gainers: ZECUSDT EDENUSDT ONDOUSDT 
+[2026-05-20 16:09:34] 📉 Top Losers: BCHUSDT ENJUSDT FOGOUSDT 
+[2026-05-20 16:09:34] [1;33m🔍 Analizando ZECUSDT[0m
+[2026-05-20 16:09:35] 📊 ZECUSDT | Precio: 596.69000000 | 24h: 5.913%
+[2026-05-20 16:09:35]    Soporte: 596.69000000 | Resistencia: 596.70000000
+[2026-05-20 16:09:35]    Volumen Bid: 4.9799999999999995 | Ask: 3.7430000000000003
+[2026-05-20 16:09:36] 🎯 DeepSeek: trend=LONG confidence=52%
+[2026-05-20 16:09:36] 📝 SCALP: ZECUSDT LONG | Entry:597.28689 SL:595.49592 TP:600.27330
+[2026-05-20 16:09:36] 🔍 DRY-RUN: No se ejecutó la orden
+[2026-05-20 16:09:39] [1;33m🔍 Analizando EDENUSDT[0m
+[2026-05-20 16:09:43] 📊 EDENUSDT | Precio: 0.08080000 | 24h: 29.487%
+[2026-05-20 16:09:43]    Soporte: 0.08080000 | Resistencia: 0.08090000
+[2026-05-20 16:09:43]    Volumen Bid: 414446 | Ask: 450147.69999999995
+[2026-05-20 16:09:44] 🎯 DeepSeek: trend=NEUTRAL confidence=0%
+[2026-05-20 16:09:44] ⏸️ Confianza baja (0% < 50%), saltando
+[2026-05-20 16:09:46] [1;33m🔍 Analizando ONDOUSDT[0m
+[2026-05-20 16:09:48] 📊 ONDOUSDT | Precio: 0.38250000 | 24h: 3.128%
+[2026-05-20 16:09:48]    Soporte: 0.38240000 | Resistencia: 0.38250000
+[2026-05-20 16:09:48]    Volumen Bid: 44486.49999999999 | Ask: 48931.6
+[2026-05-20 16:09:49] 🎯 DeepSeek: trend=NEUTRAL confidence=30%
+[2026-05-20 16:09:49] ⏸️ Confianza baja (30% < 50%), saltando
+[2026-05-20 16:09:51] [0;32m✅ Ciclo completado - 3 símbolos procesados[0m
+[2026-05-20 16:09:51] ⏰ Esperando 60 segundos para próximo ciclo...
+[2026-05-20 16:11:52] [0;34m⚡ Servicio Scalper 1 Minuto v1.2 Iniciado[0m
+[2026-05-20 16:11:52] 📋 Configuración: TP=0.5% SL=0.3% Confianza mínima=50%
+[2026-05-20 16:11:52] 🔍 Modo: DRY-RUN
+[2026-05-20 16:11:52] [0;34m📊 Ciclo #1[0m
+[2026-05-20 16:11:52] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-20 16:11:52] [0;34m⚡ Ciclo de Scalping - 2026-05-20 16:11:52[0m
+[2026-05-20 16:11:52] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-20 16:11:54] 📈 Top Gainers: ZECUSDT EDENUSDT DASHUSDT 
+[2026-05-20 16:11:54] 📉 Top Losers: BCHUSDT ENJUSDT FOGOUSDT 
+[2026-05-20 16:11:54] [1;33m🔍 Analizando ZECUSDT[0m
+[2026-05-20 16:11:55] 📊 ZECUSDT | Precio: 596.45000000 | 24h: 6.051%
+[2026-05-20 16:11:55]    Soporte: 596.45000000 | Resistencia: 596.46000000
+[2026-05-20 16:11:55]    Volumen Bid: 2.3120000000000003 | Ask: 4.074
+[2026-05-20 16:11:56] 🎯 DeepSeek: trend=NEUTRAL confidence=0%
+[2026-05-20 16:11:56] ⏸️ Confianza baja (0% < 50%), saltando
+[2026-05-20 16:11:59] [1;33m🔍 Analizando EDENUSDT[0m
+[2026-05-20 16:12:00] 📊 EDENUSDT | Precio: 0.08130000 | 24h: 30.288%
+[2026-05-20 16:12:00]    Soporte: 0.08120000 | Resistencia: 0.08130000
+[2026-05-20 16:12:00]    Volumen Bid: 575986.7 | Ask: 390104.4
+[2026-05-20 16:12:01] 🎯 DeepSeek: trend=LONG confidence=65%
+[2026-05-20 16:12:01] 📝 SCALP: EDENUSDT LONG | Entry:0.08128100 SL:0.08103700 TP:0.08168700
+[2026-05-20 16:12:01] 🔍 DRY-RUN: No se ejecutó la orden
+[2026-05-20 16:12:03] [1;33m🔍 Analizando DASHUSDT[0m
+[2026-05-20 16:12:04] 📊 DASHUSDT | Precio: 47.51000000 | 24h: 12.158%
+[2026-05-20 16:12:04]    Soporte: 47.52000000 | Resistencia: 47.53000000
+[2026-05-20 16:12:04]    Volumen Bid: 151.215 | Ask: 580.6089999999999
+[2026-05-20 16:12:05] 🎯 DeepSeek: trend=NEUTRAL confidence=0%
+[2026-05-20 16:12:05] ⏸️ Confianza baja (0% < 50%), saltando
+[2026-05-20 16:12:07] [0;32m✅ Ciclo completado - 3 símbolos procesados[0m
+[2026-05-20 16:12:07] ⏰ Esperando 60 segundos para próximo ciclo...
+[2026-05-20 16:13:08] [0;34m📊 Ciclo #2[0m
+[2026-05-20 16:13:08] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-20 16:13:08] [0;34m⚡ Ciclo de Scalping - 2026-05-20 16:13:08[0m
+[2026-05-20 16:13:08] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-20 16:13:10] 📈 Top Gainers: ZECUSDT EDENUSDT DASHUSDT 
+[2026-05-20 16:13:10] 📉 Top Losers: BCHUSDT ENJUSDT FOGOUSDT 
+[2026-05-20 16:13:10] [1;33m🔍 Analizando ZECUSDT[0m
+[2026-05-20 16:13:11] 📊 ZECUSDT | Precio: 595.04000000 | 24h: 5.734%
+[2026-05-20 16:13:11]    Soporte: 595.08000000 | Resistencia: 595.09000000
+[2026-05-20 16:13:11]    Volumen Bid: 8.647 | Ask: 8.137
+[2026-05-20 16:13:13] 🎯 DeepSeek: trend=NEUTRAL confidence=0%
+[2026-05-20 16:13:13] ⏸️ Confianza baja (0% < 50%), saltando
+[2026-05-20 16:13:15] [1;33m🔍 Analizando EDENUSDT[0m
+[2026-05-20 16:13:16] 📊 EDENUSDT | Precio: 0.08120000 | 24h: 28.685%
+[2026-05-20 16:13:16]    Soporte: 0.08120000 | Resistencia: 0.08130000
+[2026-05-20 16:13:16]    Volumen Bid: 477312.3 | Ask: 473669.2
+[2026-05-20 16:13:17] 🎯 DeepSeek: trend=NEUTRAL confidence=0%
+[2026-05-20 16:13:17] ⏸️ Confianza baja (0% < 50%), saltando
+[2026-05-20 16:13:19] [1;33m🔍 Analizando DASHUSDT[0m
+[2026-05-20 16:13:20] 📊 DASHUSDT | Precio: 47.51000000 | 24h: 12.211%
+[2026-05-20 16:13:20]    Soporte: 47.50000000 | Resistencia: 47.51000000
+[2026-05-20 16:13:20]    Volumen Bid: 262.595 | Ask: 116.457
+[2026-05-20 16:13:22] 🎯 DeepSeek: trend=NEUTRAL confidence=0%
+[2026-05-20 16:13:22] ⏸️ Confianza baja (0% < 50%), saltando
+[2026-05-20 16:13:24] [0;32m✅ Ciclo completado - 3 símbolos procesados[0m
+[2026-05-20 16:13:24] ⏰ Esperando 60 segundos para próximo ciclo...
+[2026-05-20 16:14:24] [0;34m📊 Ciclo #3[0m
+[2026-05-20 16:14:24] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-20 16:14:24] [0;34m⚡ Ciclo de Scalping - 2026-05-20 16:14:24[0m
+[2026-05-20 16:14:24] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-20 16:14:25] 📈 Top Gainers: ZECUSDT EDENUSDT ONDOUSDT 
+[2026-05-20 16:14:25] 📉 Top Losers: BCHUSDT ENJUSDT FOGOUSDT 
+[2026-05-20 16:14:25] [1;33m🔍 Analizando ZECUSDT[0m
+[2026-05-20 16:14:26] 📊 ZECUSDT | Precio: 596.65000000 | 24h: 6.638%
+[2026-05-20 16:14:26]    Soporte: 596.78000000 | Resistencia: 596.80000000
+[2026-05-20 16:14:26]    Volumen Bid: 2.989 | Ask: 3.448
+[2026-05-20 16:14:28] 🎯 DeepSeek: trend=NEUTRAL confidence=0%
+[2026-05-20 16:14:28] ⏸️ Confianza baja (0% < 50%), saltando
+[2026-05-20 16:14:30] [1;33m🔍 Analizando EDENUSDT[0m
+[2026-05-20 16:14:31] 📊 EDENUSDT | Precio: 0.08130000 | 24h: 29.048%
+[2026-05-20 16:14:31]    Soporte: 0.08130000 | Resistencia: 0.08140000
+[2026-05-20 16:14:31]    Volumen Bid: 410492.89999999997 | Ask: 427631
+[2026-05-20 16:14:32] 🎯 DeepSeek: trend=NEUTRAL confidence=0%
+[2026-05-20 16:14:32] ⏸️ Confianza baja (0% < 50%), saltando
+[2026-05-20 16:14:34] [1;33m🔍 Analizando ONDOUSDT[0m
+[2026-05-20 16:14:35] 📊 ONDOUSDT | Precio: 0.38290000 | 24h: 3.823%
+[2026-05-20 16:14:35]    Soporte: 0.38280000 | Resistencia: 0.38290000
+[2026-05-20 16:14:35]    Volumen Bid: 39113.200000000004 | Ask: 17911
+[2026-05-20 16:14:36] 🎯 DeepSeek: trend=NEUTRAL confidence=45%
+[2026-05-20 16:14:36] ⏸️ Confianza baja (45% < 50%), saltando
+[2026-05-20 16:14:39] [0;32m✅ Ciclo completado - 3 símbolos procesados[0m
+[2026-05-20 16:14:39] ⏰ Esperando 60 segundos para próximo ciclo...
+[2026-05-20 16:15:41] [0;34m⚡ Servicio Scalper 1 Minuto v1.2 Iniciado[0m
+[2026-05-20 16:15:41] 📋 Configuración: TP=0.5% SL=0.3% Confianza mínima=50%
+[2026-05-20 16:15:41] 🔍 Modo: REAL
+[2026-05-20 16:15:41] [0;34m📊 Ciclo #1[0m
+[2026-05-20 16:15:41] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-20 16:15:41] [0;34m⚡ Ciclo de Scalping - 2026-05-20 16:15:41[0m
+[2026-05-20 16:15:41] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-20 16:15:43] 📈 Top Gainers: ZECUSDT NEARUSDT EDENUSDT 
+[2026-05-20 16:15:43] 📉 Top Losers: BCHUSDT ENJUSDT FOGOUSDT 
+[2026-05-20 16:15:43] [1;33m🔍 Analizando ZECUSDT[0m
+[2026-05-20 16:15:44] 📊 ZECUSDT | Precio: 606.77000000 | 24h: 8.325%
+[2026-05-20 16:15:44]    Soporte: 606.62000000 | Resistencia: 606.69000000
+[2026-05-20 16:15:44]    Volumen Bid: 11.079999999999998 | Ask: 4.647
+[2026-05-20 16:15:45] 🎯 DeepSeek: trend=NEUTRAL confidence=35%
+[2026-05-20 16:15:45] ⏸️ Confianza baja (35% < 50%), saltando
+[2026-05-20 16:15:47] [1;33m🔍 Analizando NEARUSDT[0m
+[2026-05-20 16:15:48] 📊 NEARUSDT | Precio: 1.66800000 | 24h: 3.154%
+[2026-05-20 16:15:48]    Soporte: 1.66800000 | Resistencia: 1.66900000
+[2026-05-20 16:15:48]    Volumen Bid: 114280.4 | Ask: 78106.4
+[2026-05-20 16:15:49] 🎯 DeepSeek: trend=NEUTRAL confidence=0%
+[2026-05-20 16:15:49] ⏸️ Confianza baja (0% < 50%), saltando
+[2026-05-20 16:15:51] [1;33m🔍 Analizando EDENUSDT[0m
+[2026-05-20 16:15:53] 📊 EDENUSDT | Precio: 0.08090000 | 24h: 27.804%
+[2026-05-20 16:15:53]    Soporte: 0.08090000 | Resistencia: 0.08100000
+[2026-05-20 16:15:53]    Volumen Bid: 423071.10000000003 | Ask: 384323.8
+[2026-05-20 16:15:54] 🎯 DeepSeek: trend=LONG confidence=75%
+[2026-05-20 16:15:54] 📝 SCALP: EDENUSDT LONG | Entry:0.0809809 SL:0.0807382 TP:0.0813859
+[2026-05-20 16:15:54] 📡 Respuesta Finandy: {"success":true,"data":[]}
+[2026-05-20 16:15:54] ✅ Scalp ejecutado: EDENUSDT
+[2026-05-20 16:15:56] [0;32m✅ Ciclo completado - 3 símbolos procesados[0m
+[2026-05-20 16:15:56] ⏰ Esperando 60 segundos para próximo ciclo...
+[2026-05-20 16:16:56] [0;34m📊 Ciclo #2[0m
+[2026-05-20 16:16:56] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-20 16:16:56] [0;34m⚡ Ciclo de Scalping - 2026-05-20 16:16:56[0m
+[2026-05-20 16:16:57] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-20 16:16:58] 📈 Top Gainers: ZECUSDT NEARUSDT EDENUSDT 
+[2026-05-20 16:16:58] 📉 Top Losers: BCHUSDT ENJUSDT FOGOUSDT 
+[2026-05-20 16:16:58] [1;33m🔍 Analizando ZECUSDT[0m
+[2026-05-20 16:16:59] 📊 ZECUSDT | Precio: 615.64000000 | 24h: 9.789%
+[2026-05-20 16:16:59]    Soporte: 615.26000000 | Resistencia: 615.48000000
+[2026-05-20 16:16:59]    Volumen Bid: 6.773 | Ask: 3.334
+[2026-05-20 16:17:01] 🎯 DeepSeek: trend=NEUTRAL confidence=0%
+[2026-05-20 16:17:01] ⏸️ Confianza baja (0% < 50%), saltando
+[2026-05-20 16:17:03] [1;33m🔍 Analizando NEARUSDT[0m
+[2026-05-20 16:17:04] 📊 NEARUSDT | Precio: 1.67000000 | 24h: 3.088%
+[2026-05-20 16:17:04]    Soporte: 1.67000000 | Resistencia: 1.67100000
+[2026-05-20 16:17:04]    Volumen Bid: 109321.8 | Ask: 81782.2
+[2026-05-20 16:17:05] 🎯 DeepSeek: trend=NEUTRAL confidence=0%
+[2026-05-20 16:17:05] ⏸️ Confianza baja (0% < 50%), saltando
+[2026-05-20 16:17:07] [1;33m🔍 Analizando EDENUSDT[0m
+[2026-05-20 16:17:08] 📊 EDENUSDT | Precio: 0.08060000 | 24h: 29.791%
+[2026-05-20 16:17:08]    Soporte: 0.08050000 | Resistencia: 0.08060000
+[2026-05-20 16:17:08]    Volumen Bid: 1465857.9000000001 | Ask: 202227
+[2026-05-20 16:17:10] 🎯 DeepSeek: trend=NEUTRAL confidence=0%
+[2026-05-20 16:17:10] ⏸️ Confianza baja (0% < 50%), saltando
+[2026-05-20 16:17:12] [0;32m✅ Ciclo completado - 3 símbolos procesados[0m
+[2026-05-20 16:17:12] ⏰ Esperando 60 segundos para próximo ciclo...
+[2026-05-20 16:18:12] [0;34m📊 Ciclo #3[0m
+[2026-05-20 16:18:12] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-20 16:18:12] [0;34m⚡ Ciclo de Scalping - 2026-05-20 16:18:12[0m
+[2026-05-20 16:18:12] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-20 16:18:14] 📈 Top Gainers: ZECUSDT EDENUSDT ONDOUSDT 
+[2026-05-20 16:18:14] 📉 Top Losers: BCHUSDT ENJUSDT FOGOUSDT 
+[2026-05-20 16:18:14] [1;33m🔍 Analizando ZECUSDT[0m
+[2026-05-20 16:18:15] 📊 ZECUSDT | Precio: 614.05000000 | 24h: 9.564%
+[2026-05-20 16:18:15]    Soporte: 614.07000000 | Resistencia: 614.08000000
+[2026-05-20 16:18:15]    Volumen Bid: 30.292 | Ask: 5.297999999999999
+[2026-05-20 16:18:16] 🎯 DeepSeek: trend=LONG confidence=15%
+[2026-05-20 16:18:16] ⏸️ Confianza baja (15% < 50%), saltando
+[2026-05-20 16:18:18] [1;33m🔍 Analizando EDENUSDT[0m
+[2026-05-20 16:18:19] 📊 EDENUSDT | Precio: 0.08100000 | 24h: 30.435%
+[2026-05-20 16:18:19]    Soporte: 0.08080000 | Resistencia: 0.08090000
+[2026-05-20 16:18:19]    Volumen Bid: 410931.6 | Ask: 411517.4
+[2026-05-20 16:18:20] 🎯 DeepSeek: trend=NEUTRAL confidence=0%
+[2026-05-20 16:18:20] ⏸️ Confianza baja (0% < 50%), saltando
+[2026-05-20 16:18:23] [1;33m🔍 Analizando ONDOUSDT[0m
+[2026-05-20 16:18:24] 📊 ONDOUSDT | Precio: 0.38820000 | 24h: 5.260%
+[2026-05-20 16:18:24]    Soporte: 0.38810000 | Resistencia: 0.38820000
+[2026-05-20 16:18:24]    Volumen Bid: 22470 | Ask: 43209.8
+[2026-05-20 16:18:25] 🎯 DeepSeek: trend=NEUTRAL confidence=30%
+[2026-05-20 16:18:25] ⏸️ Confianza baja (30% < 50%), saltando
+[2026-05-20 16:18:27] [0;32m✅ Ciclo completado - 3 símbolos procesados[0m
+[2026-05-20 16:18:27] ⏰ Esperando 60 segundos para próximo ciclo...
+[2026-05-20 16:19:27] [0;34m📊 Ciclo #4[0m
+[2026-05-20 16:19:27] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-20 16:19:27] [0;34m⚡ Ciclo de Scalping - 2026-05-20 16:19:27[0m
+[2026-05-20 16:19:27] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-20 16:19:29] 📈 Top Gainers: ZECUSDT NEARUSDT EDENUSDT 
+[2026-05-20 16:19:29] 📉 Top Losers: BCHUSDT ENJUSDT FOGOUSDT 
+[2026-05-20 16:19:29] [1;33m🔍 Analizando ZECUSDT[0m
+[2026-05-20 16:19:30] 📊 ZECUSDT | Precio: 614.26000000 | 24h: 9.819%
+[2026-05-20 16:19:30]    Soporte: 614.42000000 | Resistencia: 614.43000000
+[2026-05-20 16:19:30]    Volumen Bid: 4.811999999999999 | Ask: 6.01
+[2026-05-20 16:19:31] 🎯 DeepSeek: trend=NEUTRAL confidence=0%
+[2026-05-20 16:19:31] ⏸️ Confianza baja (0% < 50%), saltando
+[2026-05-20 16:19:33] [1;33m🔍 Analizando NEARUSDT[0m
+[2026-05-20 16:19:34] 📊 NEARUSDT | Precio: 1.66700000 | 24h: 3.476%
+[2026-05-20 16:19:34]    Soporte: 1.66700000 | Resistencia: 1.66800000
+[2026-05-20 16:19:34]    Volumen Bid: 130990.9 | Ask: 83051.29999999999
+[2026-05-20 16:19:36] 🎯 DeepSeek: trend=NEUTRAL confidence=40%
+[2026-05-20 16:19:36] ⏸️ Confianza baja (40% < 50%), saltando
+[2026-05-20 16:19:38] [1;33m🔍 Analizando EDENUSDT[0m
+[2026-05-20 16:19:39] 📊 EDENUSDT | Precio: 0.08030000 | 24h: 29.725%
+[2026-05-20 16:19:39]    Soporte: 0.08030000 | Resistencia: 0.08040000
+[2026-05-20 16:19:39]    Volumen Bid: 496357.5 | Ask: 291267.80000000005
+[2026-05-20 16:19:40] 🎯 DeepSeek: trend=LONG confidence=55%
+[2026-05-20 16:19:40] 📝 SCALP: EDENUSDT LONG | Entry:0.0803803 SL:0.0801392 TP:0.0807822
+[2026-05-20 16:19:40] 📡 Respuesta Finandy: {"success":true,"data":[]}
+[2026-05-20 16:19:41] ✅ Scalp ejecutado: EDENUSDT
+[2026-05-20 16:19:43] [0;32m✅ Ciclo completado - 3 símbolos procesados[0m
+[2026-05-20 16:19:43] ⏰ Esperando 60 segundos para próximo ciclo...
