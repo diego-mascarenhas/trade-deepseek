@@ -36,22 +36,15 @@ else
 fi
 
 # ============================================
-# MODE (dry-run or real)
-# ============================================
-
-DRY_RUN=false
-if [[ "$1" == "--dry-run" ]] || [[ "$1" == "-d" ]]; then
-    DRY_RUN=true
-    echo "🔍 DRY-RUN MODE: No orders will be executed"
-fi
-
-# ============================================
 # CONFIGURATION
 # ============================================
 
 # Binance WebSocket (public - no auth)
 WS_BASE_URL="wss://fstream.binance.com"
 SYMBOLS="${SCALPER_SYMBOLS:-BTCUSDT,ETHUSDT,SOLUSDT}"
+DRY_RUN=false
+SYMBOL_CLI=""
+SINGLE_SYMBOL_MODE=false
 DEPTH="${SCALPER_OB_DEPTH:-10}"
 SPEED="${SCALPER_WS_SPEED:-500ms}"
 
@@ -126,15 +119,86 @@ ADX_VALUE="20"
 ICHOCH_SIGNAL="NEUTRAL"
 CHANGE_24H="0"
 LAST_CYCLE_TIME=0
-
-# Split symbols into array
-IFS=',' read -ra SYMBOL_ARRAY <<< "$SYMBOLS"
 CURRENT_INDEX=0
-NUM_SYMBOLS=${#SYMBOL_ARRAY[@]}
+NUM_SYMBOLS=0
+declare -a SYMBOL_ARRAY
 
 # ============================================
 # HELPER FUNCTIONS
 # ============================================
+
+show_usage() {
+    echo "Usage: $(basename "$0") [options] [SYMBOL]"
+    echo ""
+    echo "Options:"
+    echo "  -d, --dry-run    Do not send orders"
+    echo "  -h, --help       Show this help"
+    echo ""
+    echo "Arguments:"
+    echo "  SYMBOL           Trade only this pair (e.g. BCHUSDT). Overrides SCALPER_SYMBOLS."
+    echo ""
+    echo "Examples:"
+    echo "  $(basename "$0")                    # all symbols from .env"
+    echo "  $(basename "$0") BCHUSDT            # single symbol only"
+    echo "  $(basename "$0") --dry-run BCHUSDT"
+}
+
+parse_cli_args() {
+    while [[ $# -gt 0 ]]; do
+        case "$1" in
+            --dry-run|-d)
+                DRY_RUN=true
+                ;;
+            -h|--help)
+                show_usage
+                exit 0
+                ;;
+            -*)
+                echo "❌ Unknown option: $1"
+                show_usage
+                exit 1
+                ;;
+            *)
+                if [ -n "$SYMBOL_CLI" ]; then
+                    echo "❌ Only one SYMBOL argument is allowed (got: $SYMBOL_CLI and $1)"
+                    exit 1
+                fi
+                SYMBOL_CLI=$(echo "$1" | tr '[:lower:]' '[:upper:]' | tr -d ' ')
+                ;;
+        esac
+        shift
+    done
+
+    if [ -n "$SYMBOL_CLI" ]; then
+        SYMBOLS="$SYMBOL_CLI"
+        SINGLE_SYMBOL_MODE=true
+    fi
+
+    if [ "$DRY_RUN" = true ]; then
+        echo "🔍 DRY-RUN MODE: No orders will be executed"
+    fi
+}
+
+init_symbol_list() {
+    local _sym _i
+    IFS=',' read -ra SYMBOL_ARRAY <<< "$SYMBOLS"
+    for _i in "${!SYMBOL_ARRAY[@]}"; do
+        _sym=$(echo "${SYMBOL_ARRAY[$_i]}" | tr '[:lower:]' '[:upper:]' | tr -d ' ')
+        SYMBOL_ARRAY[$_i]="$_sym"
+    done
+    NUM_SYMBOLS=${#SYMBOL_ARRAY[@]}
+    if [ "$NUM_SYMBOLS" -lt 1 ] || [ -z "${SYMBOL_ARRAY[0]}" ]; then
+        echo "❌ Error: no symbols configured (SCALPER_SYMBOLS or SYMBOL argument)"
+        exit 1
+    fi
+    if [ "$NUM_SYMBOLS" -eq 1 ]; then
+        SINGLE_SYMBOL_MODE=true
+    fi
+    CURRENT_INDEX=0
+}
+
+parse_cli_args "$@"
+init_symbol_list
 
 log() {
     echo -e "[$(date '+%Y-%m-%d %H:%M:%S')] $1" | tee -a "$LOG_DIR/scalper.log"
@@ -648,6 +712,8 @@ update_indicators() {
 # ============================================
 
 rotate_symbol() {
+    # Single-symbol mode: no round-robin
+    [ "$SINGLE_SYMBOL_MODE" = true ] && return 0
     CURRENT_INDEX=$(( (CURRENT_INDEX + 1) % NUM_SYMBOLS ))
     CURRENT_SYMBOL="${SYMBOL_ARRAY[$CURRENT_INDEX]}"
 }
@@ -902,7 +968,11 @@ main() {
     log "🚀 Starting Advanced Scalper Bot v3.0"
     log "📋 Mode: $([ "$DRY_RUN" = true ] && echo "DRY-RUN" || echo "LIVE")"
     log "📊 Order Execution: $ORDER_EXECUTION_MODE"
-    log "📈 Symbols: ${SYMBOLS}"
+    if [ "$SINGLE_SYMBOL_MODE" = true ]; then
+        log "📈 Symbol: ${SYMBOL_ARRAY[0]} (single-symbol mode)"
+    else
+        log "📈 Symbols: ${SYMBOLS}"
+    fi
     log "🔧 Confirmers: RSI, Stoch, ADX, iCHoCH, Liquidity"
     
     if ! command -v jq &> /dev/null; then
@@ -922,4 +992,4 @@ main() {
 
 trap 'echo -e "\n${YELLOW}👋 Shutting down...${NC}"; send_telegram "🛑 Scalper Bot Stopped"; exit 0' INT
 
-main "$@"
+main
