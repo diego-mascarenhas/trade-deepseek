@@ -29,6 +29,18 @@ if [ ! -f "$SCRIPT_DIR/lib/terminal_display.sh" ]; then
 fi
 # shellcheck source=lib/terminal_display.sh
 source "$SCRIPT_DIR/lib/terminal_display.sh"
+if [ ! -f "$SCRIPT_DIR/lib/ob_symbol_state.sh" ]; then
+    echo "❌ Error: lib/ob_symbol_state.sh not found in $SCRIPT_DIR/lib/"
+    exit 1
+fi
+# shellcheck source=lib/ob_symbol_state.sh
+source "$SCRIPT_DIR/lib/ob_symbol_state.sh"
+if [ ! -f "$SCRIPT_DIR/lib/binance_timestamp.sh" ]; then
+    echo "❌ Error: lib/binance_timestamp.sh not found in $SCRIPT_DIR/lib/"
+    exit 1
+fi
+# shellcheck source=lib/binance_timestamp.sh
+source "$SCRIPT_DIR/lib/binance_timestamp.sh"
 if [ -f "$SCRIPT_DIR/lib/binance_position_mode.sh" ]; then
     # shellcheck source=lib/binance_position_mode.sh
     source "$SCRIPT_DIR/lib/binance_position_mode.sh"
@@ -116,13 +128,7 @@ NC='\033[0m'
 # ============================================
 
 CURRENT_SYMBOL=""
-CURRENT_PRICE="0"
-BEST_BID="0"
-BEST_ASK="0"
-SUPPORT_LEVEL="0"
-RESISTANCE_LEVEL="0"
-LIQUIDITY_BID="0"
-LIQUIDITY_ASK="0"
+# Order book per symbol: ob_set/ob_get (lib/ob_symbol_state.sh)
 RSI_VALUE="50"
 STOCH_K="50"
 ADX_VALUE="20"
@@ -281,7 +287,8 @@ send_order_binance_rest() {
     
     local quantity
     quantity=$(calculate_quantity "$symbol" "$entry")
-    local timestamp=$(date +%s%3N)
+    local timestamp
+    timestamp=$(binance_timestamp_ms)
     local recv_window=5000
     
     local query_string="symbol=$symbol&side=$side&type=LIMIT&timeInForce=GTC&quantity=$quantity&price=$entry&timestamp=$timestamp&recvWindow=$recv_window"
@@ -333,6 +340,19 @@ send_order_binance_ws() {
 send_order() {
     local symbol="$1" direction="$2" entry="$3" sl="$4" tp="$5"
     
+    entry=$(round_price_for_symbol "$symbol" "$entry")
+    sl=$(round_price_for_symbol "$symbol" "$sl")
+    tp=$(round_price_for_symbol "$symbol" "$tp")
+
+    if declare -f clamp_limit_price_for_order >/dev/null 2>&1; then
+        local mark clamped_entry
+        mark=$(get_futures_mark_price "$symbol")
+        clamped_entry=$(clamp_limit_price_for_order "$symbol" "$direction" "$entry" "$mark")
+        if [ -n "$clamped_entry" ] && [ "$clamped_entry" != "$entry" ]; then
+            log "⚠️ Entry clamped for $symbol $direction: $entry → $clamped_entry (mark=$mark)"
+            entry="$clamped_entry"
+        fi
+    fi
     entry=$(round_price_for_symbol "$symbol" "$entry")
     sl=$(round_price_for_symbol "$symbol" "$sl")
     tp=$(round_price_for_symbol "$symbol" "$tp")
@@ -465,12 +485,42 @@ get_24h_change() {
 # ANALYZE ORDER BOOK
 # ============================================
 
+is_watched_symbol() {
+    local sym="$1"
+    local s
+    for s in "${SYMBOL_ARRAY[@]}"; do
+        [ "$s" = "$sym" ] && return 0
+    done
+    return 1
+}
+
+# REST snapshot when rotating to a symbol without WS data yet
+hydrate_scalper_symbol() {
+    local symbol="$1"
+    local price
+    price=$(ob_get PRICE "$symbol")
+    if [ -n "$price" ] && [ "$price" != "0" ] && [ "$price" != "null" ]; then
+        return 0
+    fi
+    local depth
+    depth=$(curl -s "https://fapi.binance.com/fapi/v1/depth?symbol=${symbol}&limit=${DEPTH}" 2>/dev/null)
+    [ -z "$depth" ] && return 1
+    local bids asks
+    bids=$(echo "$depth" | jq -c '.bids // []' 2>/dev/null)
+    asks=$(echo "$depth" | jq -c '.asks // []' 2>/dev/null)
+    if [ -n "$bids" ] && [ -n "$asks" ] && [ "$bids" != "[]" ]; then
+        analyze_order_book "$symbol" "$bids" "$asks"
+        ob_set PRICE "$symbol" "$(echo "$depth" | jq -r '.bids[0][0] // 0' 2>/dev/null)"
+    fi
+}
+
 analyze_order_book() {
-    local bids="$1"
-    local asks="$2"
+    local symbol="$1"
+    local bids="$2"
+    local asks="$3"
     
-    BEST_BID=$(echo "$bids" | jq -r '.[0][0] // "0"' 2>/dev/null)
-    BEST_ASK=$(echo "$asks" | jq -r '.[0][0] // "0"' 2>/dev/null)
+    ob_set BID "$symbol" "$(echo "$bids" | jq -r '.[0][0] // "0"' 2>/dev/null)"
+    ob_set ASK "$symbol" "$(echo "$asks" | jq -r '.[0][0] // "0"' 2>/dev/null)"
     
     local bid_liquidity=0
     local ask_liquidity=0
@@ -482,8 +532,8 @@ analyze_order_book() {
         [ -n "$ask_vol" ] && [ "$ask_vol" != "null" ] && ask_liquidity=$(echo "$ask_liquidity + $ask_vol" | bc -l 2>/dev/null)
     done
     
-    LIQUIDITY_BID=$bid_liquidity
-    LIQUIDITY_ASK=$ask_liquidity
+    ob_set BID_LIQ "$symbol" "$bid_liquidity"
+    ob_set ASK_LIQ "$symbol" "$ask_liquidity"
     
     local max_bid_vol=0
     local support="0"
@@ -499,7 +549,7 @@ analyze_order_book() {
             fi
         fi
     done
-    SUPPORT_LEVEL=$support
+    ob_set SUPPORT "$symbol" "$support"
     
     local max_ask_vol=0
     local resistance="0"
@@ -515,7 +565,7 @@ analyze_order_book() {
             fi
         fi
     done
-    RESISTANCE_LEVEL=$resistance
+    ob_set RESISTANCE "$symbol" "$resistance"
 }
 
 # ============================================
@@ -582,14 +632,18 @@ calculate_dynamic_tp_sl() {
 determine_signal() {
     local current_price="$1"
     
-    local support="$SUPPORT_LEVEL"
-    local resistance="$RESISTANCE_LEVEL"
+    local support resistance best_bid best_ask
+    support=$(ob_get SUPPORT "$CURRENT_SYMBOL")
+    resistance=$(ob_get RESISTANCE "$CURRENT_SYMBOL")
+    best_bid=$(ob_get BID "$CURRENT_SYMBOL")
+    best_ask=$(ob_get ASK "$CURRENT_SYMBOL")
     local rsi="$RSI_VALUE"
     local stoch="$STOCH_K"
     local adx="$ADX_VALUE"
     local ichoch="$ICHOCH_SIGNAL"
-    local bid_liq="$LIQUIDITY_BID"
-    local ask_liq="$LIQUIDITY_ASK"
+    local bid_liq ask_liq
+    bid_liq=$(ob_get BID_LIQ "$CURRENT_SYMBOL")
+    ask_liq=$(ob_get ASK_LIQ "$CURRENT_SYMBOL")
     
     local signal="NEUTRAL"
     local confidence=0
@@ -607,7 +661,12 @@ determine_signal() {
                 signal="LONG"
                 confidence=40
                 reasons="Price near support"
-                entry=$(round_price_for_symbol "$CURRENT_SYMBOL" $(echo "$support * 1.001" | bc -l))
+                entry=$(echo "$support * 1.001" | bc -l 2>/dev/null)
+                if [ -n "$best_bid" ] && (( $(echo "$best_bid > 0" | bc -l 2>/dev/null) )) \
+                    && (( $(echo "$entry > $best_bid" | bc -l 2>/dev/null) )); then
+                    entry="$best_bid"
+                fi
+                entry=$(round_price_for_symbol "$CURRENT_SYMBOL" "$entry")
                 
                 if [ -n "$rsi" ] && (( $(echo "$rsi < $RSI_OVERSOLD" | bc -l 2>/dev/null) )); then
                     confidence=$((confidence + 20))
@@ -630,7 +689,12 @@ determine_signal() {
                 signal="SHORT"
                 confidence=40
                 reasons="Price near resistance"
-                entry=$(round_price_for_symbol "$CURRENT_SYMBOL" $(echo "$resistance * 0.999" | bc -l))
+                entry=$(echo "$resistance * 0.999" | bc -l 2>/dev/null)
+                if [ -n "$best_ask" ] && (( $(echo "$best_ask > 0" | bc -l 2>/dev/null) )) \
+                    && (( $(echo "$entry < $best_ask" | bc -l 2>/dev/null) )); then
+                    entry="$best_ask"
+                fi
+                entry=$(round_price_for_symbol "$CURRENT_SYMBOL" "$entry")
                 
                 if [ -n "$rsi" ] && (( $(echo "$rsi > $RSI_OVERBOUGHT" | bc -l 2>/dev/null) )); then
                     confidence=$((confidence + 20))
@@ -669,7 +733,7 @@ update_indicators() {
         RSI_VALUE=$(calculate_rsi "$CURRENT_SYMBOL")
         STOCH_K=$(calculate_stochastic "$CURRENT_SYMBOL")
         ADX_VALUE=$(calculate_adx "$CURRENT_SYMBOL")
-        ICHOCH_SIGNAL=$(calculate_ichoch "$CURRENT_SYMBOL" "$CURRENT_PRICE")
+        ICHOCH_SIGNAL=$(calculate_ichoch "$CURRENT_SYMBOL" "$(ob_get PRICE "$CURRENT_SYMBOL")")
         CHANGE_24H=$(get_24h_change "$CURRENT_SYMBOL")
     fi
 }
@@ -683,6 +747,7 @@ rotate_symbol() {
     [ "$SINGLE_SYMBOL_MODE" = true ] && return 0
     CURRENT_INDEX=$(( (CURRENT_INDEX + 1) % NUM_SYMBOLS ))
     CURRENT_SYMBOL="${SYMBOL_ARRAY[$CURRENT_INDEX]}"
+    hydrate_scalper_symbol "$CURRENT_SYMBOL"
 }
 
 # ============================================
@@ -701,7 +766,10 @@ draw_visualization() {
     echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
     echo ""
     
-    local signal_data=$(determine_signal "$CURRENT_PRICE")
+    local current_price
+    current_price=$(ob_get PRICE "$CURRENT_SYMBOL")
+    local signal_data
+    signal_data=$(determine_signal "$current_price")
     local signal=$(echo "$signal_data" | cut -d'|' -f1)
     local confidence=$(echo "$signal_data" | cut -d'|' -f2)
     local entry=$(echo "$signal_data" | cut -d'|' -f3)
@@ -709,8 +777,16 @@ draw_visualization() {
     
     # Calculate spread
     local spread=0
-    if [ "$BEST_BID" != "0" ] && [ "$BEST_ASK" != "0" ] && [ "$BEST_BID" != "null" ] && [ "$BEST_ASK" != "null" ]; then
-        spread=$(echo "$BEST_ASK - $BEST_BID" | bc -l 2>/dev/null)
+    local best_bid best_ask support resistance bid_liq ask_liq
+    best_bid=$(ob_get BID "$CURRENT_SYMBOL")
+    best_ask=$(ob_get ASK "$CURRENT_SYMBOL")
+    support=$(ob_get SUPPORT "$CURRENT_SYMBOL")
+    resistance=$(ob_get RESISTANCE "$CURRENT_SYMBOL")
+    bid_liq=$(ob_get BID_LIQ "$CURRENT_SYMBOL")
+    ask_liq=$(ob_get ASK_LIQ "$CURRENT_SYMBOL")
+
+    if [ "$best_bid" != "0" ] && [ "$best_ask" != "0" ] && [ "$best_bid" != "null" ] && [ "$best_ask" != "null" ]; then
+        spread=$(echo "$best_ask - $best_bid" | bc -l 2>/dev/null)
     fi
     
     # Calculate dynamic TP/SL if signal is valid
@@ -752,9 +828,9 @@ draw_visualization() {
     fi
     
     echo -e "${CYAN}  📊 Order Book:${NC}"
-    printf "    ${GREEN}Best Bid: %10s${NC}  ${RED}Best Ask: %10s${NC}\n" "$BEST_BID" "$BEST_ASK"
-    printf "    ${GREEN}Support: %10s${NC}  ${RED}Resistance: %10s${NC}\n" "$SUPPORT_LEVEL" "$RESISTANCE_LEVEL"
-    printf "    ${BLUE}Bid Liq: %.0f USDT${NC}  ${BLUE}Ask Liq: %.0f USDT${NC}\n" "$LIQUIDITY_BID" "$LIQUIDITY_ASK"
+    printf "    ${GREEN}Best Bid: %10s${NC}  ${RED}Best Ask: %10s${NC}\n" "$best_bid" "$best_ask"
+    printf "    ${GREEN}Support: %10s${NC}  ${RED}Resistance: %10s${NC}\n" "$support" "$resistance"
+    printf "    ${BLUE}Bid Liq: %.0f USDT${NC}  ${BLUE}Ask Liq: %.0f USDT${NC}\n" "$bid_liq" "$ask_liq"
     
     echo -e "${MAGENTA}  📈 Indicators:${NC}"
     printf "    RSI: %3.0f  " "$RSI_VALUE"
@@ -787,18 +863,23 @@ draw_visualization() {
 
 process_message() {
     local msg="$1"
-    local symbol=$(echo "$msg" | jq -r '.s // empty' 2>/dev/null)
-    
-    if [ -z "$symbol" ] || [ "$symbol" != "$CURRENT_SYMBOL" ]; then
-        return
+    local stream_symbol="${2:-}"
+    local symbol
+    symbol=$(echo "$msg" | jq -r '.s // empty' 2>/dev/null)
+    if [ -z "$symbol" ] && [ -n "$stream_symbol" ]; then
+        symbol="$stream_symbol"
     fi
     
-    local bids=$(echo "$msg" | jq -c '.b' 2>/dev/null)
-    local asks=$(echo "$msg" | jq -c '.a' 2>/dev/null)
+    [ -z "$symbol" ] && return
+    is_watched_symbol "$symbol" || return
+    
+    local bids asks
+    bids=$(echo "$msg" | jq -c '.b' 2>/dev/null)
+    asks=$(echo "$msg" | jq -c '.a' 2>/dev/null)
     
     if [ -n "$bids" ] && [ -n "$asks" ]; then
-        analyze_order_book "$bids" "$asks"
-        CURRENT_PRICE=$(echo "$msg" | jq -r '.b[0][0] // .a[0][0]' 2>/dev/null)
+        analyze_order_book "$symbol" "$bids" "$asks"
+        ob_set PRICE "$symbol" "$(echo "$msg" | jq -r '.b[0][0] // .a[0][0]' 2>/dev/null)"
     fi
 }
 
@@ -814,8 +895,10 @@ run_cycle_analysis() {
     fi
     LAST_CYCLE_TIME=$current_time
     
+    hydrate_scalper_symbol "$CURRENT_SYMBOL"
     update_indicators
     draw_visualization
+    rotate_symbol
 }
 
 # ============================================
@@ -858,16 +941,19 @@ connect_websocket() {
     # Initialize first symbol
     CURRENT_SYMBOL="${SYMBOL_ARRAY[0]}"
     CURRENT_INDEX=0
+    hydrate_scalper_symbol "$CURRENT_SYMBOL"
     
     while true; do
         while IFS= read -r line; do
             if [ -n "$line" ]; then
-                local data=$(echo "$line" | jq -r '.data // empty' 2>/dev/null)
-                if [ -n "$data" ]; then
-                    process_message "$data"
+                local stream stream_sym data
+                stream=$(echo "$line" | jq -r '.stream // empty' 2>/dev/null)
+                stream_sym=$(ob_symbol_from_stream "$stream")
+                data=$(echo "$line" | jq -c '.data // empty' 2>/dev/null)
+                if [ -n "$data" ] && [ "$data" != "null" ]; then
+                    process_message "$data" "$stream_sym"
                 fi
                 run_cycle_analysis
-                rotate_symbol
             fi
         done < <(websocat --text "$ws_url" 2>/dev/null)
         

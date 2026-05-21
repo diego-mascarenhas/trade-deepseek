@@ -1,68 +1,121 @@
 #!/bin/bash
-# Binance Futures price/qty rounding (tickSize / stepSize from exchangeInfo)
+# Binance Futures price/qty rounding (tickSize / stepSize) — bash 3.2+ safe (no declare -A)
 
-declare -A SYMBOL_TICK_SIZE
-declare -A SYMBOL_STEP_SIZE
-declare -A SYMBOL_PRICE_PRECISION
-declare -A SYMBOL_QTY_PRECISION
-declare -A SYMBOL_PRECISION_LOADED
+_bnp_var_name() {
+    local field="$1"
+    local sym="$2"
+    sym=$(echo "$sym" | tr -cd 'A-Za-z0-9_')
+    echo "BNP_${field}__${sym}"
+}
+
+_bnp_set() {
+    local field="$1" sym="$2" val="$3"
+    local vn
+    vn=$(_bnp_var_name "$field" "$sym")
+    printf -v "$vn" '%s' "$val"
+}
+
+_bnp_get() {
+    local field="$1" sym="$2"
+    local vn v
+    vn=$(_bnp_var_name "$field" "$sym")
+    v="${!vn}"
+    echo "$v"
+}
+
+# Decimal places from tickSize/stepSize (0.0001 -> 4, 0.00010 -> 4, 0.1 -> 1)
+_decimal_places_from_step() {
+    local step="$1" norm frac
+    norm=$(echo "$step" | sed -e 's/0*$//' -e 's/\.$//')
+    if [[ "$norm" != *.* ]]; then
+        echo 0
+        return 0
+    fi
+    frac="${norm#*.}"
+    echo "${#frac}"
+}
+
+# Round value to step/tick via bc (avoids awk float noise → Binance -1111)
+_bn_format_to_step() {
+    local value="$1"
+    local step="$2"
+    local mode="${3:-round}" # round | floor
+    local dec n result
+
+    if [ -z "$value" ] || [ "$value" = "0" ]; then
+        echo "0"
+        return 0
+    fi
+    if [ -z "$step" ] || ! (( $(echo "$step > 0" | bc -l 2>/dev/null) )); then
+        echo "$value"
+        return 0
+    fi
+
+    dec=$(_decimal_places_from_step "$step")
+    if [ "$mode" = "floor" ]; then
+        n=$(echo "scale=0; $value / $step" | bc 2>/dev/null)
+    else
+        n=$(echo "scale=0; $value / $step + 0.5" | bc 2>/dev/null)
+    fi
+    [ -z "$n" ] || [ "$n" -lt 1 ] 2>/dev/null && n=1
+    result=$(echo "scale=${dec}; $n * $step / 1" | bc -l 2>/dev/null)
+    if [ -z "$result" ]; then
+        echo "$value"
+        return 0
+    fi
+    if [ "$dec" -gt 0 ] 2>/dev/null; then
+        LC_NUMERIC=C printf "%.*f\n" "$dec" "$result"
+    else
+        LC_NUMERIC=C printf "%.0f\n" "$result"
+    fi
+}
 
 _round_to_tick() {
-    local value="$1"
-    local tick="$2"
-    local prec="${3:-8}"
-    awk -v v="$value" -v t="$tick" -v p="$prec" 'BEGIN {
-        if (v == "" || v == 0) { print "0"; exit }
-        if (t <= 0) { printf "%.*f", p, v; exit }
-        n = int((v / t) + 0.5)
-        if (n < 1) n = 1
-        printf "%.*f", p, n * t
-    }'
+    _bn_format_to_step "$1" "$2" "round"
 }
 
 _round_to_step_floor() {
-    local value="$1"
-    local step="$2"
-    local prec="${3:-8}"
-    awk -v v="$value" -v s="$step" -v p="$prec" 'BEGIN {
-        if (v == "" || v == 0) { print "0"; exit }
-        if (s <= 0) { printf "%.*f", p, v; exit }
-        n = int(v / s)
-        if (n < 1) n = 1
-        printf "%.*f", p, n * s
-    }'
+    _bn_format_to_step "$1" "$2" "floor"
 }
 
 load_symbol_precision() {
     local symbol="$1"
-    [ -n "${SYMBOL_PRECISION_LOADED[$symbol]}" ] && return 0
+    local loaded
+    loaded=$(_bnp_get LOADED "$symbol")
+    [ -n "$loaded" ] && return 0
     init_all_symbol_precision "$symbol"
 }
 
-# One API call for all configured symbols
 init_all_symbol_precision() {
     local symbols=("$@")
-    local exchange
+    local exchange symbol tick step mult_up mult_down
     exchange=$(curl -s "https://fapi.binance.com/fapi/v1/exchangeInfo" 2>/dev/null)
     [ -z "$exchange" ] && return 1
 
     for symbol in "${symbols[@]}"; do
-        SYMBOL_TICK_SIZE[$symbol]=$(echo "$exchange" | jq -r "
+        tick=$(echo "$exchange" | jq -r "
             .symbols[] | select(.symbol==\"$symbol\") |
             .filters[] | select(.filterType==\"PRICE_FILTER\") | .tickSize" 2>/dev/null | head -1)
-        SYMBOL_STEP_SIZE[$symbol]=$(echo "$exchange" | jq -r "
+        step=$(echo "$exchange" | jq -r "
             .symbols[] | select(.symbol==\"$symbol\") |
             .filters[] | select(.filterType==\"LOT_SIZE\") | .stepSize" 2>/dev/null | head -1)
-        SYMBOL_PRICE_PRECISION[$symbol]=$(echo "$exchange" | jq -r "
-            .symbols[] | select(.symbol==\"$symbol\") | .pricePrecision" 2>/dev/null | head -1)
-        SYMBOL_QTY_PRECISION[$symbol]=$(echo "$exchange" | jq -r "
-            .symbols[] | select(.symbol==\"$symbol\") | .quantityPrecision" 2>/dev/null | head -1)
+        mult_up=$(echo "$exchange" | jq -r "
+            .symbols[] | select(.symbol==\"$symbol\") |
+            .filters[] | select(.filterType==\"PERCENT_PRICE\") | .multiplierUp" 2>/dev/null | head -1)
+        mult_down=$(echo "$exchange" | jq -r "
+            .symbols[] | select(.symbol==\"$symbol\") |
+            .filters[] | select(.filterType==\"PERCENT_PRICE\") | .multiplierDown" 2>/dev/null | head -1)
 
-        SYMBOL_TICK_SIZE[$symbol]="${SYMBOL_TICK_SIZE[$symbol]:-0.01}"
-        SYMBOL_STEP_SIZE[$symbol]="${SYMBOL_STEP_SIZE[$symbol]:-0.001}"
-        SYMBOL_PRICE_PRECISION[$symbol]="${SYMBOL_PRICE_PRECISION[$symbol]:-2}"
-        SYMBOL_QTY_PRECISION[$symbol]="${SYMBOL_QTY_PRECISION[$symbol]:-3}"
-        SYMBOL_PRECISION_LOADED[$symbol]=1
+        tick="${tick:-0.01}"
+        step="${step:-0.001}"
+        mult_up="${mult_up:-1.05}"
+        mult_down="${mult_down:-0.95}"
+
+        _bnp_set TICK "$symbol" "$tick"
+        _bnp_set STEP "$symbol" "$step"
+        _bnp_set MUP "$symbol" "$mult_up"
+        _bnp_set MDOWN "$symbol" "$mult_down"
+        _bnp_set LOADED "$symbol" "1"
     done
     return 0
 }
@@ -70,15 +123,74 @@ init_all_symbol_precision() {
 round_price_for_symbol() {
     local symbol="$1"
     local price="$2"
+    local tick
     [ -z "$price" ] || [ "$price" = "0" ] && echo "0" && return 0
-    [ -z "${SYMBOL_PRECISION_LOADED[$symbol]}" ] && load_symbol_precision "$symbol"
-    _round_to_tick "$price" "${SYMBOL_TICK_SIZE[$symbol]}" "${SYMBOL_PRICE_PRECISION[$symbol]}"
+    load_symbol_precision "$symbol"
+    tick=$(_bnp_get TICK "$symbol")
+    tick="${tick:-0.01}"
+    _round_to_tick "$price" "$tick"
 }
 
 round_qty_for_symbol() {
     local symbol="$1"
     local qty="$2"
+    local step
     [ -z "$qty" ] || [ "$qty" = "0" ] && echo "0" && return 0
-    [ -z "${SYMBOL_PRECISION_LOADED[$symbol]}" ] && load_symbol_precision "$symbol"
-    _round_to_step_floor "$qty" "${SYMBOL_STEP_SIZE[$symbol]}" "${SYMBOL_QTY_PRECISION[$symbol]}"
+    load_symbol_precision "$symbol"
+    step=$(_bnp_get STEP "$symbol")
+    step="${step:-0.001}"
+    _round_to_step_floor "$qty" "$step"
+}
+
+get_futures_mark_price() {
+    local symbol="$1"
+    local mark
+    mark=$(curl -s "https://fapi.binance.com/fapi/v1/premiumIndex?symbol=${symbol}" 2>/dev/null \
+        | jq -r '.markPrice // empty' 2>/dev/null)
+    echo "$mark"
+}
+
+clamp_limit_price_for_order() {
+    local symbol="$1"
+    local direction="$2"
+    local price="$3"
+    local mark="${4:-}"
+    local tick mult_up mult_down raw
+
+    [ -z "$price" ] || [ "$price" = "0" ] && echo "0" && return 0
+    load_symbol_precision "$symbol"
+
+    tick=$(_bnp_get TICK "$symbol")
+    tick="${tick:-0.01}"
+    mult_up=$(_bnp_get MUP "$symbol")
+    mult_down=$(_bnp_get MDOWN "$symbol")
+    mult_up="${mult_up:-1.05}"
+    mult_down="${mult_down:-0.95}"
+
+    if [ -z "$mark" ] || [ "$mark" = "null" ]; then
+        mark=$(get_futures_mark_price "$symbol")
+    fi
+    if [ -z "$mark" ] || [ "$mark" = "null" ]; then
+        round_price_for_symbol "$symbol" "$price"
+        return 0
+    fi
+
+    case "$(echo "$direction" | tr '[:lower:]' '[:upper:]')" in
+        LONG|BUY)
+            raw=$(awk -v p="$price" -v m="$mark" -v u="$mult_up" 'BEGIN {
+                maxp = m * u
+                print (p > maxp) ? maxp : p
+            }')
+            ;;
+        SHORT|SELL)
+            raw=$(awk -v p="$price" -v m="$mark" -v d="$mult_down" 'BEGIN {
+                minp = m * d
+                print (p < minp) ? minp : p
+            }')
+            ;;
+        *)
+            raw="$price"
+            ;;
+    esac
+    round_price_for_symbol "$symbol" "$raw"
 }

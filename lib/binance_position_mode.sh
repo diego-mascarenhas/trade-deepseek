@@ -1,6 +1,12 @@
 #!/bin/bash
 # Binance Futures: One-way vs Hedge (dual) position mode for REST orders
 
+_LIB_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+if ! declare -f binance_timestamp_ms >/dev/null 2>&1; then
+    # shellcheck source=lib/binance_timestamp.sh
+    source "$_LIB_DIR/binance_timestamp.sh"
+fi
+
 BINANCE_HEDGE_MODE=false
 
 _binance_fapi_signature() {
@@ -31,7 +37,7 @@ detect_binance_position_mode() {
     fi
 
     local timestamp
-    timestamp=$(date +%s%3N)
+    timestamp=$(binance_timestamp_ms)
     local recv_window=5000
     local qs="timestamp=${timestamp}&recvWindow=${recv_window}"
     local sig

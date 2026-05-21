@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # ============================================
 # Scalper Bot v5.0 - CON CONTROL DE POSICIONES
@@ -28,6 +28,18 @@ if [ ! -f "$SCRIPT_DIR/lib/terminal_display.sh" ]; then
 fi
 # shellcheck source=lib/terminal_display.sh
 source "$SCRIPT_DIR/lib/terminal_display.sh"
+if [ ! -f "$SCRIPT_DIR/lib/ob_symbol_state.sh" ]; then
+    echo "❌ Error: lib/ob_symbol_state.sh not found in $SCRIPT_DIR/lib/"
+    exit 1
+fi
+# shellcheck source=lib/ob_symbol_state.sh
+source "$SCRIPT_DIR/lib/ob_symbol_state.sh"
+if [ ! -f "$SCRIPT_DIR/lib/binance_timestamp.sh" ]; then
+    echo "❌ Error: lib/binance_timestamp.sh not found in $SCRIPT_DIR/lib/"
+    exit 1
+fi
+# shellcheck source=lib/binance_timestamp.sh
+source "$SCRIPT_DIR/lib/binance_timestamp.sh"
 if [ -f "$SCRIPT_DIR/lib/binance_position_mode.sh" ]; then
     # shellcheck source=lib/binance_position_mode.sh
     source "$SCRIPT_DIR/lib/binance_position_mode.sh"
@@ -97,9 +109,7 @@ NC='\033[0m'
 # CONTROL DE POSICIONES ABIERTAS
 # ============================================
 
-declare -A ACTIVE_POSITIONS
-declare -A ACTIVE_TIMESTAMP
-declare -A POSITION_DIRECTION
+# Position flags use ob_set/ob_get (see lib/ob_symbol_state.sh)
 
 # ============================================
 # FUNCIONES
@@ -141,13 +151,13 @@ check_open_position() {
     
     if [ -z "$BINANCE_API_KEY" ] || [ -z "$BINANCE_SECRET_KEY" ]; then
         # Fallback: usar memoria local
-        if [ "${ACTIVE_POSITIONS[$symbol]}" = "true" ]; then
-            local elapsed=$(($(date +%s) - ${ACTIVE_TIMESTAMP[$symbol]}))
+        if [ "$(ob_get ACTIVE "$symbol")" = "true" ]; then
+            local elapsed=$(($(date +%s) - $(ob_get ACTIVE_TS "$symbol")))
             if [ $elapsed -lt $ORDER_COOLDOWN_SECONDS ]; then
                 echo "active"
                 return 0
             else
-                ACTIVE_POSITIONS[$symbol]="false"
+                ob_set ACTIVE "$symbol" "false"
                 echo "none"
                 return 1
             fi
@@ -158,9 +168,11 @@ check_open_position() {
     fi
     
     # Consultar API de Binance
-    local timestamp=$(date +%s%3N)
+    local timestamp
+    timestamp=$(binance_timestamp_ms)
     local query_string="timestamp=$timestamp&recvWindow=5000"
-    local signature=$(echo -n "$query_string" | openssl dgst -sha256 -hmac "$BINANCE_SECRET_KEY" | cut -d' ' -f2)
+    local signature
+    signature=$(echo -n "$query_string" | openssl dgst -sha256 -hmac "$BINANCE_SECRET_KEY" | awk '{print $2}')
     
     local positions=$(curl -s -X GET "https://fapi.binance.com/fapi/v2/positionRisk?$query_string&signature=$signature" \
         -H "X-MBX-APIKEY: $BINANCE_API_KEY" 2>/dev/null)
@@ -187,9 +199,11 @@ set_leverage() {
         return 1
     fi
     
-    local timestamp=$(date +%s%3N)
+    local timestamp
+    timestamp=$(binance_timestamp_ms)
     local query_string="symbol=$symbol&leverage=$LEVERAGE&timestamp=$timestamp&recvWindow=5000"
-    local signature=$(echo -n "$query_string" | openssl dgst -sha256 -hmac "$BINANCE_SECRET_KEY" | cut -d' ' -f2)
+    local signature
+    signature=$(echo -n "$query_string" | openssl dgst -sha256 -hmac "$BINANCE_SECRET_KEY" | awk '{print $2}')
     
     curl -s -X POST "https://fapi.binance.com/fapi/v1/leverage" \
         -H "X-MBX-APIKEY: $BINANCE_API_KEY" \
@@ -235,7 +249,8 @@ send_order_binance_rest() {
     set_leverage "$symbol"
     sleep 0.3
     
-    local timestamp=$(date +%s%3N)
+    local timestamp
+    timestamp=$(binance_timestamp_ms)
     local recv_window=5000
     local order_name="Deepseek"
     
@@ -263,9 +278,9 @@ send_order_binance_rest() {
         send_telegram "✅ ORDER: $symbol $direction Entry:$entry TP:$tp SL:$sl"
         
         # Marcar posición como activa
-        ACTIVE_POSITIONS[$symbol]="true"
-        ACTIVE_TIMESTAMP[$symbol]=$(date +%s)
-        POSITION_DIRECTION[$symbol]="$direction"
+        ob_set ACTIVE "$symbol" "true"
+        ob_set ACTIVE_TS "$symbol" "$(date +%s)"
+        ob_set POS_DIR "$symbol" "$direction"
         return 0
     else
         log_error "Order failed: $response"
@@ -321,8 +336,8 @@ EOF
     if echo "$response" | jq -e '.code == 200 or .success == true' >/dev/null 2>&1; then
         log "✅ Order executed via Finandy"
         send_telegram "✅ ORDER: $symbol $direction Entry:$entry"
-        ACTIVE_POSITIONS[$symbol]="true"
-        ACTIVE_TIMESTAMP[$symbol]=$(date +%s)
+        ob_set ACTIVE "$symbol" "true"
+        ob_set ACTIVE_TS "$symbol" "$(date +%s)"
     else
         log_error "Order failed: $response"
     fi
@@ -335,6 +350,19 @@ EOF
 send_order() {
     local symbol="$1" direction="$2" entry="$3" sl="$4" tp="$5"
     
+    entry=$(round_price_for_symbol "$symbol" "$entry")
+    sl=$(round_price_for_symbol "$symbol" "$sl")
+    tp=$(round_price_for_symbol "$symbol" "$tp")
+
+    if declare -f clamp_limit_price_for_order >/dev/null 2>&1; then
+        local mark clamped_entry
+        mark=$(get_futures_mark_price "$symbol")
+        clamped_entry=$(clamp_limit_price_for_order "$symbol" "$direction" "$entry" "$mark")
+        if [ -n "$clamped_entry" ] && [ "$clamped_entry" != "$entry" ]; then
+            log "⚠️ Entry clamped for $symbol $direction: $entry → $clamped_entry (mark=$mark)"
+            entry="$clamped_entry"
+        fi
+    fi
     entry=$(round_price_for_symbol "$symbol" "$entry")
     sl=$(round_price_for_symbol "$symbol" "$sl")
     tp=$(round_price_for_symbol "$symbol" "$tp")
@@ -366,20 +394,14 @@ send_order() {
 
 get_24h_change() {
     local symbol="$1"
-    local ticker=$(curl -s "https://api.binance.com/api/v3/ticker/24hr?symbol=$symbol" 2>/dev/null)
+    local ticker
+    ticker=$(curl -s "https://fapi.binance.com/fapi/v1/ticker/24hr?symbol=$symbol" 2>/dev/null)
     echo "$ticker" | jq -r '.priceChangePercent // 0' 2>/dev/null
 }
 
 # ============================================
 # GLOBAL VARIABLES FOR OB DATA
 # ============================================
-
-declare -A CURRENT_PRICE
-declare -A BEST_BID
-declare -A BEST_ASK
-declare -A SUPPORT_LEVEL
-declare -A RESISTANCE_LEVEL
-declare -A CHANGE_24H
 
 declare -a SYMBOL_ARRAY
 CURRENT_INDEX=0
@@ -422,8 +444,8 @@ analyze_order_book() {
     local bids="$2"
     local asks="$3"
     
-    BEST_BID[$symbol]=$(echo "$bids" | jq -r '.[0][0] // "0"' 2>/dev/null)
-    BEST_ASK[$symbol]=$(echo "$asks" | jq -r '.[0][0] // "0"' 2>/dev/null)
+    ob_set BID "$symbol" "$(echo "$bids" | jq -r '.[0][0] // "0"' 2>/dev/null)"
+    ob_set ASK "$symbol" "$(echo "$asks" | jq -r '.[0][0] // "0"' 2>/dev/null)"
     
     # Find support (strongest bid wall)
     local max_bid_vol=0
@@ -457,14 +479,15 @@ analyze_order_book() {
         fi
     done
     
-    SUPPORT_LEVEL[$symbol]=$support
-    RESISTANCE_LEVEL[$symbol]=$resistance
+    ob_set SUPPORT "$symbol" "$support"
+    ob_set RESISTANCE "$symbol" "$resistance"
 }
 
 # REST fallback when WebSocket has not populated a symbol yet
 hydrate_missing_symbols() {
     for symbol in "${SYMBOL_ARRAY[@]}"; do
-        local price="${CURRENT_PRICE[$symbol]:-0}"
+        local price
+        price=$(ob_get PRICE "$symbol")
         if [ -n "$price" ] && [ "$price" != "0" ] && [ "$price" != "null" ]; then
             continue
         fi
@@ -474,7 +497,7 @@ hydrate_missing_symbols() {
         local asks=$(echo "$depth" | jq -c '.asks // []' 2>/dev/null)
         if [ -n "$bids" ] && [ -n "$asks" ] && [ "$bids" != "[]" ]; then
             analyze_order_book "$symbol" "$bids" "$asks"
-            CURRENT_PRICE[$symbol]=$(echo "$depth" | jq -r '.bids[0][0] // 0' 2>/dev/null)
+            ob_set PRICE "$symbol" "$(echo "$depth" | jq -r '.bids[0][0] // 0' 2>/dev/null)"
         fi
     done
 }
@@ -495,8 +518,11 @@ determine_signal() {
         return
     fi
     
-    local support="${SUPPORT_LEVEL[$symbol]:-0}"
-    local resistance="${RESISTANCE_LEVEL[$symbol]:-0}"
+    local support resistance best_bid best_ask
+    support=$(ob_get SUPPORT "$symbol")
+    resistance=$(ob_get RESISTANCE "$symbol")
+    best_bid=$(ob_get BID "$symbol")
+    best_ask=$(ob_get ASK "$symbol")
     
     local signal="NEUTRAL"
     local confidence=0
@@ -515,7 +541,12 @@ determine_signal() {
             if [ -n "$position" ] && (( $(echo "$position < 25" | bc -l 2>/dev/null) )); then
                 signal="LONG"
                 confidence=65
-                entry=$(round_price_for_symbol "$symbol" $(echo "$support * 1.001" | bc -l))
+                entry=$(echo "$support * 1.001" | bc -l 2>/dev/null)
+                if [ -n "$best_bid" ] && (( $(echo "$best_bid > 0" | bc -l 2>/dev/null) )) \
+                    && (( $(echo "$entry > $best_bid" | bc -l 2>/dev/null) )); then
+                    entry="$best_bid"
+                fi
+                entry=$(round_price_for_symbol "$symbol" "$entry")
                 reasons="OB: near support"
                 
                 if (( $(echo "$change_24h < -3" | bc -l 2>/dev/null) )); then
@@ -526,7 +557,12 @@ determine_signal() {
             elif [ -n "$position" ] && (( $(echo "$position > 75" | bc -l 2>/dev/null) )); then
                 signal="SHORT"
                 confidence=65
-                entry=$(round_price_for_symbol "$symbol" $(echo "$resistance * 0.999" | bc -l))
+                entry=$(echo "$resistance * 0.999" | bc -l 2>/dev/null)
+                if [ -n "$best_ask" ] && (( $(echo "$best_ask > 0" | bc -l 2>/dev/null) )) \
+                    && (( $(echo "$entry < $best_ask" | bc -l 2>/dev/null) )); then
+                    entry="$best_ask"
+                fi
+                entry=$(round_price_for_symbol "$symbol" "$entry")
                 reasons="OB: near resistance"
                 
                 if (( $(echo "$change_24h > 3" | bc -l 2>/dev/null) )); then
@@ -622,7 +658,12 @@ calculate_tp_sl() {
 
 process_message() {
     local msg="$1"
-    local symbol=$(echo "$msg" | jq -r '.s // empty' 2>/dev/null)
+    local stream_symbol="${2:-}"
+    local symbol
+    symbol=$(echo "$msg" | jq -r '.s // empty' 2>/dev/null)
+    if [ -z "$symbol" ] && [ -n "$stream_symbol" ]; then
+        symbol="$stream_symbol"
+    fi
     
     [ -z "$symbol" ] && return
     
@@ -631,7 +672,7 @@ process_message() {
     
     if [ -n "$bids" ] && [ -n "$asks" ]; then
         analyze_order_book "$symbol" "$bids" "$asks"
-        CURRENT_PRICE[$symbol]=$(echo "$msg" | jq -r '.b[0][0] // .a[0][0]' 2>/dev/null)
+        ob_set PRICE "$symbol" "$(echo "$msg" | jq -r '.b[0][0] // .a[0][0]' 2>/dev/null)"
     fi
 }
 
@@ -641,7 +682,7 @@ process_message() {
 
 update_24h_changes() {
     for symbol in "${SYMBOL_ARRAY[@]}"; do
-        CHANGE_24H[$symbol]=$(get_24h_change "$symbol")
+        ob_set CHANGE24 "$symbol" "$(get_24h_change "$symbol")"
     done
 }
 
@@ -659,16 +700,17 @@ draw_and_execute() {
     echo ""
     
     for symbol in "${SYMBOL_ARRAY[@]}"; do
-        local price="${CURRENT_PRICE[$symbol]:-0}"
-        local best_bid="${BEST_BID[$symbol]:-0}"
-        local best_ask="${BEST_ASK[$symbol]:-0}"
-        local support="${SUPPORT_LEVEL[$symbol]:-0}"
-        local resistance="${RESISTANCE_LEVEL[$symbol]:-0}"
-        local change="${CHANGE_24H[$symbol]:-0}"
+        local price best_bid best_ask support resistance change
+        price=$(ob_get PRICE "$symbol")
+        best_bid=$(ob_get BID "$symbol")
+        best_ask=$(ob_get ASK "$symbol")
+        support=$(ob_get SUPPORT "$symbol")
+        resistance=$(ob_get RESISTANCE "$symbol")
+        change=$(ob_get CHANGE24 "$symbol")
         
         # Check if position is active for display
         local position_active=""
-        if [ "${ACTIVE_POSITIONS[$symbol]}" = "true" ]; then
+        if [ "$(ob_get ACTIVE "$symbol")" = "true" ]; then
             position_active=" ${RED}[POSITION ACTIVE]${NC}"
         fi
         
@@ -702,9 +744,9 @@ draw_and_execute() {
             echo -e "   Reasons: $reasons"
             
             # Execute order
-            if [ "$DRY_RUN" = false ] && [ "${ACTIVE_POSITIONS[$symbol]}" != "true" ]; then
+            if [ "$DRY_RUN" = false ] && [ "$(ob_get ACTIVE "$symbol")" != "true" ]; then
                 send_order "$symbol" "$signal" "$entry" "$sl" "$tp"
-            elif [ "${ACTIVE_POSITIONS[$symbol]}" = "true" ]; then
+            elif [ "$(ob_get ACTIVE "$symbol")" = "true" ]; then
                 echo -e "   ${YELLOW}⏸️ Position already active - skipping${NC}"
             fi
             
@@ -772,9 +814,12 @@ connect_websocket() {
         # Process substitution (not pipe) so declare -A state persists in this shell
         while IFS= read -r line; do
             if [ -n "$line" ]; then
-                local data=$(echo "$line" | jq -r '.data // empty' 2>/dev/null)
-                if [ -n "$data" ]; then
-                    process_message "$data"
+                local stream stream_sym data
+                stream=$(echo "$line" | jq -r '.stream // empty' 2>/dev/null)
+                stream_sym=$(ob_symbol_from_stream "$stream")
+                data=$(echo "$line" | jq -c '.data // empty' 2>/dev/null)
+                if [ -n "$data" ] && [ "$data" != "null" ]; then
+                    process_message "$data" "$stream_sym"
                 fi
                 run_cycle
             fi

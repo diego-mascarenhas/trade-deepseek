@@ -4,3 +4,20 @@
 [0;31m[2026-05-20 20:15:26] ERROR: Connection lost. Reconnecting in 5 seconds...[0m
 [0;31m[2026-05-20 20:32:58] ERROR: Connection lost. Reconnecting in 5 seconds...[0m
 [0;31m[2026-05-20 21:18:11] ERROR: Connection lost. Reconnecting in 5 seconds...[0m
+[0;31m[2026-05-21 11:20:20] ERROR: Could not detect position mode (set BINANCE_POSITION_MODE=hedge or oneway in .env)[0m
+[0;31m[2026-05-21 11:21:30] ERROR: Could not detect position mode (set BINANCE_POSITION_MODE=hedge or oneway in .env)[0m
+[0;31m[2026-05-21 11:21:35] ERROR: Order failed: {"code":-1102,"msg":"Mandatory parameter 'timestamp' was not sent, was empty/null, or malformed."}[0m
+[0;31m[2026-05-21 11:21:41] ERROR: Order failed: {"code":-1102,"msg":"Mandatory parameter 'timestamp' was not sent, was empty/null, or malformed."}[0m
+[0;31m[2026-05-21 12:32:35] ERROR: REST order failed: {"code":-1111,"msg":"Precision is over the maximum defined for this asset."}[0m
+[0;31m[2026-05-21 12:33:35] ERROR: REST order failed: {"code":-4016,"msg":"Limit price can't be higher than 2.245."}[0m
+[0;31m[2026-05-21 12:34:15] ERROR: REST order failed: {"code":-1111,"msg":"Precision is over the maximum defined for this asset."}[0m
+[0;31m[2026-05-21 12:34:34] ERROR: REST order failed: {"code":-1111,"msg":"Precision is over the maximum defined for this asset."}[0m
+[0;31m[2026-05-21 12:34:37] ERROR: REST order failed: {"code":-4024,"msg":"Limit price can't be lower than 8.017."}[0m
+[0;31m[2026-05-21 12:35:17] ERROR: REST order failed: {"code":-4014,"msg":"Price not increased by tick size."}[0m
+[0;31m[2026-05-21 12:36:17] ERROR: REST order failed: {"code":-4024,"msg":"Limit price can't be lower than 8.030."}[0m
+[0;31m[2026-05-21 12:36:32] ERROR: REST order failed: {"code":-1111,"msg":"Precision is over the maximum defined for this asset."}[0m
+[0;31m[2026-05-21 12:36:57] ERROR: REST order failed: {"code":-4014,"msg":"Price not increased by tick size."}[0m
+[0;31m[2026-05-21 12:43:49] ERROR: REST order failed: {"code":-1111,"msg":"Precision is over the maximum defined for this asset."}[0m
+[0;31m[2026-05-21 12:49:34] ERROR: REST order failed: {"code":-1111,"msg":"Precision is over the maximum defined for this asset."}[0m
+[0;31m[2026-05-21 13:01:02] ERROR: Connection lost. Reconnecting in 5 seconds...[0m
+[0;31m[2026-05-21 13:09:58] ERROR: Connection lost. Reconnecting in 5 seconds...[0m
