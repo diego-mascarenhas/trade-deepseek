@@ -322,7 +322,7 @@ send_order_binance_rest() {
             (
                 export TRADES_LOG_FILE BOT_LOG_BASE_DIR BINANCE_API_KEY BINANCE_SECRET_KEY
                 export DRY_RUN REST_PLACE_SL_TP REST_SL_TP_FILL_WAIT REST_SL_TP_POLL_INTERVAL
-                export BINANCE_HEDGE_MODE
+                export BINANCE_HEDGE_MODE BINANCE_POSITION_MODE
                 futures_place_sl_tp_after_entry "$symbol" "$direction" "$sl" "$tp" "$quantity" "$order_id" log
             ) &
         fi

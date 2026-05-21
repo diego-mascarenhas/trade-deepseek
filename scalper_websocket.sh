@@ -117,7 +117,9 @@ REST_SL_TP_POLL_INTERVAL="${REST_SL_TP_POLL_INTERVAL:-2}"
 SCALPER_DCA_ENABLED="${SCALPER_DCA_ENABLED:-false}"
 SCALPER_DCA_LEVELS="${SCALPER_DCA_LEVELS:-5}"
 SCALPER_DCA_SL_LEVEL="${SCALPER_DCA_SL_LEVEL:-4}"
-SCALPER_DCA_MIN_DISTANCE_PCT="${SCALPER_DCA_MIN_DISTANCE_PCT:-0.15}"
+SCALPER_DCA_MIN_DISTANCE_PCT="${SCALPER_DCA_MIN_DISTANCE_PCT:-1.0}"
+SCALPER_DCA_MIN_RANGE_PCT="${SCALPER_DCA_MIN_RANGE_PCT:-2.0}"
+SCALPER_DCA_GRID_COOLDOWN_SECONDS="${SCALPER_DCA_GRID_COOLDOWN_SECONDS:-120}"
 SCALPER_DCA_LIMIT_ORDERS="${SCALPER_DCA_LIMIT_ORDERS:-4}"
 # When DCA on, skip generic % SL (grid L4 is the stop)
 REST_PLACE_SL_TP="${REST_PLACE_SL_TP:-true}"
@@ -138,24 +140,15 @@ FINANDY_SECRET="${FINANDY_SECRET:-d1a01uf5uoe}"
 TELEGRAM_BOT_TOKEN="${TELEGRAM_BOT_TOKEN:-}"
 TELEGRAM_CHAT_ID="${TELEGRAM_CHAT_ID:-}"
 
-# Directories
+# Directories (paths finalized in resolve_scalper_log_paths after CLI parse)
 LOG_DIR="$SCRIPT_DIR/logs"
 mkdir -p "$LOG_DIR"
 BOT_LOG_BASE_DIR="$SCRIPT_DIR"
-LOG_FILE="${SCALPER_LOG_FILE:-$LOG_DIR/scalper.log}"
-ERROR_LOG_FILE="${SCALPER_ERROR_LOG_FILE:-$LOG_DIR/scalper_errors.log}"
-TRADES_LOG_FILE="${SCALPER_TRADES_LOG_FILE:-$LOG_DIR/scalper_trades.log}"
-[[ "$LOG_FILE" != /* ]] && LOG_FILE="$SCRIPT_DIR/${LOG_FILE#./}"
-[[ "$ERROR_LOG_FILE" != /* ]] && ERROR_LOG_FILE="$SCRIPT_DIR/${ERROR_LOG_FILE#./}"
-[[ "$TRADES_LOG_FILE" != /* ]] && TRADES_LOG_FILE="$SCRIPT_DIR/${TRADES_LOG_FILE#./}"
+LOG_FILE=""
+ERROR_LOG_FILE=""
+TRADES_LOG_FILE=""
 TRADES_LOG_HEARTBEAT_SECONDS="${TRADES_LOG_HEARTBEAT_SECONDS:-300}"
 LAST_TRADES_HEARTBEAT=0
-if [ -f "$SCRIPT_DIR/lib/bot_trade_log.sh" ]; then
-    # shellcheck source=lib/bot_trade_log.sh
-    source "$SCRIPT_DIR/lib/bot_trade_log.sh"
-else
-    log_trade() { :; }
-fi
 
 # Colors
 RED='\033[0;31m'
@@ -204,6 +197,8 @@ show_usage() {
     echo "  $(basename "$0") --dry-run BCHUSDT"
     echo ""
     echo "Env: SCALPER_ALT_SCREEN=0  disable alternate screen (append log instead)"
+    echo ""
+    echo "Logs: logs/scalper_websocket.log | trades: logs/scalper_websocket_trades.log"
 }
 
 if [ ! -f "$SCRIPT_DIR/lib/cli_symbols.sh" ]; then
@@ -214,6 +209,25 @@ fi
 source "$SCRIPT_DIR/lib/cli_symbols.sh"
 parse_cli_args "$@"
 init_symbol_list
+
+# Dedicated logs (not scalper.log — used by crypto_scalper / legacy bots)
+resolve_scalper_log_paths() {
+    LOG_FILE="${SCALPER_LOG_FILE:-$LOG_DIR/scalper_websocket.log}"
+    ERROR_LOG_FILE="${SCALPER_ERROR_LOG_FILE:-$LOG_DIR/scalper_websocket_errors.log}"
+    TRADES_LOG_FILE="${SCALPER_TRADES_LOG_FILE:-$LOG_DIR/scalper_websocket_trades.log}"
+
+    [[ "$LOG_FILE" != /* ]] && LOG_FILE="$SCRIPT_DIR/${LOG_FILE#./}"
+    [[ "$ERROR_LOG_FILE" != /* ]] && ERROR_LOG_FILE="$SCRIPT_DIR/${ERROR_LOG_FILE#./}"
+    [[ "$TRADES_LOG_FILE" != /* ]] && TRADES_LOG_FILE="$SCRIPT_DIR/${TRADES_LOG_FILE#./}"
+}
+resolve_scalper_log_paths
+
+if [ -f "$SCRIPT_DIR/lib/bot_trade_log.sh" ]; then
+    # shellcheck source=lib/bot_trade_log.sh
+    source "$SCRIPT_DIR/lib/bot_trade_log.sh"
+else
+    log_trade() { :; }
+fi
 
 log() {
     echo -e "[$(date '+%Y-%m-%d %H:%M:%S')] $1" | tee -a "$LOG_FILE"
@@ -956,7 +970,7 @@ draw_visualization() {
             local dca_g dca_sl
             dca_g=$(calculate_ob_dca_grid "$signal" "$entry" "$support" "$resistance" "$CURRENT_SYMBOL")
             dca_sl=$(echo "$dca_g" | cut -d'|' -f4)
-            echo -e "    ${MAGENTA}DCA OB: L1-L3,L5 limits | L4 SL @ ${dca_sl}${NC}"
+            echo -e "    ${MAGENTA}DCA: OB fib levels (≥${SCALPER_DCA_MIN_DISTANCE_PCT}% apart) | L4 SL @ ${dca_sl}${NC}"
             echo -e "    ${MAGENTA}Grid: $(echo "$dca_g" | tr '|' ' ')${NC}"
         fi
         echo -e "    ${CYAN}Reasons: $reasons${NC}"
@@ -1167,7 +1181,7 @@ main() {
     fi
     log "🔧 Confirmers: RSI, Stoch, ADX, iCHoCH, Liquidity"
     if [ "$(echo "${SCALPER_DCA_ENABLED}" | tr '[:upper:]' '[:lower:]')" = "true" ]; then
-        log "📐 DCA: OB grid ${SCALPER_DCA_LEVELS} levels | L${SCALPER_DCA_SL_LEVEL}=SL | min dist ${SCALPER_DCA_MIN_DISTANCE_PCT}% | ${SCALPER_DCA_LIMIT_ORDERS} limits"
+        log "📐 DCA: ${SCALPER_DCA_LEVELS} levels | L${SCALPER_DCA_SL_LEVEL}=SL | OB fib ≥${SCALPER_DCA_MIN_DISTANCE_PCT}% apart | OB span ≥${SCALPER_DCA_MIN_RANGE_PCT}% | cooldown ${SCALPER_DCA_GRID_COOLDOWN_SECONDS}s"
     fi
     
     if ! command -v jq &> /dev/null; then

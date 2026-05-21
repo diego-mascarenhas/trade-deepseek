@@ -1,4 +1,3 @@
 .env
-logs/
-history
-logs/scalper.log
+logs/*
+history/*
