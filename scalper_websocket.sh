@@ -23,6 +23,16 @@ if [ ! -f "$BINANCE_PRECISION_LIB" ]; then
 fi
 # shellcheck source=lib/binance_precision.sh
 source "$BINANCE_PRECISION_LIB"
+if [ ! -f "$SCRIPT_DIR/lib/terminal_display.sh" ]; then
+    echo "❌ Error: lib/terminal_display.sh not found in $SCRIPT_DIR/lib/"
+    exit 1
+fi
+# shellcheck source=lib/terminal_display.sh
+source "$SCRIPT_DIR/lib/terminal_display.sh"
+if [ -f "$SCRIPT_DIR/lib/binance_position_mode.sh" ]; then
+    # shellcheck source=lib/binance_position_mode.sh
+    source "$SCRIPT_DIR/lib/binance_position_mode.sh"
+fi
 
 # ============================================
 # LOAD CONFIGURATION
@@ -141,62 +151,16 @@ show_usage() {
     echo "  $(basename "$0")                    # all symbols from .env"
     echo "  $(basename "$0") BCHUSDT            # single symbol only"
     echo "  $(basename "$0") --dry-run BCHUSDT"
+    echo ""
+    echo "Env: SCALPER_ALT_SCREEN=0  disable alternate screen (append log instead)"
 }
 
-parse_cli_args() {
-    while [[ $# -gt 0 ]]; do
-        case "$1" in
-            --dry-run|-d)
-                DRY_RUN=true
-                ;;
-            -h|--help)
-                show_usage
-                exit 0
-                ;;
-            -*)
-                echo "❌ Unknown option: $1"
-                show_usage
-                exit 1
-                ;;
-            *)
-                if [ -n "$SYMBOL_CLI" ]; then
-                    echo "❌ Only one SYMBOL argument is allowed (got: $SYMBOL_CLI and $1)"
-                    exit 1
-                fi
-                SYMBOL_CLI=$(echo "$1" | tr '[:lower:]' '[:upper:]' | tr -d ' ')
-                ;;
-        esac
-        shift
-    done
-
-    if [ -n "$SYMBOL_CLI" ]; then
-        SYMBOLS="$SYMBOL_CLI"
-        SINGLE_SYMBOL_MODE=true
-    fi
-
-    if [ "$DRY_RUN" = true ]; then
-        echo "🔍 DRY-RUN MODE: No orders will be executed"
-    fi
-}
-
-init_symbol_list() {
-    local _sym _i
-    IFS=',' read -ra SYMBOL_ARRAY <<< "$SYMBOLS"
-    for _i in "${!SYMBOL_ARRAY[@]}"; do
-        _sym=$(echo "${SYMBOL_ARRAY[$_i]}" | tr '[:lower:]' '[:upper:]' | tr -d ' ')
-        SYMBOL_ARRAY[$_i]="$_sym"
-    done
-    NUM_SYMBOLS=${#SYMBOL_ARRAY[@]}
-    if [ "$NUM_SYMBOLS" -lt 1 ] || [ -z "${SYMBOL_ARRAY[0]}" ]; then
-        echo "❌ Error: no symbols configured (SCALPER_SYMBOLS or SYMBOL argument)"
-        exit 1
-    fi
-    if [ "$NUM_SYMBOLS" -eq 1 ]; then
-        SINGLE_SYMBOL_MODE=true
-    fi
-    CURRENT_INDEX=0
-}
-
+if [ ! -f "$SCRIPT_DIR/lib/cli_symbols.sh" ]; then
+    echo "❌ Error: lib/cli_symbols.sh not found in $SCRIPT_DIR/lib/"
+    exit 1
+fi
+# shellcheck source=lib/cli_symbols.sh
+source "$SCRIPT_DIR/lib/cli_symbols.sh"
 parse_cli_args "$@"
 init_symbol_list
 
@@ -321,9 +285,12 @@ send_order_binance_rest() {
     local recv_window=5000
     
     local query_string="symbol=$symbol&side=$side&type=LIMIT&timeInForce=GTC&quantity=$quantity&price=$entry&timestamp=$timestamp&recvWindow=$recv_window"
+    if declare -f append_position_side_param >/dev/null 2>&1; then
+        query_string=$(append_position_side_param "$direction" "$query_string")
+    fi
     
-    # Generate signature (requires openssl)
-    local signature=$(echo -n "$query_string" | openssl dgst -sha256 -hmac "$BINANCE_SECRET_KEY" | cut -d' ' -f2)
+    local signature
+    signature=$(echo -n "$query_string" | openssl dgst -sha256 -hmac "$BINANCE_SECRET_KEY" | awk '{print $2}')
     
     log "📝 [REST] $symbol $direction | Entry:$entry SL:$sl TP:$tp | Qty:$quantity"
     
@@ -725,7 +692,7 @@ rotate_symbol() {
 draw_visualization() {
     local display_index=$((CURRENT_INDEX + 1))
     
-    clear
+    screen_refresh
     echo -e "${CYAN}${BOLD}════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════${NC}"
     echo -e "${CYAN}${BOLD}  ADVANCED SCALPER BOT v3.0 - $(date '+%Y-%m-%d %H:%M:%S')${NC}"
     echo -e "${CYAN}${BOLD}════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════${NC}"
@@ -965,6 +932,18 @@ main() {
         exit 1
     fi
     
+    if [[ "$ORDER_EXECUTION_MODE" == "rest" || "$ORDER_EXECUTION_MODE" == "websocket" ]]; then
+        if declare -f detect_binance_position_mode >/dev/null 2>&1 && detect_binance_position_mode; then
+            if [ "$BINANCE_HEDGE_MODE" = true ]; then
+                log "✅ Binance position mode: Hedge (dual) — orders use positionSide"
+            else
+                log "✅ Binance position mode: One-way — orders without positionSide"
+            fi
+        else
+            log_error "Could not detect position mode (set BINANCE_POSITION_MODE=hedge or oneway in .env)"
+        fi
+    fi
+    
     log "🚀 Starting Advanced Scalper Bot v3.0"
     log "📋 Mode: $([ "$DRY_RUN" = true ] && echo "DRY-RUN" || echo "LIVE")"
     log "📊 Order Execution: $ORDER_EXECUTION_MODE"
@@ -987,9 +966,11 @@ main() {
     
     send_telegram "🤖 Scalper Bot v3.0 Started - Mode: $([ "$DRY_RUN" = true ] && echo "DRY-RUN" || echo "LIVE") | Orders: $ORDER_EXECUTION_MODE"
     
+    screen_enable_alt
     connect_websocket
 }
 
-trap 'echo -e "\n${YELLOW}👋 Shutting down...${NC}"; send_telegram "🛑 Scalper Bot Stopped"; exit 0' INT
+trap 'screen_disable_alt; echo -e "\n${YELLOW}👋 Shutting down...${NC}"; send_telegram "🛑 Scalper Bot Stopped"; exit 0' INT
+trap 'screen_disable_alt' EXIT
 
 main

@@ -22,16 +22,24 @@ if [ ! -f "$BINANCE_PRECISION_LIB" ]; then
 fi
 # shellcheck source=lib/binance_precision.sh
 source "$BINANCE_PRECISION_LIB"
+if [ ! -f "$SCRIPT_DIR/lib/terminal_display.sh" ]; then
+    echo "❌ Error: lib/terminal_display.sh not found in $SCRIPT_DIR/lib/"
+    exit 1
+fi
+# shellcheck source=lib/terminal_display.sh
+source "$SCRIPT_DIR/lib/terminal_display.sh"
+if [ -f "$SCRIPT_DIR/lib/binance_position_mode.sh" ]; then
+    # shellcheck source=lib/binance_position_mode.sh
+    source "$SCRIPT_DIR/lib/binance_position_mode.sh"
+fi
 
 if [ -f .env ]; then
     source .env
 fi
 
 DRY_RUN=false
-if [[ "$1" == "--dry-run" ]] || [[ "$1" == "-d" ]]; then
-    DRY_RUN=true
-    echo "🔍 DRY-RUN MODE"
-fi
+SYMBOL_CLI=""
+SINGLE_SYMBOL_MODE=false
 
 # ============================================
 # CONFIGURATION
@@ -232,7 +240,11 @@ send_order_binance_rest() {
     local order_name="Deepseek"
     
     local query_string="symbol=$symbol&side=$side&type=LIMIT&timeInForce=GTC&quantity=$quantity&price=$entry&newClientOrderId=$order_name&timestamp=$timestamp&recvWindow=$recv_window"
-    local signature=$(echo -n "$query_string" | openssl dgst -sha256 -hmac "$BINANCE_SECRET_KEY" | cut -d' ' -f2)
+    if declare -f append_position_side_param >/dev/null 2>&1; then
+        query_string=$(append_position_side_param "$direction" "$query_string")
+    fi
+    local signature
+    signature=$(echo -n "$query_string" | openssl dgst -sha256 -hmac "$BINANCE_SECRET_KEY" | awk '{print $2}')
     
     log "📝 [REST] $symbol $direction | Entry:$entry SL:$sl TP:$tp | Qty:$quantity"
     
@@ -368,6 +380,38 @@ declare -A BEST_ASK
 declare -A SUPPORT_LEVEL
 declare -A RESISTANCE_LEVEL
 declare -A CHANGE_24H
+
+declare -a SYMBOL_ARRAY
+CURRENT_INDEX=0
+NUM_SYMBOLS=0
+LAST_CYCLE_TIME=0
+
+show_usage() {
+    echo "Usage: $(basename "$0") [options] [SYMBOL]"
+    echo ""
+    echo "Options:"
+    echo "  -d, --dry-run    Do not send orders"
+    echo "  -h, --help       Show this help"
+    echo ""
+    echo "Arguments:"
+    echo "  SYMBOL           Monitor only this pair (e.g. BCHUSDT). Overrides SCALPER_SYMBOLS."
+    echo ""
+    echo "Examples:"
+    echo "  $(basename "$0")"
+    echo "  $(basename "$0") BCHUSDT"
+    echo "  $(basename "$0") --dry-run BCHUSDT"
+    echo ""
+    echo "Env: SCALPER_ALT_SCREEN=0  disable alternate screen (append log instead)"
+}
+
+if [ ! -f "$SCRIPT_DIR/lib/cli_symbols.sh" ]; then
+    echo "❌ Error: lib/cli_symbols.sh not found in $SCRIPT_DIR/lib/"
+    exit 1
+fi
+# shellcheck source=lib/cli_symbols.sh
+source "$SCRIPT_DIR/lib/cli_symbols.sh"
+parse_cli_args "$@"
+init_symbol_list
 
 # ============================================
 # ANALYZE ORDER BOOK
@@ -606,7 +650,7 @@ update_24h_changes() {
 # ============================================
 
 draw_and_execute() {
-    clear
+    screen_refresh
     echo -e "${CYAN}${BOLD}════════════════════════════════════════════════════════════════════════════════════════════════════════════${NC}"
     echo -e "${CYAN}${BOLD}  SCALPER BOT v5.0 - CON CONTROL DE POSICIONES - $(date '+%Y-%m-%d %H:%M:%S')${NC}"
     echo -e "${CYAN}${BOLD}════════════════════════════════════════════════════════════════════════════════════════════════════════════${NC}"
@@ -686,11 +730,6 @@ draw_and_execute() {
 # WEBSOCKET SETUP
 # ============================================
 
-IFS=',' read -ra SYMBOL_ARRAY <<< "$SYMBOLS"
-NUM_SYMBOLS=${#SYMBOL_ARRAY[@]}
-CURRENT_INDEX=0
-LAST_CYCLE_TIME=0
-
 build_ws_url() {
     local streams=""
     local first=true
@@ -759,7 +798,11 @@ main() {
     
     log "🚀 Starting Scalper Bot v5.0"
     log "📋 Mode: $([ "$DRY_RUN" = true ] && echo "DRY-RUN" || echo "LIVE")"
-    log "📊 Symbols: ${SYMBOLS}"
+    if [ "$SINGLE_SYMBOL_MODE" = true ]; then
+        log "📊 Symbol: ${SYMBOL_ARRAY[0]} (single-symbol mode)"
+    else
+        log "📊 Symbols: ${SYMBOLS}"
+    fi
     log "🎯 Min Confidence: ${MIN_CONFIDENCE}%"
     log "⏰ Order Cooldown: ${ORDER_COOLDOWN_SECONDS}s per symbol"
     
@@ -775,6 +818,16 @@ main() {
         exit 1
     fi
     
+    if declare -f detect_binance_position_mode >/dev/null 2>&1 && detect_binance_position_mode; then
+        if [ "$BINANCE_HEDGE_MODE" = true ]; then
+            log "✅ Binance position mode: Hedge (dual) — orders use positionSide"
+        else
+            log "✅ Binance position mode: One-way — orders without positionSide"
+        fi
+    else
+        log_error "Could not detect position mode (set BINANCE_POSITION_MODE=hedge or oneway in .env)"
+    fi
+    
     if ! command -v jq &> /dev/null; then
         log_error "jq not installed. Run: brew install jq"
         exit 1
@@ -787,9 +840,11 @@ main() {
     
     send_telegram "🤖 Scalper Bot v5.0 Started - Mode: $([ "$DRY_RUN" = true ] && echo "DRY-RUN" || echo "LIVE") | Cooldown: ${ORDER_COOLDOWN_SECONDS}s"
     
+    screen_enable_alt
     connect_websocket
 }
 
-trap 'echo -e "\n${YELLOW}👋 Shutting down...${NC}"; send_telegram "🛑 Bot Stopped"; exit 0' INT
+trap 'screen_disable_alt; echo -e "\n${YELLOW}👋 Shutting down...${NC}"; send_telegram "🛑 Bot Stopped"; exit 0' INT
+trap 'screen_disable_alt' EXIT
 
-main "$@"
+main
