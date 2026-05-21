@@ -370,3 +370,462 @@ can_place_new_order() {
 
     return 0
 }
+
+# --- REST: SL/TP after LIMIT fill (REST_PLACE_SL_TP=true in .env) ---
+
+_bn_price_gt() {
+    awk -v a="$1" -v b="$2" 'BEGIN { exit (a + 0 > b + 0) ? 0 : 1 }'
+}
+
+_bn_price_lt() {
+    awk -v a="$1" -v b="$2" 'BEGIN { exit (a + 0 < b + 0) ? 0 : 1 }'
+}
+
+# Wait for entry LIMIT fill; echoes executed quantity on success
+futures_wait_limit_fill() {
+    local symbol="$1"
+    local order_id="$2"
+    local max_wait="${3:-90}"
+    local poll="${REST_SL_TP_POLL_INTERVAL:-2}"
+    local elapsed=0
+    local resp status exec_qty
+
+    if [ -z "$order_id" ] || [ -z "$BINANCE_API_KEY" ]; then
+        return 1
+    fi
+
+    while [ "$elapsed" -lt "$max_wait" ]; do
+        resp=$(_binance_fapi_signed_get "/fapi/v1/order" "symbol=${symbol}&orderId=${order_id}")
+        status=$(echo "$resp" | jq -r '.status // empty' 2>/dev/null)
+        case "$status" in
+            FILLED)
+                exec_qty=$(echo "$resp" | jq -r '.executedQty // .origQty // empty' 2>/dev/null)
+                if declare -f round_qty_for_symbol >/dev/null 2>&1; then
+                    exec_qty=$(round_qty_for_symbol "$symbol" "$exec_qty")
+                fi
+                if [ -n "$exec_qty" ] && _bn_is_positive "$exec_qty"; then
+                    echo "$exec_qty"
+                    return 0
+                fi
+                return 1
+                ;;
+            CANCELED|EXPIRED|REJECTED)
+                return 1
+                ;;
+        esac
+        sleep "$poll"
+        elapsed=$((elapsed + poll))
+    done
+
+    local pos_info pos_qty
+    pos_info=$(futures_get_position "$symbol")
+    if [ "$pos_info" != "none" ]; then
+        pos_qty=$(echo "$pos_info" | cut -d'|' -f2)
+        if [ -n "$pos_qty" ] && _bn_is_positive "$pos_qty"; then
+            echo "$pos_qty"
+            return 0
+        fi
+    fi
+    return 1
+}
+
+_futures_place_reduce_conditional() {
+    local symbol="$1"
+    local position_dir="$2"
+    local order_type="$3"
+    local stop_price="$4"
+    local quantity="$5"
+    local log_fn="${6:-}"
+
+    local side query_string response dry_run
+    dry_run="${DRY_RUN:-false}"
+
+    case "$(echo "$position_dir" | tr '[:lower:]' '[:upper:]')" in
+        LONG) side="SELL" ;;
+        SHORT) side="BUY" ;;
+        *) return 1 ;;
+    esac
+
+    if declare -f round_price_for_symbol >/dev/null 2>&1; then
+        stop_price=$(round_price_for_symbol "$symbol" "$stop_price")
+        quantity=$(round_qty_for_symbol "$symbol" "$quantity")
+    fi
+
+    if [ -z "$stop_price" ] || ! _bn_is_positive "$stop_price" \
+        || [ -z "$quantity" ] || ! _bn_is_positive "$quantity"; then
+        return 1
+    fi
+
+    if [ "$dry_run" = true ]; then
+        [ -n "$log_fn" ] && $log_fn "🔍 DRY-RUN: Would place $order_type $position_dir $symbol stop=$stop_price qty=$quantity"
+        return 0
+    fi
+
+    query_string="symbol=${symbol}&side=${side}&type=${order_type}&stopPrice=${stop_price}&quantity=${quantity}&reduceOnly=true&workingType=CONTRACT_PRICE"
+    if declare -f append_position_side_param >/dev/null 2>&1; then
+        query_string=$(append_position_side_param "$position_dir" "$query_string")
+    fi
+
+    response=$(_binance_fapi_signed_post "/fapi/v1/order" "$query_string")
+    if echo "$response" | jq -e '.orderId' >/dev/null 2>&1; then
+        return 0
+    fi
+
+    [ -n "$log_fn" ] && $log_fn "❌ $order_type failed $symbol: $response"
+    if declare -f log_error >/dev/null 2>&1; then
+        log_error "$order_type failed $symbol: $response"
+    fi
+    return 1
+}
+
+futures_place_sl_tp_after_entry() {
+    local symbol="$1"
+    local direction="$2"
+    local sl="$3"
+    local tp="$4"
+    local quantity="$5"
+    local entry_order_id="$6"
+    local log_fn="${7:-}"
+
+    local enabled="${REST_PLACE_SL_TP:-true}"
+    case "$(echo "$enabled" | tr '[:upper:]' '[:lower:]')" in
+        false|0|no|off) return 0 ;;
+    esac
+
+    if [ -z "$BINANCE_API_KEY" ] || [ -z "$BINANCE_SECRET_KEY" ]; then
+        return 1
+    fi
+
+    local fill_wait="${REST_SL_TP_FILL_WAIT:-90}"
+    local fill_qty="$quantity"
+    local waited_qty
+
+    if [ -n "$entry_order_id" ] && [ "$entry_order_id" != "0" ]; then
+        waited_qty=$(futures_wait_limit_fill "$symbol" "$entry_order_id" "$fill_wait")
+        if [ -n "$waited_qty" ] && _bn_is_positive "$waited_qty"; then
+            fill_qty="$waited_qty"
+        else
+            [ -n "$log_fn" ] && $log_fn "⏳ $symbol: entry limit not filled in ${fill_wait}s — SL/TP not placed (order may still be open)"
+            if declare -f log_trade >/dev/null 2>&1; then
+                log_trade "SKIP SL/TP $symbol $direction reason=entry_not_filled orderId=$entry_order_id wait=${fill_wait}s"
+            fi
+            return 1
+        fi
+    else
+        local pos_info
+        pos_info=$(futures_get_position "$symbol")
+        if [ "$pos_info" != "none" ]; then
+            fill_qty=$(echo "$pos_info" | cut -d'|' -f2)
+        fi
+    fi
+
+    if [ -z "$fill_qty" ] || ! _bn_is_positive "$fill_qty"; then
+        [ -n "$log_fn" ] && $log_fn "⏸️ $symbol: no position qty for SL/TP"
+        return 1
+    fi
+
+    if declare -f round_price_for_symbol >/dev/null 2>&1; then
+        sl=$(round_price_for_symbol "$symbol" "$sl")
+        tp=$(round_price_for_symbol "$symbol" "$tp")
+    fi
+
+    local sl_ok=1 tp_ok=1
+    local entry_ref
+    entry_ref=$(ob_get LAST_ENTRY "$symbol" 2>/dev/null)
+    [ -z "$entry_ref" ] && entry_ref="0"
+
+    if [ -n "$sl" ] && _bn_is_positive "$sl"; then
+        local sl_valid=0
+        case "$(echo "$direction" | tr '[:lower:]' '[:upper:]')" in
+            LONG)
+                if _bn_price_lt "$sl" "$entry_ref" || [ "$entry_ref" = "0" ]; then
+                    sl_valid=1
+                fi
+                ;;
+            SHORT)
+                if _bn_price_gt "$sl" "$entry_ref" || [ "$entry_ref" = "0" ]; then
+                    sl_valid=1
+                fi
+                ;;
+        esac
+        if [ "$sl_valid" -eq 1 ]; then
+            if _futures_place_reduce_conditional "$symbol" "$direction" "STOP_MARKET" "$sl" "$fill_qty" "$log_fn"; then
+                sl_ok=0
+                [ -n "$log_fn" ] && $log_fn "🛡️ $symbol: STOP_MARKET SL @ $sl (qty $fill_qty)"
+                if declare -f log_trade >/dev/null 2>&1; then
+                    log_trade "SL_PLACED $symbol $direction stop=$sl qty=$fill_qty mode=REST"
+                fi
+            fi
+        else
+            [ -n "$log_fn" ] && $log_fn "⚠️ $symbol: invalid SL $sl for $direction (entry $entry_ref) — skipped"
+        fi
+    fi
+
+    if [ -n "$tp" ] && _bn_is_positive "$tp"; then
+        local tp_valid=0
+        case "$(echo "$direction" | tr '[:lower:]' '[:upper:]')" in
+            LONG)
+                if _bn_price_gt "$tp" "$entry_ref" || [ "$entry_ref" = "0" ]; then
+                    tp_valid=1
+                fi
+                ;;
+            SHORT)
+                if _bn_price_lt "$tp" "$entry_ref" || [ "$entry_ref" = "0" ]; then
+                    tp_valid=1
+                fi
+                ;;
+        esac
+        if [ "$tp_valid" -eq 1 ]; then
+            if _futures_place_reduce_conditional "$symbol" "$direction" "TAKE_PROFIT_MARKET" "$tp" "$fill_qty" "$log_fn"; then
+                tp_ok=0
+                [ -n "$log_fn" ] && $log_fn "🎯 $symbol: TAKE_PROFIT_MARKET TP @ $tp (qty $fill_qty)"
+                if declare -f log_trade >/dev/null 2>&1; then
+                    log_trade "TP_PLACED $symbol $direction stop=$tp qty=$fill_qty mode=REST"
+                fi
+            fi
+        else
+            [ -n "$log_fn" ] && $log_fn "⚠️ $symbol: invalid TP $tp for $direction (entry $entry_ref) — skipped"
+        fi
+    fi
+
+    if [ "$sl_ok" -eq 0 ] || [ "$tp_ok" -eq 0 ]; then
+        if declare -f send_telegram >/dev/null 2>&1; then
+            send_telegram "🛡️ $symbol $direction — SL/TP on Binance (SL:$sl TP:$tp)"
+        fi
+        return 0
+    fi
+
+    [ -n "$log_fn" ] && $log_fn "⚠️ $symbol: could not place SL/TP on Binance"
+    return 1
+}
+
+# --- REST: SL/TP after LIMIT fill (REST_PLACE_SL_TP=true in .env) ---
+
+_bn_price_gt() {
+    awk -v a="$1" -v b="$2" 'BEGIN { exit (a + 0 > b + 0) ? 0 : 1 }'
+}
+
+_bn_price_lt() {
+    awk -v a="$1" -v b="$2" 'BEGIN { exit (a + 0 < b + 0) ? 0 : 1 }'
+}
+
+# Wait for entry LIMIT fill; echoes executed quantity on success
+futures_wait_limit_fill() {
+    local symbol="$1"
+    local order_id="$2"
+    local max_wait="${3:-90}"
+    local poll="${REST_SL_TP_POLL_INTERVAL:-2}"
+    local elapsed=0
+    local resp status exec_qty
+
+    if [ -z "$order_id" ] || [ -z "$BINANCE_API_KEY" ]; then
+        return 1
+    fi
+
+    while [ "$elapsed" -lt "$max_wait" ]; do
+        resp=$(_binance_fapi_signed_get "/fapi/v1/order" "symbol=${symbol}&orderId=${order_id}")
+        status=$(echo "$resp" | jq -r '.status // empty' 2>/dev/null)
+        case "$status" in
+            FILLED)
+                exec_qty=$(echo "$resp" | jq -r '.executedQty // .origQty // empty' 2>/dev/null)
+                if declare -f round_qty_for_symbol >/dev/null 2>&1; then
+                    exec_qty=$(round_qty_for_symbol "$symbol" "$exec_qty")
+                fi
+                if [ -n "$exec_qty" ] && _bn_is_positive "$exec_qty"; then
+                    echo "$exec_qty"
+                    return 0
+                fi
+                return 1
+                ;;
+            CANCELED|EXPIRED|REJECTED)
+                return 1
+                ;;
+        esac
+        sleep "$poll"
+        elapsed=$((elapsed + poll))
+    done
+
+    # Timeout: position may exist if fill happened between polls
+    local pos_info pos_qty
+    pos_info=$(futures_get_position "$symbol")
+    if [ "$pos_info" != "none" ]; then
+        pos_qty=$(echo "$pos_info" | cut -d'|' -f2)
+        if [ -n "$pos_qty" ] && _bn_is_positive "$pos_qty"; then
+            echo "$pos_qty"
+            return 0
+        fi
+    fi
+    return 1
+}
+
+# Place STOP_MARKET or TAKE_PROFIT_MARKET reduceOnly to close position_dir
+_futures_place_reduce_conditional() {
+    local symbol="$1"
+    local position_dir="$2"
+    local order_type="$3"
+    local stop_price="$4"
+    local quantity="$5"
+    local log_fn="${6:-}"
+
+    local side query_string response dry_run
+    dry_run="${DRY_RUN:-false}"
+
+    case "$(echo "$position_dir" | tr '[:lower:]' '[:upper:]')" in
+        LONG) side="SELL" ;;
+        SHORT) side="BUY" ;;
+        *) return 1 ;;
+    esac
+
+    if declare -f round_price_for_symbol >/dev/null 2>&1; then
+        stop_price=$(round_price_for_symbol "$symbol" "$stop_price")
+        quantity=$(round_qty_for_symbol "$symbol" "$quantity")
+    fi
+
+    if [ -z "$stop_price" ] || ! _bn_is_positive "$stop_price" \
+        || [ -z "$quantity" ] || ! _bn_is_positive "$quantity"; then
+        return 1
+    fi
+
+    if [ "$dry_run" = true ]; then
+        [ -n "$log_fn" ] && $log_fn "🔍 DRY-RUN: Would place $order_type $position_dir $symbol stop=$stop_price qty=$quantity"
+        return 0
+    fi
+
+    query_string="symbol=${symbol}&side=${side}&type=${order_type}&stopPrice=${stop_price}&quantity=${quantity}&reduceOnly=true&workingType=CONTRACT_PRICE"
+    if declare -f append_position_side_param >/dev/null 2>&1; then
+        query_string=$(append_position_side_param "$position_dir" "$query_string")
+    fi
+
+    response=$(_binance_fapi_signed_post "/fapi/v1/order" "$query_string")
+    if echo "$response" | jq -e '.orderId' >/dev/null 2>&1; then
+        return 0
+    fi
+
+    [ -n "$log_fn" ] && $log_fn "❌ $order_type failed $symbol: $response"
+    if declare -f log_error >/dev/null 2>&1; then
+        log_error "$order_type failed $symbol: $response"
+    fi
+    return 1
+}
+
+# After entry LIMIT: wait for fill, then place SL and TP on Binance (return 0 if at least SL or TP ok)
+futures_place_sl_tp_after_entry() {
+    local symbol="$1"
+    local direction="$2"
+    local sl="$3"
+    local tp="$4"
+    local quantity="$5"
+    local entry_order_id="$6"
+    local log_fn="${7:-}"
+
+    local enabled="${REST_PLACE_SL_TP:-true}"
+    case "$(echo "$enabled" | tr '[:upper:]' '[:lower:]')" in
+        false|0|no|off) return 0 ;;
+    esac
+
+    if [ -z "$BINANCE_API_KEY" ] || [ -z "$BINANCE_SECRET_KEY" ]; then
+        return 1
+    fi
+
+    local fill_wait="${REST_SL_TP_FILL_WAIT:-90}"
+    local fill_qty="$quantity"
+    local waited_qty
+
+    if [ -n "$entry_order_id" ] && [ "$entry_order_id" != "0" ]; then
+        waited_qty=$(futures_wait_limit_fill "$symbol" "$entry_order_id" "$fill_wait")
+        if [ -n "$waited_qty" ] && _bn_is_positive "$waited_qty"; then
+            fill_qty="$waited_qty"
+        else
+            [ -n "$log_fn" ] && $log_fn "⏳ $symbol: entry limit not filled in ${fill_wait}s — SL/TP not placed (order may still be open)"
+            if declare -f log_trade >/dev/null 2>&1; then
+                log_trade "SKIP SL/TP $symbol $direction reason=entry_not_filled orderId=$entry_order_id wait=${fill_wait}s"
+            fi
+            return 1
+        fi
+    else
+        local pos_info
+        pos_info=$(futures_get_position "$symbol")
+        if [ "$pos_info" != "none" ]; then
+            fill_qty=$(echo "$pos_info" | cut -d'|' -f2)
+        fi
+    fi
+
+    if [ -z "$fill_qty" ] || ! _bn_is_positive "$fill_qty"; then
+        [ -n "$log_fn" ] && $log_fn "⏸️ $symbol: no position qty for SL/TP"
+        return 1
+    fi
+
+    if declare -f round_price_for_symbol >/dev/null 2>&1; then
+        sl=$(round_price_for_symbol "$symbol" "$sl")
+        tp=$(round_price_for_symbol "$symbol" "$tp")
+    fi
+
+    local sl_ok=1 tp_ok=1
+    local entry_ref
+    entry_ref=$(ob_get LAST_ENTRY "$symbol" 2>/dev/null)
+    [ -z "$entry_ref" ] && entry_ref="0"
+
+    if [ -n "$sl" ] && _bn_is_positive "$sl"; then
+        local sl_valid=0
+        case "$(echo "$direction" | tr '[:lower:]' '[:upper:]')" in
+            LONG)
+                if _bn_price_lt "$sl" "$entry_ref" || [ "$entry_ref" = "0" ]; then
+                    sl_valid=1
+                fi
+                ;;
+            SHORT)
+                if _bn_price_gt "$sl" "$entry_ref" || [ "$entry_ref" = "0" ]; then
+                    sl_valid=1
+                fi
+                ;;
+        esac
+        if [ "$sl_valid" -eq 1 ]; then
+            if _futures_place_reduce_conditional "$symbol" "$direction" "STOP_MARKET" "$sl" "$fill_qty" "$log_fn"; then
+                sl_ok=0
+                [ -n "$log_fn" ] && $log_fn "🛡️ $symbol: STOP_MARKET SL @ $sl (qty $fill_qty)"
+                if declare -f log_trade >/dev/null 2>&1; then
+                    log_trade "SL_PLACED $symbol $direction stop=$sl qty=$fill_qty mode=REST"
+                fi
+            fi
+        else
+            [ -n "$log_fn" ] && $log_fn "⚠️ $symbol: invalid SL $sl for $direction (entry $entry_ref) — skipped"
+        fi
+    fi
+
+    if [ -n "$tp" ] && _bn_is_positive "$tp"; then
+        local tp_valid=0
+        case "$(echo "$direction" | tr '[:lower:]' '[:upper:]')" in
+            LONG)
+                if _bn_price_gt "$tp" "$entry_ref" || [ "$entry_ref" = "0" ]; then
+                    tp_valid=1
+                fi
+                ;;
+            SHORT)
+                if _bn_price_lt "$tp" "$entry_ref" || [ "$entry_ref" = "0" ]; then
+                    tp_valid=1
+                fi
+                ;;
+        esac
+        if [ "$tp_valid" -eq 1 ]; then
+            if _futures_place_reduce_conditional "$symbol" "$direction" "TAKE_PROFIT_MARKET" "$tp" "$fill_qty" "$log_fn"; then
+                tp_ok=0
+                [ -n "$log_fn" ] && $log_fn "🎯 $symbol: TAKE_PROFIT_MARKET TP @ $tp (qty $fill_qty)"
+                if declare -f log_trade >/dev/null 2>&1; then
+                    log_trade "TP_PLACED $symbol $direction stop=$tp qty=$fill_qty mode=REST"
+                fi
+            fi
+        else
+            [ -n "$log_fn" ] && $log_fn "⚠️ $symbol: invalid TP $tp for $direction (entry $entry_ref) — skipped"
+        fi
+    fi
+
+    if [ "$sl_ok" -eq 0 ] || [ "$tp_ok" -eq 0 ]; then
+        if declare -f send_telegram >/dev/null 2>&1; then
+            send_telegram "🛡️ $symbol $direction — SL/TP on Binance (SL:$sl TP:$tp)"
+        fi
+        return 0
+    fi
+
+    [ -n "$log_fn" ] && $log_fn "⚠️ $symbol: could not place SL/TP on Binance"
+    return 1
+}

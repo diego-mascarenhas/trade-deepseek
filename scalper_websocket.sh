@@ -104,6 +104,11 @@ MIN_LIQUIDITY_USD=50000
 # Analysis cycle (seconds)
 CYCLE_INTERVAL="${SCALPER_CYCLE_INTERVAL:-5}"
 
+# Place STOP/TP on Binance after entry LIMIT fills (REST mode)
+REST_PLACE_SL_TP="${REST_PLACE_SL_TP:-true}"
+REST_SL_TP_FILL_WAIT="${REST_SL_TP_FILL_WAIT:-90}"
+REST_SL_TP_POLL_INTERVAL="${REST_SL_TP_POLL_INTERVAL:-2}"
+
 # Close open position when price touches opposite OB wall
 OB_CLOSE_ON_OPPOSITE="${OB_CLOSE_ON_OPPOSITE:-${SCALPER_OB_CLOSE_OPPOSITE:-true}}"
 OB_ZONE_UPPER_PCT="${OB_ZONE_UPPER_PCT:-${SCALPER_OB_ZONE_UPPER:-80}}"
@@ -120,9 +125,15 @@ TELEGRAM_CHAT_ID="${TELEGRAM_CHAT_ID:-}"
 # Directories
 LOG_DIR="$SCRIPT_DIR/logs"
 mkdir -p "$LOG_DIR"
+BOT_LOG_BASE_DIR="$SCRIPT_DIR"
 LOG_FILE="${SCALPER_LOG_FILE:-$LOG_DIR/scalper.log}"
 ERROR_LOG_FILE="${SCALPER_ERROR_LOG_FILE:-$LOG_DIR/scalper_errors.log}"
 TRADES_LOG_FILE="${SCALPER_TRADES_LOG_FILE:-$LOG_DIR/scalper_trades.log}"
+[[ "$LOG_FILE" != /* ]] && LOG_FILE="$SCRIPT_DIR/${LOG_FILE#./}"
+[[ "$ERROR_LOG_FILE" != /* ]] && ERROR_LOG_FILE="$SCRIPT_DIR/${ERROR_LOG_FILE#./}"
+[[ "$TRADES_LOG_FILE" != /* ]] && TRADES_LOG_FILE="$SCRIPT_DIR/${TRADES_LOG_FILE#./}"
+TRADES_LOG_HEARTBEAT_SECONDS="${TRADES_LOG_HEARTBEAT_SECONDS:-300}"
+LAST_TRADES_HEARTBEAT=0
 if [ -f "$SCRIPT_DIR/lib/bot_trade_log.sh" ]; then
     # shellcheck source=lib/bot_trade_log.sh
     source "$SCRIPT_DIR/lib/bot_trade_log.sh"
@@ -334,14 +345,24 @@ send_order_binance_rest() {
         -d "$query_string&signature=$signature")
     
     if echo "$response" | jq -e '.orderId' >/dev/null 2>&1; then
-        log "✅ Order executed via Binance REST: $symbol"
-        log_trade "OPEN $symbol $direction entry=$entry sl=$sl tp=$tp qty=$quantity mode=REST status=ok"
+        local order_id
+        order_id=$(echo "$response" | jq -r '.orderId' 2>/dev/null)
+        log "✅ Order executed via Binance REST: $symbol (orderId $order_id)"
+        log_trade "OPEN $symbol $direction entry=$entry sl=$sl tp=$tp qty=$quantity mode=REST status=ok orderId=$order_id"
         send_telegram "✅ [REST] $symbol $direction Entry:$entry"
         if declare -f ob_set >/dev/null 2>&1; then
             ob_set ACTIVE "$symbol" "true"
             ob_set ACTIVE_TS "$symbol" "$(date +%s)"
             ob_set POS_DIR "$symbol" "$direction"
             ob_set LAST_ENTRY "$symbol" "$entry"
+        fi
+        if declare -f futures_place_sl_tp_after_entry >/dev/null 2>&1; then
+            (
+                export TRADES_LOG_FILE BOT_LOG_BASE_DIR BINANCE_API_KEY BINANCE_SECRET_KEY
+                export DRY_RUN REST_PLACE_SL_TP REST_SL_TP_FILL_WAIT REST_SL_TP_POLL_INTERVAL
+                export BINANCE_HEDGE_MODE
+                futures_place_sl_tp_after_entry "$symbol" "$direction" "$sl" "$tp" "$quantity" "$order_id" log
+            ) &
         fi
     else
         log_error "REST order failed: $response"
@@ -390,6 +411,7 @@ send_order() {
 
     if declare -f can_place_new_order >/dev/null 2>&1; then
         if ! can_place_new_order "$symbol" "$direction" "$entry" log; then
+            log_trade "SKIP_ORDER $symbol $direction entry=$entry reason=guard_blocked"
             return 0
         fi
     fi
@@ -844,8 +866,11 @@ draw_visualization() {
         echo -e "${GREEN}${BOLD}┌────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐${NC}"
         echo -e "${GREEN}${BOLD}│  🟢 $CURRENT_SYMBOL - CONFIRMED LONG (${confidence}%) - ENTRY: $entry${NC}"
         echo -e "${GREEN}${BOLD}└────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘${NC}"
+        log_trade "SIGNAL $CURRENT_SYMBOL LONG conf=${confidence}% entry=$entry tp=$tp sl=$sl | $reasons"
         
-        if [ "$DRY_RUN" = false ]; then
+        if [ "$DRY_RUN" = true ]; then
+            log_trade "DRY-RUN_SIGNAL $CURRENT_SYMBOL LONG entry=$entry (no order sent)"
+        else
             send_order "$CURRENT_SYMBOL" "LONG" "$entry" "$sl" "$tp"
         fi
         
@@ -853,12 +878,16 @@ draw_visualization() {
         echo -e "${RED}${BOLD}┌────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐${NC}"
         echo -e "${RED}${BOLD}│  🔴 $CURRENT_SYMBOL - CONFIRMED SHORT (${confidence}%) - ENTRY: $entry${NC}"
         echo -e "${RED}${BOLD}└────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘${NC}"
+        log_trade "SIGNAL $CURRENT_SYMBOL SHORT conf=${confidence}% entry=$entry tp=$tp sl=$sl | $reasons"
         
-        if [ "$DRY_RUN" = false ]; then
+        if [ "$DRY_RUN" = true ]; then
+            log_trade "DRY-RUN_SIGNAL $CURRENT_SYMBOL SHORT entry=$entry (no order sent)"
+        else
             send_order "$CURRENT_SYMBOL" "SHORT" "$entry" "$sl" "$tp"
         fi
         
     elif [ "$signal" != "NEUTRAL" ]; then
+        log_trade "WATCH $CURRENT_SYMBOL $signal conf=${confidence}% need=${MIN_CONFIDENCE}% entry=$entry | $reasons"
         echo -e "${YELLOW}┌────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐${NC}"
         echo -e "${YELLOW}│  🟡 $CURRENT_SYMBOL - WATCH (${confidence}%) - ${signal} potential${NC}"
         echo -e "${YELLOW}│     Reasons: $reasons${NC}"
@@ -936,6 +965,12 @@ run_cycle_analysis() {
         return
     fi
     LAST_CYCLE_TIME=$current_time
+
+    if [ -n "${TRADES_LOG_HEARTBEAT_SECONDS:-}" ] \
+        && (( current_time - LAST_TRADES_HEARTBEAT >= TRADES_LOG_HEARTBEAT_SECONDS )); then
+        LAST_TRADES_HEARTBEAT=$current_time
+        log_trade "HEARTBEAT bot=scalper_websocket symbol=$CURRENT_SYMBOL file=${TRADES_LOG_FILE}"
+    fi
     
     hydrate_scalper_symbol "$CURRENT_SYMBOL"
     update_indicators
@@ -1078,6 +1113,7 @@ main() {
     
     log "🚀 Starting Advanced Scalper Bot v3.0"
     log "📁 Log: $LOG_FILE | Errors: $ERROR_LOG_FILE | Trades: $TRADES_LOG_FILE"
+    log_trade "READY bot=scalper_websocket trades_log=${TRADES_LOG_FILE}"
     log "📋 Mode: $([ "$DRY_RUN" = true ] && echo "DRY-RUN" || echo "LIVE")"
     log "📊 Order Execution: $ORDER_EXECUTION_MODE"
     if [ "$SINGLE_SYMBOL_MODE" = true ]; then

@@ -1,14 +1,35 @@
 #!/bin/bash
 # Append trade events to TRADES_LOG_FILE (set by ob_websocket / scalper_websocket)
 
-log_trade() {
-    if [ -z "${TRADES_LOG_FILE:-}" ]; then
+# Resolve relative log paths (subshells / cron may change cwd)
+_bot_trade_log_resolve_path() {
+    local p="$1"
+    local base="${BOT_LOG_BASE_DIR:-}"
+    if [ -z "$p" ]; then
+        echo ""
         return 0
     fi
+    if [[ "$p" = /* ]]; then
+        echo "$p"
+        return 0
+    fi
+    if [ -n "$base" ]; then
+        echo "${base%/}/$p"
+    else
+        echo "$(pwd)/$p"
+    fi
+}
+
+log_trade() {
+    local log_file="${TRADES_LOG_FILE:-}"
+    if [ -z "$log_file" ]; then
+        return 0
+    fi
+    log_file=$(_bot_trade_log_resolve_path "$log_file")
     local dir
-    dir=$(dirname "$TRADES_LOG_FILE")
+    dir=$(dirname "$log_file")
     [ -n "$dir" ] && [ "$dir" != "." ] && mkdir -p "$dir" 2>/dev/null
-    echo "[$(date '+%Y-%m-%d %H:%M:%S')] $*" >> "$TRADES_LOG_FILE"
+    echo "[$(date '+%Y-%m-%d %H:%M:%S')] $*" >> "$log_file"
 }
 
 # Create log files and write startup line (call from main() before trading)

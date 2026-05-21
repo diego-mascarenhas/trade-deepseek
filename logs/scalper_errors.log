@@ -89,3 +89,46 @@
 [0;31m[2026-05-21 15:19:13] ERROR: Close failed BNBUSDT: {"code":-1106,"msg":"Parameter 'reduceonly' sent when not required."}[0m
 [0;31m[2026-05-21 15:19:32] ERROR: Close failed XRPUSDT: {"code":-1106,"msg":"Parameter 'reduceonly' sent when not required."}[0m
 [0;31m[2026-05-21 15:23:54] ERROR: Close failed EIGENUSDT: {"code":-1106,"msg":"Parameter 'reduceonly' sent when not required."}[0m
+[0;31m[2026-05-21 15:25:34] ERROR: Close failed BCHUSDT: {"code":-1106,"msg":"Parameter 'reduceonly' sent when not required."}[0m
+[0;31m[2026-05-21 15:25:39] ERROR: Close failed BNBUSDT: {"code":-1106,"msg":"Parameter 'reduceonly' sent when not required."}[0m
+[0;31m[2026-05-21 15:26:28] ERROR: Close failed BCHUSDT: {"code":-1106,"msg":"Parameter 'reduceonly' sent when not required."}[0m
+[0;31m[2026-05-21 15:27:23] ERROR: Close failed BCHUSDT: {"code":-1106,"msg":"Parameter 'reduceonly' sent when not required."}[0m
+[0;31m[2026-05-21 15:28:18] ERROR: Close failed BCHUSDT: {"code":-1106,"msg":"Parameter 'reduceonly' sent when not required."}[0m
+[0;31m[2026-05-21 15:28:24] ERROR: Close failed BNBUSDT: {"code":-1106,"msg":"Parameter 'reduceonly' sent when not required."}[0m
+[0;31m[2026-05-21 15:29:13] ERROR: Close failed BCHUSDT: {"code":-1106,"msg":"Parameter 'reduceonly' sent when not required."}[0m
+[0;31m[2026-05-21 15:29:19] ERROR: Close failed BNBUSDT: {"code":-1106,"msg":"Parameter 'reduceonly' sent when not required."}[0m
+[0;31m[2026-05-21 15:30:13] ERROR: Close failed BNBUSDT: {"code":-1106,"msg":"Parameter 'reduceonly' sent when not required."}[0m
+[0;31m[2026-05-21 15:31:04] ERROR: Close failed BCHUSDT: {"code":-1106,"msg":"Parameter 'reduceonly' sent when not required."}[0m
+[0;31m[2026-05-21 15:31:13] ERROR: Connection lost. Reconnecting in 5 seconds...[0m
+[0;31m[2026-05-21 15:34:44] ERROR: Close failed AVAXUSDT: {"code":-1106,"msg":"Parameter 'reduceonly' sent when not required."}[0m
+[0;31m[2026-05-21 15:35:39] ERROR: Close failed AVAXUSDT: {"code":-1106,"msg":"Parameter 'reduceonly' sent when not required."}[0m
+[0;31m[2026-05-21 15:36:33] ERROR: Close failed AVAXUSDT: {"code":-1106,"msg":"Parameter 'reduceonly' sent when not required."}[0m
+[0;31m[2026-05-21 15:37:29] ERROR: Close failed AVAXUSDT: {"code":-1106,"msg":"Parameter 'reduceonly' sent when not required."}[0m
+[0;31m[2026-05-21 15:37:39] ERROR: Close failed BNBUSDT: {"code":-1106,"msg":"Parameter 'reduceonly' sent when not required."}[0m
+[0;31m[2026-05-21 15:37:53] ERROR: Close failed ADAUSDT: {"code":-1106,"msg":"Parameter 'reduceonly' sent when not required."}[0m
+[0;31m[2026-05-21 15:38:24] ERROR: Close failed AVAXUSDT: {"code":-1106,"msg":"Parameter 'reduceonly' sent when not required."}[0m
+[0;31m[2026-05-21 15:38:33] ERROR: Close failed BNBUSDT: {"code":-1106,"msg":"Parameter 'reduceonly' sent when not required."}[0m
+[0;31m[2026-05-21 15:39:29] ERROR: Close failed BNBUSDT: {"code":-1106,"msg":"Parameter 'reduceonly' sent when not required."}[0m
+[0;31m[2026-05-21 15:40:24] ERROR: Close failed BNBUSDT: {"code":-1106,"msg":"Parameter 'reduceonly' sent when not required."}[0m
+[0;31m[2026-05-21 15:41:14] ERROR: Close failed BCHUSDT: {"code":-1106,"msg":"Parameter 'reduceonly' sent when not required."}[0m
+[0;31m[2026-05-21 15:42:14] ERROR: Close failed BNBUSDT: {"code":-1106,"msg":"Parameter 'reduceonly' sent when not required."}[0m
+[0;31m[2026-05-21 15:44:12] ERROR: Close failed BNBUSDT: {"code":-1106,"msg":"Parameter 'reduceonly' sent when not required."}[0m
+[0;31m[2026-05-21 15:45:31] ERROR: Connection lost. Reconnecting in 5 seconds...[0m
+[0;31m[2026-05-21 15:46:03] ERROR: Close failed AVAXUSDT: {"code":-1106,"msg":"Parameter 'reduceonly' sent when not required."}[0m
+[0;31m[2026-05-21 15:47:58] ERROR: Close failed BCHUSDT: {"code":-1106,"msg":"Parameter 'reduceonly' sent when not required."}[0m
+[0;31m[2026-05-21 15:48:49] ERROR: Close failed AVAXUSDT: {"code":-1106,"msg":"Parameter 'reduceonly' sent when not required."}[0m
+[0;31m[2026-05-21 15:48:59] ERROR: Close failed BNBUSDT: {"code":-1106,"msg":"Parameter 'reduceonly' sent when not required."}[0m
+[0;31m[2026-05-21 15:49:54] ERROR: Close failed BNBUSDT: {"code":-1106,"msg":"Parameter 'reduceonly' sent when not required."}[0m
+[0;31m[2026-05-21 15:53:25] ERROR: Close failed AVAXUSDT: {"code":-1106,"msg":"Parameter 'reduceonly' sent when not required."}[0m
+[0;31m[2026-05-21 15:53:34] ERROR: Close failed BNBUSDT: {"code":-1106,"msg":"Parameter 'reduceonly' sent when not required."}[0m
+[0;31m[2026-05-21 15:53:55] ERROR: Close failed XRPUSDT: {"code":-1106,"msg":"Parameter 'reduceonly' sent when not required."}[0m
+[0;31m[2026-05-21 15:54:24] ERROR: Close failed AVAXUSDT: {"code":-1106,"msg":"Parameter 'reduceonly' sent when not required."}[0m
+[0;31m[2026-05-21 15:54:33] ERROR: Close failed BNBUSDT: {"code":-1106,"msg":"Parameter 'reduceonly' sent when not required."}[0m
+[0;31m[2026-05-21 15:54:55] ERROR: Close failed XRPUSDT: {"code":-1106,"msg":"Parameter 'reduceonly' sent when not required."}[0m
+[0;31m[2026-05-21 15:55:21] ERROR: Close failed AVAXUSDT: {"code":-1106,"msg":"Parameter 'reduceonly' sent when not required."}[0m
+[0;31m[2026-05-21 15:55:26] ERROR: Close failed BCHUSDT: {"code":-1106,"msg":"Parameter 'reduceonly' sent when not required."}[0m
+[0;31m[2026-05-21 15:55:31] ERROR: Close failed BNBUSDT: {"code":-1106,"msg":"Parameter 'reduceonly' sent when not required."}[0m
+[0;31m[2026-05-21 15:55:50] ERROR: Close failed XRPUSDT: {"code":-1106,"msg":"Parameter 'reduceonly' sent when not required."}[0m
+[0;31m[2026-05-21 15:56:16] ERROR: Close failed AVAXUSDT: {"code":-1106,"msg":"Parameter 'reduceonly' sent when not required."}[0m
+[2026-05-21 15:57:55] === scalper_websocket v3.0 started | mode=LIVE ===
+[2026-05-21 15:59:06] === scalper_websocket v3.0 started | mode=LIVE ===

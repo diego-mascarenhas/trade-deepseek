@@ -84,6 +84,11 @@ LEVERAGE="${SCALPER_LEVERAGE:-5}"
 # Cooldown between orders for same symbol (seconds)
 ORDER_COOLDOWN_SECONDS="${SCALPER_ORDER_COOLDOWN:-300}"
 
+# Place STOP/TP on Binance after entry LIMIT fills (REST mode)
+REST_PLACE_SL_TP="${REST_PLACE_SL_TP:-true}"
+REST_SL_TP_FILL_WAIT="${REST_SL_TP_FILL_WAIT:-90}"
+REST_SL_TP_POLL_INTERVAL="${REST_SL_TP_POLL_INTERVAL:-2}"
+
 # Close open position when price touches opposite OB wall
 OB_CLOSE_ON_OPPOSITE="${OB_CLOSE_ON_OPPOSITE:-${SCALPER_OB_CLOSE_OPPOSITE:-true}}"
 OB_ZONE_UPPER_PCT="${OB_ZONE_UPPER_PCT:-${SCALPER_OB_ZONE_UPPER:-75}}"
@@ -103,9 +108,16 @@ TELEGRAM_CHAT_ID="${TELEGRAM_CHAT_ID:-}"
 
 LOG_DIR="$SCRIPT_DIR/logs"
 mkdir -p "$LOG_DIR"
+BOT_LOG_BASE_DIR="$SCRIPT_DIR"
 LOG_FILE="${OB_LOG_FILE:-$LOG_DIR/ob.log}"
 ERROR_LOG_FILE="${OB_ERROR_LOG_FILE:-$LOG_DIR/ob_errors.log}"
 TRADES_LOG_FILE="${OB_TRADES_LOG_FILE:-$LOG_DIR/ob_trades.log}"
+# Absolute paths so background jobs and tail -f always hit the same files
+[[ "$LOG_FILE" != /* ]] && LOG_FILE="$SCRIPT_DIR/${LOG_FILE#./}"
+[[ "$ERROR_LOG_FILE" != /* ]] && ERROR_LOG_FILE="$SCRIPT_DIR/${ERROR_LOG_FILE#./}"
+[[ "$TRADES_LOG_FILE" != /* ]] && TRADES_LOG_FILE="$SCRIPT_DIR/${TRADES_LOG_FILE#./}"
+TRADES_LOG_HEARTBEAT_SECONDS="${TRADES_LOG_HEARTBEAT_SECONDS:-300}"
+LAST_TRADES_HEARTBEAT=0
 if [ -f "$SCRIPT_DIR/lib/bot_trade_log.sh" ]; then
     # shellcheck source=lib/bot_trade_log.sh
     source "$SCRIPT_DIR/lib/bot_trade_log.sh"
@@ -295,15 +307,25 @@ send_order_binance_rest() {
         -d "$query_string&signature=$signature")
     
     if echo "$response" | jq -e '.orderId' >/dev/null 2>&1; then
-        log "✅ Order executed: $symbol"
-        log_trade "OPEN $symbol $direction entry=$entry sl=$sl tp=$tp qty=$quantity mode=REST status=ok"
+        local order_id
+        order_id=$(echo "$response" | jq -r '.orderId' 2>/dev/null)
+        log "✅ Order executed: $symbol (orderId $order_id)"
+        log_trade "OPEN $symbol $direction entry=$entry sl=$sl tp=$tp qty=$quantity mode=REST status=ok orderId=$order_id"
         send_telegram "✅ ORDER: $symbol $direction Entry:$entry TP:$tp SL:$sl"
-        
-        # Marcar posición como activa
+
         ob_set ACTIVE "$symbol" "true"
         ob_set ACTIVE_TS "$symbol" "$(date +%s)"
         ob_set POS_DIR "$symbol" "$direction"
         ob_set LAST_ENTRY "$symbol" "$entry"
+
+        if declare -f futures_place_sl_tp_after_entry >/dev/null 2>&1; then
+            (
+                export TRADES_LOG_FILE BOT_LOG_BASE_DIR BINANCE_API_KEY BINANCE_SECRET_KEY
+                export DRY_RUN REST_PLACE_SL_TP REST_SL_TP_FILL_WAIT REST_SL_TP_POLL_INTERVAL
+                export BINANCE_HEDGE_MODE
+                futures_place_sl_tp_after_entry "$symbol" "$direction" "$sl" "$tp" "$quantity" "$order_id" log
+            ) &
+        fi
         return 0
     else
         log_error "Order failed: $response"
@@ -398,6 +420,7 @@ send_order() {
     
     if declare -f can_place_new_order >/dev/null 2>&1; then
         if ! can_place_new_order "$symbol" "$direction" "$entry" log; then
+            log_trade "SKIP_ORDER $symbol $direction entry=$entry reason=guard_blocked"
             echo -e "  ${YELLOW}⏸️ Order skipped (position or duplicate limit)${NC}"
             return 0
         fi
@@ -406,6 +429,7 @@ send_order() {
         position_status=$(check_open_position "$symbol")
         if [ "$position_status" = "active" ]; then
             log "⏸️ Position already active for $symbol - skipping order"
+            log_trade "SKIP_ORDER $symbol $direction entry=$entry reason=position_active"
             echo -e "  ${YELLOW}⏸️ Position already open - skipping${NC}"
             return 0
         fi
@@ -784,15 +808,20 @@ draw_and_execute() {
             echo -e "${GREEN}${BOLD}▶ $symbol - CONFIRMED ${signal} (${confidence}%)${position_active}${NC}"
             echo -e "   Entry: $entry | TP: $tp (${tp_pct}%) | SL: $sl (${sl_pct}%)"
             echo -e "   Reasons: $reasons"
+            log_trade "SIGNAL $symbol $signal conf=${confidence}% entry=$entry tp=$tp sl=$sl | $reasons"
             
             # Execute order
-            if [ "$DRY_RUN" = false ] && [ "$(ob_get ACTIVE "$symbol")" != "true" ]; then
+            if [ "$DRY_RUN" = true ]; then
+                log_trade "DRY-RUN_SIGNAL $symbol $signal entry=$entry (no order sent)"
+            elif [ "$(ob_get ACTIVE "$symbol")" != "true" ]; then
                 send_order "$symbol" "$signal" "$entry" "$sl" "$tp"
-            elif [ "$(ob_get ACTIVE "$symbol")" = "true" ]; then
+            else
+                log_trade "SKIP_ORDER $symbol $signal entry=$entry reason=active_local_flag"
                 echo -e "   ${YELLOW}⏸️ Position already active - skipping${NC}"
             fi
             
         elif [ "$signal" != "NEUTRAL" ]; then
+            log_trade "WATCH $symbol $signal conf=${confidence}% need=${MIN_CONFIDENCE}% entry=$entry | $reasons"
             echo -e "${YELLOW}▶ $symbol - WATCH ${signal} (${confidence}%) - needs ${MIN_CONFIDENCE}%${position_active}${NC}"
             echo -e "   Entry: $entry | TP: $tp | SL: $sl"
             echo -e "   Reasons: $reasons"
@@ -835,6 +864,12 @@ run_cycle() {
         return
     fi
     LAST_CYCLE_TIME=$current_time
+
+    if [ -n "${TRADES_LOG_HEARTBEAT_SECONDS:-}" ] \
+        && (( current_time - LAST_TRADES_HEARTBEAT >= TRADES_LOG_HEARTBEAT_SECONDS )); then
+        LAST_TRADES_HEARTBEAT=$current_time
+        log_trade "HEARTBEAT bot=ob_websocket symbols=${NUM_SYMBOLS} file=${TRADES_LOG_FILE}"
+    fi
     
     update_24h_changes
     hydrate_missing_symbols
@@ -895,8 +930,10 @@ main() {
         log "📊 Symbols: ${SYMBOLS}"
     fi
     log "🎯 Min Confidence: ${MIN_CONFIDENCE}%"
+    log "🛡️ REST SL/TP after fill: ${REST_PLACE_SL_TP} (wait ${REST_SL_TP_FILL_WAIT}s)"
     log "⏰ Order Cooldown: ${ORDER_COOLDOWN_SECONDS}s per symbol"
     log "📁 Log: $LOG_FILE | Errors: $ERROR_LOG_FILE | Trades: $TRADES_LOG_FILE"
+    log_trade "READY bot=ob_websocket trades_log=${TRADES_LOG_FILE}"
     
     if ! declare -f round_price_for_symbol >/dev/null 2>&1; then
         log_error "round_price_for_symbol missing — check $BINANCE_PRECISION_LIB"
