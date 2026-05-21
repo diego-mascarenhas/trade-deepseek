@@ -10,6 +10,20 @@
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$SCRIPT_DIR"
 
+# Binance precision helpers (required external lib — no inline duplicate)
+BINANCE_PRECISION_LIB="$SCRIPT_DIR/lib/binance_precision.sh"
+if [ ! -f "$BINANCE_PRECISION_LIB" ]; then
+    BINANCE_PRECISION_LIB="$SCRIPT_DIR/binance_precision.sh"
+fi
+if [ ! -f "$BINANCE_PRECISION_LIB" ]; then
+    echo "❌ Error: lib/binance_precision.sh not found"
+    echo "   Expected: $SCRIPT_DIR/lib/binance_precision.sh"
+    echo "   Deploy the lib/ folder next to this script."
+    exit 1
+fi
+# shellcheck source=lib/binance_precision.sh
+source "$BINANCE_PRECISION_LIB"
+
 # ============================================
 # LOAD CONFIGURATION
 # ============================================
@@ -58,6 +72,7 @@ VOLATILE_THRESHOLD="${SCALPER_VOLATILE_THRESHOLD:-15}"
 SL_VOLATILE_MIN="${SCALPER_SL_VOLATILE_MIN:-0.8}"
 TP_VOLATILE_MIN="${SCALPER_TP_VOLATILE_MIN:-1.0}"
 MIN_SL_SPREAD_MULT="${SCALPER_MIN_SL_SPREAD_MULT:-3}"
+POSITION_SIZE_USDT="${SCALPER_POSITION_SIZE_USDT:-50}"
 
 # Confirmation thresholds
 RSI_OVERSOLD=30
@@ -155,10 +170,16 @@ send_telegram() {
         -d "{\"chat_id\": \"${TELEGRAM_CHAT_ID}\", \"text\": \"${msg}\"}" > /dev/null
 }
 
-round_price() {
-    local price="$1"
-    # Round to 5 decimal places for altcoins
-    printf "%.5f" "$price"
+calculate_quantity() {
+    local symbol="$1"
+    local entry_price="$2"
+    if [ -z "$entry_price" ] || ! (( $(echo "$entry_price > 0" | bc -l 2>/dev/null) )); then
+        round_qty_for_symbol "$symbol" "0.001"
+        return 0
+    fi
+    local raw_qty
+    raw_qty=$(bc_safe_div "$POSITION_SIZE_USDT" "$entry_price")
+    round_qty_for_symbol "$symbol" "$raw_qty"
 }
 
 # ============================================
@@ -230,16 +251,17 @@ send_order_binance_rest() {
         side="SELL"
     fi
     
+    local quantity
+    quantity=$(calculate_quantity "$symbol" "$entry")
     local timestamp=$(date +%s%3N)
     local recv_window=5000
     
-    # Prepare query string
-    local query_string="symbol=$symbol&side=$side&type=LIMIT&timeInForce=GTC&quantity=0.001&price=$entry&timestamp=$timestamp&recvWindow=$recv_window"
+    local query_string="symbol=$symbol&side=$side&type=LIMIT&timeInForce=GTC&quantity=$quantity&price=$entry&timestamp=$timestamp&recvWindow=$recv_window"
     
     # Generate signature (requires openssl)
     local signature=$(echo -n "$query_string" | openssl dgst -sha256 -hmac "$BINANCE_SECRET_KEY" | cut -d' ' -f2)
     
-    log "📝 [REST] $symbol $direction | Entry:$entry SL:$sl TP:$tp"
+    log "📝 [REST] $symbol $direction | Entry:$entry SL:$sl TP:$tp | Qty:$quantity"
     
     if [ "$DRY_RUN" = true ]; then
         log "🔍 DRY-RUN: Would execute via Binance REST"
@@ -279,6 +301,10 @@ send_order_binance_ws() {
 # Universal order dispatcher
 send_order() {
     local symbol="$1" direction="$2" entry="$3" sl="$4" tp="$5"
+    
+    entry=$(round_price_for_symbol "$symbol" "$entry")
+    sl=$(round_price_for_symbol "$symbol" "$sl")
+    tp=$(round_price_for_symbol "$symbol" "$tp")
     
     case "$ORDER_EXECUTION_MODE" in
         "finandy")
@@ -503,11 +529,16 @@ calculate_dynamic_tp_sl() {
     local tp=""
     
     if [ "$direction" = "LONG" ]; then
-        sl=$(printf "%.5f" $(echo "$entry * (1 - $sl_pct/100)" | bc -l))
-        tp=$(printf "%.5f" $(echo "$entry * (1 + $tp_pct/100)" | bc -l))
+        sl=$(echo "$entry * (1 - $sl_pct/100)" | bc -l)
+        tp=$(echo "$entry * (1 + $tp_pct/100)" | bc -l)
     else
-        sl=$(printf "%.5f" $(echo "$entry * (1 + $sl_pct/100)" | bc -l))
-        tp=$(printf "%.5f" $(echo "$entry * (1 - $tp_pct/100)" | bc -l))
+        sl=$(echo "$entry * (1 + $sl_pct/100)" | bc -l)
+        tp=$(echo "$entry * (1 - $tp_pct/100)" | bc -l)
+    fi
+    
+    if [ -n "$CURRENT_SYMBOL" ]; then
+        sl=$(round_price_for_symbol "$CURRENT_SYMBOL" "$sl")
+        tp=$(round_price_for_symbol "$CURRENT_SYMBOL" "$tp")
     fi
     
     echo "$sl|$tp"
@@ -545,7 +576,7 @@ determine_signal() {
                 signal="LONG"
                 confidence=40
                 reasons="Price near support"
-                entry=$(printf "%.5f" $(echo "$support * 1.001" | bc -l))
+                entry=$(round_price_for_symbol "$CURRENT_SYMBOL" $(echo "$support * 1.001" | bc -l))
                 
                 if [ -n "$rsi" ] && (( $(echo "$rsi < $RSI_OVERSOLD" | bc -l 2>/dev/null) )); then
                     confidence=$((confidence + 20))
@@ -568,7 +599,7 @@ determine_signal() {
                 signal="SHORT"
                 confidence=40
                 reasons="Price near resistance"
-                entry=$(printf "%.5f" $(echo "$resistance * 0.999" | bc -l))
+                entry=$(round_price_for_symbol "$CURRENT_SYMBOL" $(echo "$resistance * 0.999" | bc -l))
                 
                 if [ -n "$rsi" ] && (( $(echo "$rsi > $RSI_OVERBOUGHT" | bc -l 2>/dev/null) )); then
                     confidence=$((confidence + 20))
@@ -855,6 +886,18 @@ main() {
     echo -e "${NC}"
     
     validate_config
+    
+    if ! declare -f round_price_for_symbol >/dev/null 2>&1; then
+        log_error "round_price_for_symbol missing — check $BINANCE_PRECISION_LIB"
+        exit 1
+    fi
+    
+    if init_all_symbol_precision "${SYMBOL_ARRAY[@]}"; then
+        log "✅ Binance precision loaded for ${#SYMBOL_ARRAY[@]} symbols (lib/binance_precision.sh)"
+    else
+        log_error "Could not load exchangeInfo precision (orders may fail)"
+        exit 1
+    fi
     
     log "🚀 Starting Advanced Scalper Bot v3.0"
     log "📋 Mode: $([ "$DRY_RUN" = true ] && echo "DRY-RUN" || echo "LIVE")"

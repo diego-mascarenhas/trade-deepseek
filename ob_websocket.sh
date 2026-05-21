@@ -10,6 +10,19 @@
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$SCRIPT_DIR"
 
+BINANCE_PRECISION_LIB="$SCRIPT_DIR/lib/binance_precision.sh"
+if [ ! -f "$BINANCE_PRECISION_LIB" ]; then
+    BINANCE_PRECISION_LIB="$SCRIPT_DIR/binance_precision.sh"
+fi
+if [ ! -f "$BINANCE_PRECISION_LIB" ]; then
+    echo "❌ Error: lib/binance_precision.sh not found"
+    echo "   Expected: $SCRIPT_DIR/lib/binance_precision.sh"
+    echo "   Deploy the lib/ folder next to this script."
+    exit 1
+fi
+# shellcheck source=lib/binance_precision.sh
+source "$BINANCE_PRECISION_LIB"
+
 if [ -f .env ]; then
     source .env
 fi
@@ -188,14 +201,9 @@ calculate_quantity() {
         return 0
     fi
     
-    local raw_quantity=$(bc_safe_div "$POSITION_SIZE_USDT" "$entry_price")
-    local quantity=$(printf "%.3f" "$raw_quantity")
-    
-    if (( $(echo "$quantity < 0.001" | bc -l 2>/dev/null) )); then
-        quantity="0.001"
-    fi
-    
-    echo "$quantity"
+    local raw_quantity
+    raw_quantity=$(bc_safe_div "$POSITION_SIZE_USDT" "$entry_price")
+    round_qty_for_symbol "$symbol" "$raw_quantity"
 }
 
 # ============================================
@@ -314,6 +322,10 @@ EOF
 
 send_order() {
     local symbol="$1" direction="$2" entry="$3" sl="$4" tp="$5"
+    
+    entry=$(round_price_for_symbol "$symbol" "$entry")
+    sl=$(round_price_for_symbol "$symbol" "$sl")
+    tp=$(round_price_for_symbol "$symbol" "$tp")
     
     # Verificar si ya hay posición activa
     local position_status=$(check_open_position "$symbol")
@@ -459,7 +471,7 @@ determine_signal() {
             if [ -n "$position" ] && (( $(echo "$position < 25" | bc -l 2>/dev/null) )); then
                 signal="LONG"
                 confidence=65
-                entry=$(printf "%.5f" $(echo "$support * 1.001" | bc -l))
+                entry=$(round_price_for_symbol "$symbol" $(echo "$support * 1.001" | bc -l))
                 reasons="OB: near support"
                 
                 if (( $(echo "$change_24h < -3" | bc -l 2>/dev/null) )); then
@@ -470,7 +482,7 @@ determine_signal() {
             elif [ -n "$position" ] && (( $(echo "$position > 75" | bc -l 2>/dev/null) )); then
                 signal="SHORT"
                 confidence=65
-                entry=$(printf "%.5f" $(echo "$resistance * 0.999" | bc -l))
+                entry=$(round_price_for_symbol "$symbol" $(echo "$resistance * 0.999" | bc -l))
                 reasons="OB: near resistance"
                 
                 if (( $(echo "$change_24h > 3" | bc -l 2>/dev/null) )); then
@@ -487,26 +499,27 @@ determine_signal() {
         if (( $(echo "$change_24h > 5" | bc -l 2>/dev/null) )); then
             signal="SHORT"
             confidence=50
-            entry=$(printf "%.5f" $(echo "$current_price * 0.998" | bc -l))
+            entry=$(round_price_for_symbol "$symbol" $(echo "$current_price * 0.998" | bc -l))
             reasons="24h extreme gain (+${change_24h}%)"
         elif (( $(echo "$change_24h < -5" | bc -l 2>/dev/null) )); then
             signal="LONG"
             confidence=50
-            entry=$(printf "%.5f" $(echo "$current_price * 1.002" | bc -l))
+            entry=$(round_price_for_symbol "$symbol" $(echo "$current_price * 1.002" | bc -l))
             reasons="24h extreme loss (${change_24h}%)"
         elif (( $(echo "$change_24h > 2" | bc -l 2>/dev/null) )); then
             signal="LONG"
             confidence=40
-            entry=$(printf "%.5f" $(echo "$current_price * 1.001" | bc -l))
+            entry=$(round_price_for_symbol "$symbol" $(echo "$current_price * 1.001" | bc -l))
             reasons="uptrend (+${change_24h}%)"
         elif (( $(echo "$change_24h < -2" | bc -l 2>/dev/null) )); then
             signal="SHORT"
             confidence=40
-            entry=$(printf "%.5f" $(echo "$current_price * 0.999" | bc -l))
+            entry=$(round_price_for_symbol "$symbol" $(echo "$current_price * 0.999" | bc -l))
             reasons="downtrend (${change_24h}%)"
         fi
     fi
     
+    entry=$(round_price_for_symbol "$symbol" "$entry")
     echo "$signal|$confidence|$entry|$reasons"
 }
 
@@ -515,7 +528,7 @@ determine_signal() {
 # ============================================
 
 calculate_tp_sl() {
-    local entry="$1" direction="$2" change_24h="$3" spread="$4"
+    local entry="$1" direction="$2" change_24h="$3" spread="$4" symbol="$5"
     
     local sl_pct="$SL_PERCENT"
     local tp_pct="$TP_PERCENT"
@@ -544,11 +557,16 @@ calculate_tp_sl() {
     local tp=""
     
     if [ "$direction" = "LONG" ]; then
-        sl=$(printf "%.5f" $(echo "$entry * (1 - $sl_pct/100)" | bc -l))
-        tp=$(printf "%.5f" $(echo "$entry * (1 + $tp_pct/100)" | bc -l))
+        sl=$(echo "$entry * (1 - $sl_pct/100)" | bc -l)
+        tp=$(echo "$entry * (1 + $tp_pct/100)" | bc -l)
     else
-        sl=$(printf "%.5f" $(echo "$entry * (1 + $sl_pct/100)" | bc -l))
-        tp=$(printf "%.5f" $(echo "$entry * (1 - $tp_pct/100)" | bc -l))
+        sl=$(echo "$entry * (1 + $sl_pct/100)" | bc -l)
+        tp=$(echo "$entry * (1 - $tp_pct/100)" | bc -l)
+    fi
+    
+    if [ -n "$symbol" ]; then
+        sl=$(round_price_for_symbol "$symbol" "$sl")
+        tp=$(round_price_for_symbol "$symbol" "$tp")
     fi
     
     echo "$sl|$tp|$sl_pct|$tp_pct"
@@ -626,7 +644,7 @@ draw_and_execute() {
         # Calculate TP/SL (skip when entry is invalid — e.g. NEUTRAL with entry=0)
         local sl="0" tp="0" sl_pct="$SL_PERCENT" tp_pct="$TP_PERCENT"
         if [ -n "$entry" ] && (( $(echo "$entry > 0" | bc -l 2>/dev/null) )); then
-            local tp_sl_data=$(calculate_tp_sl "$entry" "$signal" "$change" "$spread")
+            local tp_sl_data=$(calculate_tp_sl "$entry" "$signal" "$change" "$spread" "$symbol")
             sl=$(echo "$tp_sl_data" | cut -d'|' -f1)
             tp=$(echo "$tp_sl_data" | cut -d'|' -f2)
             sl_pct=$(echo "$tp_sl_data" | cut -d'|' -f3)
@@ -744,6 +762,18 @@ main() {
     log "📊 Symbols: ${SYMBOLS}"
     log "🎯 Min Confidence: ${MIN_CONFIDENCE}%"
     log "⏰ Order Cooldown: ${ORDER_COOLDOWN_SECONDS}s per symbol"
+    
+    if ! declare -f round_price_for_symbol >/dev/null 2>&1; then
+        log_error "round_price_for_symbol missing — check $BINANCE_PRECISION_LIB"
+        exit 1
+    fi
+    
+    if init_all_symbol_precision "${SYMBOL_ARRAY[@]}"; then
+        log "✅ Binance precision loaded for ${#SYMBOL_ARRAY[@]} symbols (lib/binance_precision.sh)"
+    else
+        log_error "Could not load exchangeInfo precision"
+        exit 1
+    fi
     
     if ! command -v jq &> /dev/null; then
         log_error "jq not installed. Run: brew install jq"
