@@ -1,6 +1,26 @@
 #!/bin/bash
 # Binance Futures price/qty rounding (tickSize / stepSize) — bash 3.2+ safe (no declare -A)
 
+# One number per line (hedge mode can return multiple positionAmt from jq)
+_bn_sanitize_num() {
+    echo "$1" | head -1 | tr -d '[:space:]'
+}
+
+# Safe float compares (avoid (( $(bc) )) syntax errors on macOS bash)
+_bn_is_positive() {
+    local v
+    v=$(_bn_sanitize_num "$1")
+    [ -z "$v" ] && return 1
+    awk -v v="$v" 'BEGIN { exit (v + 0 > 0) ? 0 : 1 }'
+}
+
+_bn_cmp_gt() {
+    local a b
+    a=$(_bn_sanitize_num "$1")
+    b=$(_bn_sanitize_num "$2")
+    awk -v a="$a" -v b="$b" 'BEGIN { exit (a + 0 > b + 0) ? 0 : 1 }'
+}
+
 _bnp_var_name() {
     local field="$1"
     local sym="$2"
@@ -32,7 +52,8 @@ _decimal_places_from_step() {
         return 0
     fi
     frac="${norm#*.}"
-    echo "${#frac}"
+    # Must be integer for printf %.*f
+    echo "${#frac}" | tr -cd '0-9'
 }
 
 # Round value to step/tick via bc (avoids awk float noise → Binance -1111)
@@ -42,21 +63,28 @@ _bn_format_to_step() {
     local mode="${3:-round}" # round | floor
     local dec n result
 
+    value=$(_bn_sanitize_num "$value")
+    step=$(_bn_sanitize_num "$step")
+
     if [ -z "$value" ] || [ "$value" = "0" ]; then
         echo "0"
         return 0
     fi
-    if [ -z "$step" ] || ! (( $(echo "$step > 0" | bc -l 2>/dev/null) )); then
+    if [ -z "$step" ] || ! _bn_is_positive "$step"; then
         echo "$value"
         return 0
     fi
 
     dec=$(_decimal_places_from_step "$step")
+    case "$dec" in
+        ''|*[!0-9]*) dec=8 ;;
+    esac
     if [ "$mode" = "floor" ]; then
         n=$(echo "scale=0; $value / $step" | bc 2>/dev/null)
     else
         n=$(echo "scale=0; $value / $step + 0.5" | bc 2>/dev/null)
     fi
+    n=${n%%.*}
     [ -z "$n" ] || [ "$n" -lt 1 ] 2>/dev/null && n=1
     result=$(echo "scale=${dec}; $n * $step / 1" | bc -l 2>/dev/null)
     if [ -z "$result" ]; then
@@ -64,7 +92,7 @@ _bn_format_to_step() {
         return 0
     fi
     if [ "$dec" -gt 0 ] 2>/dev/null; then
-        LC_NUMERIC=C printf "%.*f\n" "$dec" "$result"
+        LC_NUMERIC=C awk -v d="$dec" -v r="$result" 'BEGIN { printf "%.*f\n", d, r+0 }'
     else
         LC_NUMERIC=C printf "%.0f\n" "$result"
     fi
@@ -177,13 +205,17 @@ clamp_limit_price_for_order() {
 
     case "$(echo "$direction" | tr '[:lower:]' '[:upper:]')" in
         LONG|BUY)
-            raw=$(awk -v p="$price" -v m="$mark" -v u="$mult_up" 'BEGIN {
+            p=$(_bn_sanitize_num "$price")
+            m=$(_bn_sanitize_num "$mark")
+            raw=$(awk -v p="$p" -v m="$m" -v u="$mult_up" 'BEGIN {
                 maxp = m * u
                 print (p > maxp) ? maxp : p
             }')
             ;;
         SHORT|SELL)
-            raw=$(awk -v p="$price" -v m="$mark" -v d="$mult_down" 'BEGIN {
+            p=$(_bn_sanitize_num "$price")
+            m=$(_bn_sanitize_num "$mark")
+            raw=$(awk -v p="$p" -v m="$m" -v d="$mult_down" 'BEGIN {
                 minp = m * d
                 print (p < minp) ? minp : p
             }')

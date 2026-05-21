@@ -45,6 +45,10 @@ if [ -f "$SCRIPT_DIR/lib/binance_position_mode.sh" ]; then
     # shellcheck source=lib/binance_position_mode.sh
     source "$SCRIPT_DIR/lib/binance_position_mode.sh"
 fi
+if [ -f "$SCRIPT_DIR/lib/binance_order_guard.sh" ]; then
+    # shellcheck source=lib/binance_order_guard.sh
+    source "$SCRIPT_DIR/lib/binance_order_guard.sh"
+fi
 
 # ============================================
 # LOAD CONFIGURATION
@@ -71,7 +75,7 @@ DEPTH="${SCALPER_OB_DEPTH:-10}"
 SPEED="${SCALPER_WS_SPEED:-500ms}"
 
 # Order execution mode: finandy, rest, websocket
-ORDER_EXECUTION_MODE="${ORDER_EXECUTION_MODE:-finandy}"
+ORDER_EXECUTION_MODE="${ORDER_EXECUTION_MODE:-rest}"
 
 # Binance API Keys (required for rest/websocket modes)
 BINANCE_API_KEY="${BINANCE_API_KEY:-}"
@@ -100,6 +104,11 @@ MIN_LIQUIDITY_USD=50000
 # Analysis cycle (seconds)
 CYCLE_INTERVAL="${SCALPER_CYCLE_INTERVAL:-5}"
 
+# Close open position when price touches opposite OB wall
+OB_CLOSE_ON_OPPOSITE="${OB_CLOSE_ON_OPPOSITE:-${SCALPER_OB_CLOSE_OPPOSITE:-true}}"
+OB_ZONE_UPPER_PCT="${OB_ZONE_UPPER_PCT:-${SCALPER_OB_ZONE_UPPER:-80}}"
+OB_ZONE_LOWER_PCT="${OB_ZONE_LOWER_PCT:-${SCALPER_OB_ZONE_LOWER:-20}}"
+
 # Finandy webhook (for finandy mode)
 FINANDY_WEBHOOK="${FINANDY_WEBHOOK:-https://hook.finandy.com/LMEnRji-3GvFkm7wqFUK}"
 FINANDY_SECRET="${FINANDY_SECRET:-d1a01uf5uoe}"
@@ -111,6 +120,15 @@ TELEGRAM_CHAT_ID="${TELEGRAM_CHAT_ID:-}"
 # Directories
 LOG_DIR="$SCRIPT_DIR/logs"
 mkdir -p "$LOG_DIR"
+LOG_FILE="${SCALPER_LOG_FILE:-$LOG_DIR/scalper.log}"
+ERROR_LOG_FILE="${SCALPER_ERROR_LOG_FILE:-$LOG_DIR/scalper_errors.log}"
+TRADES_LOG_FILE="${SCALPER_TRADES_LOG_FILE:-$LOG_DIR/scalper_trades.log}"
+if [ -f "$SCRIPT_DIR/lib/bot_trade_log.sh" ]; then
+    # shellcheck source=lib/bot_trade_log.sh
+    source "$SCRIPT_DIR/lib/bot_trade_log.sh"
+else
+    log_trade() { :; }
+fi
 
 # Colors
 RED='\033[0;31m'
@@ -171,11 +189,11 @@ parse_cli_args "$@"
 init_symbol_list
 
 log() {
-    echo -e "[$(date '+%Y-%m-%d %H:%M:%S')] $1" | tee -a "$LOG_DIR/scalper.log"
+    echo -e "[$(date '+%Y-%m-%d %H:%M:%S')] $1" | tee -a "$LOG_FILE"
 }
 
 log_error() {
-    echo -e "${RED}[$(date '+%Y-%m-%d %H:%M:%S')] ERROR: $1${NC}" | tee -a "$LOG_DIR/errors.log"
+    echo -e "${RED}[$(date '+%Y-%m-%d %H:%M:%S')] ERROR: $1${NC}" | tee -a "$ERROR_LOG_FILE"
 }
 
 bc_safe_div() {
@@ -257,6 +275,7 @@ EOF
     
     if [ "$DRY_RUN" = true ]; then
         log "🔍 DRY-RUN: Would execute via Finandy"
+        log_trade "DRY-RUN OPEN $symbol $direction entry=$entry sl=$sl tp=$tp mode=FINANDY"
         send_telegram "🔍 [DRY-RUN] $symbol $direction Entry:$entry"
         return 0
     fi
@@ -265,9 +284,11 @@ EOF
     
     if echo "$response" | jq -e '.code == 200 or .success == true' >/dev/null 2>&1; then
         log "✅ Order executed via Finandy: $symbol"
+        log_trade "OPEN $symbol $direction entry=$entry sl=$sl tp=$tp mode=FINANDY status=ok"
         send_telegram "✅ ORDER: $symbol $direction Entry:$entry"
     else
         log_error "Order failed: $response"
+        log_trade "FAILED OPEN $symbol $direction entry=$entry mode=FINANDY response=$(echo "$response" | tr -d '\n')"
     fi
 }
 
@@ -303,6 +324,7 @@ send_order_binance_rest() {
     
     if [ "$DRY_RUN" = true ]; then
         log "🔍 DRY-RUN: Would execute via Binance REST"
+        log_trade "DRY-RUN OPEN $symbol $direction entry=$entry sl=$sl tp=$tp qty=$quantity mode=REST"
         send_telegram "🔍 [DRY-RUN] $symbol $direction Entry:$entry"
         return 0
     fi
@@ -313,9 +335,17 @@ send_order_binance_rest() {
     
     if echo "$response" | jq -e '.orderId' >/dev/null 2>&1; then
         log "✅ Order executed via Binance REST: $symbol"
+        log_trade "OPEN $symbol $direction entry=$entry sl=$sl tp=$tp qty=$quantity mode=REST status=ok"
         send_telegram "✅ [REST] $symbol $direction Entry:$entry"
+        if declare -f ob_set >/dev/null 2>&1; then
+            ob_set ACTIVE "$symbol" "true"
+            ob_set ACTIVE_TS "$symbol" "$(date +%s)"
+            ob_set POS_DIR "$symbol" "$direction"
+            ob_set LAST_ENTRY "$symbol" "$entry"
+        fi
     else
         log_error "REST order failed: $response"
+        log_trade "FAILED OPEN $symbol $direction entry=$entry qty=$quantity mode=REST response=$(echo "$response" | tr -d '\n')"
     fi
 }
 
@@ -327,6 +357,7 @@ send_order_binance_ws() {
     
     if [ "$DRY_RUN" = true ]; then
         log "🔍 DRY-RUN: Would execute via Binance WebSocket"
+        log_trade "DRY-RUN OPEN $symbol $direction entry=$entry sl=$sl tp=$tp mode=WEBSOCKET"
         send_telegram "🔍 [DRY-RUN] $symbol $direction Entry:$entry"
         return 0
     fi
@@ -356,6 +387,12 @@ send_order() {
     entry=$(round_price_for_symbol "$symbol" "$entry")
     sl=$(round_price_for_symbol "$symbol" "$sl")
     tp=$(round_price_for_symbol "$symbol" "$tp")
+
+    if declare -f can_place_new_order >/dev/null 2>&1; then
+        if ! can_place_new_order "$symbol" "$direction" "$entry" log; then
+            return 0
+        fi
+    fi
     
     case "$ORDER_EXECUTION_MODE" in
         "finandy")
@@ -788,6 +825,11 @@ draw_visualization() {
     if [ "$best_bid" != "0" ] && [ "$best_ask" != "0" ] && [ "$best_bid" != "null" ] && [ "$best_ask" != "null" ]; then
         spread=$(echo "$best_ask - $best_bid" | bc -l 2>/dev/null)
     fi
+
+    if declare -f try_close_on_opposite_ob >/dev/null 2>&1 \
+        && try_close_on_opposite_ob "$CURRENT_SYMBOL" "$current_price" "$OB_ZONE_UPPER_PCT" "$OB_ZONE_LOWER_PCT" log; then
+        echo -e "${MAGENTA}  🔒 Position closed (or closing) — opposite OB touch${NC}"
+    fi
     
     # Calculate dynamic TP/SL if signal is valid
     local sl="0"
@@ -1005,6 +1047,10 @@ main() {
     echo -e "${NC}"
     
     validate_config
+
+    if declare -f init_bot_logs >/dev/null 2>&1; then
+        init_bot_logs "scalper_websocket v3.0"
+    fi
     
     if ! declare -f round_price_for_symbol >/dev/null 2>&1; then
         log_error "round_price_for_symbol missing — check $BINANCE_PRECISION_LIB"
@@ -1031,6 +1077,7 @@ main() {
     fi
     
     log "🚀 Starting Advanced Scalper Bot v3.0"
+    log "📁 Log: $LOG_FILE | Errors: $ERROR_LOG_FILE | Trades: $TRADES_LOG_FILE"
     log "📋 Mode: $([ "$DRY_RUN" = true ] && echo "DRY-RUN" || echo "LIVE")"
     log "📊 Order Execution: $ORDER_EXECUTION_MODE"
     if [ "$SINGLE_SYMBOL_MODE" = true ]; then

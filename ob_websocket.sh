@@ -44,6 +44,10 @@ if [ -f "$SCRIPT_DIR/lib/binance_position_mode.sh" ]; then
     # shellcheck source=lib/binance_position_mode.sh
     source "$SCRIPT_DIR/lib/binance_position_mode.sh"
 fi
+if [ -f "$SCRIPT_DIR/lib/binance_order_guard.sh" ]; then
+    # shellcheck source=lib/binance_order_guard.sh
+    source "$SCRIPT_DIR/lib/binance_order_guard.sh"
+fi
 
 if [ -f .env ]; then
     source .env
@@ -80,6 +84,11 @@ LEVERAGE="${SCALPER_LEVERAGE:-5}"
 # Cooldown between orders for same symbol (seconds)
 ORDER_COOLDOWN_SECONDS="${SCALPER_ORDER_COOLDOWN:-300}"
 
+# Close open position when price touches opposite OB wall
+OB_CLOSE_ON_OPPOSITE="${OB_CLOSE_ON_OPPOSITE:-${SCALPER_OB_CLOSE_OPPOSITE:-true}}"
+OB_ZONE_UPPER_PCT="${OB_ZONE_UPPER_PCT:-${SCALPER_OB_ZONE_UPPER:-75}}"
+OB_ZONE_LOWER_PCT="${OB_ZONE_LOWER_PCT:-${SCALPER_OB_ZONE_LOWER:-25}}"
+
 # Binance API
 BINANCE_API_KEY="${BINANCE_API_KEY:-}"
 BINANCE_SECRET_KEY="${BINANCE_SECRET_KEY:-}"
@@ -94,6 +103,15 @@ TELEGRAM_CHAT_ID="${TELEGRAM_CHAT_ID:-}"
 
 LOG_DIR="$SCRIPT_DIR/logs"
 mkdir -p "$LOG_DIR"
+LOG_FILE="${OB_LOG_FILE:-$LOG_DIR/ob.log}"
+ERROR_LOG_FILE="${OB_ERROR_LOG_FILE:-$LOG_DIR/ob_errors.log}"
+TRADES_LOG_FILE="${OB_TRADES_LOG_FILE:-$LOG_DIR/ob_trades.log}"
+if [ -f "$SCRIPT_DIR/lib/bot_trade_log.sh" ]; then
+    # shellcheck source=lib/bot_trade_log.sh
+    source "$SCRIPT_DIR/lib/bot_trade_log.sh"
+else
+    log_trade() { :; }
+fi
 
 # Colors
 RED='\033[0;31m'
@@ -101,6 +119,7 @@ GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 CYAN='\033[0;36m'
+MAGENTA='\033[0;35m'
 WHITE='\033[1;37m'
 BOLD='\033[1m'
 NC='\033[0m'
@@ -116,11 +135,11 @@ NC='\033[0m'
 # ============================================
 
 log() {
-    echo -e "[$(date '+%Y-%m-%d %H:%M:%S')] $1" | tee -a "$LOG_DIR/scalper.log"
+    echo -e "[$(date '+%Y-%m-%d %H:%M:%S')] $1" | tee -a "$LOG_FILE"
 }
 
 log_error() {
-    echo -e "${RED}[$(date '+%Y-%m-%d %H:%M:%S')] ERROR: $1${NC}" | tee -a "$LOG_DIR/errors.log"
+    echo -e "${RED}[$(date '+%Y-%m-%d %H:%M:%S')] ERROR: $1${NC}" | tee -a "$ERROR_LOG_FILE"
 }
 
 send_telegram() {
@@ -148,42 +167,43 @@ bc_safe_div() {
 
 check_open_position() {
     local symbol="$1"
-    
+
     if [ -z "$BINANCE_API_KEY" ] || [ -z "$BINANCE_SECRET_KEY" ]; then
-        # Fallback: usar memoria local
         if [ "$(ob_get ACTIVE "$symbol")" = "true" ]; then
             local elapsed=$(($(date +%s) - $(ob_get ACTIVE_TS "$symbol")))
             if [ $elapsed -lt $ORDER_COOLDOWN_SECONDS ]; then
                 echo "active"
                 return 0
-            else
-                ob_set ACTIVE "$symbol" "false"
-                echo "none"
-                return 1
             fi
-        else
-            echo "none"
-            return 1
+            ob_set ACTIVE "$symbol" "false"
         fi
+        echo "none"
+        return 1
     fi
-    
-    # Consultar API de Binance
-    local timestamp
-    timestamp=$(binance_timestamp_ms)
-    local query_string="timestamp=$timestamp&recvWindow=5000"
-    local signature
-    signature=$(echo -n "$query_string" | openssl dgst -sha256 -hmac "$BINANCE_SECRET_KEY" | awk '{print $2}')
-    
-    local positions=$(curl -s -X GET "https://fapi.binance.com/fapi/v2/positionRisk?$query_string&signature=$signature" \
-        -H "X-MBX-APIKEY: $BINANCE_API_KEY" 2>/dev/null)
-    
-    local position_amt=$(echo "$positions" | jq -r ".[] | select(.symbol==\"$symbol\") | .positionAmt // 0" 2>/dev/null)
-    
-    if [ -n "$position_amt" ] && [ "$position_amt" != "0" ] && [ "$position_amt" != "null" ]; then
+
+    if declare -f futures_has_open_position >/dev/null 2>&1 && futures_has_open_position "$symbol"; then
         echo "active"
         return 0
     fi
-    
+
+    if declare -f futures_has_open_limit_same_side >/dev/null 2>&1; then
+        if futures_has_open_limit_same_side "$symbol" "LONG" \
+            || futures_has_open_limit_same_side "$symbol" "SHORT"; then
+            echo "active"
+            return 0
+        fi
+    fi
+
+    if declare -f futures_has_limit_at_price >/dev/null 2>&1; then
+        local direction
+        direction=$(ob_get POS_DIR "$symbol")
+        if [ -n "$direction" ] && [ "$direction" != "0" ] \
+            && futures_has_limit_at_price "$symbol" "$direction" "$(ob_get LAST_ENTRY "$symbol")"; then
+            echo "active"
+            return 0
+        fi
+    fi
+
     echo "none"
     return 1
 }
@@ -265,6 +285,7 @@ send_order_binance_rest() {
     
     if [ "$DRY_RUN" = true ]; then
         log "🔍 DRY-RUN: Would execute"
+        log_trade "DRY-RUN OPEN $symbol $direction entry=$entry sl=$sl tp=$tp qty=$quantity mode=REST"
         send_telegram "🔍 DRY-RUN: $symbol $direction Entry:$entry"
         return 0
     fi
@@ -275,15 +296,18 @@ send_order_binance_rest() {
     
     if echo "$response" | jq -e '.orderId' >/dev/null 2>&1; then
         log "✅ Order executed: $symbol"
+        log_trade "OPEN $symbol $direction entry=$entry sl=$sl tp=$tp qty=$quantity mode=REST status=ok"
         send_telegram "✅ ORDER: $symbol $direction Entry:$entry TP:$tp SL:$sl"
         
         # Marcar posición como activa
         ob_set ACTIVE "$symbol" "true"
         ob_set ACTIVE_TS "$symbol" "$(date +%s)"
         ob_set POS_DIR "$symbol" "$direction"
+        ob_set LAST_ENTRY "$symbol" "$entry"
         return 0
     else
         log_error "Order failed: $response"
+        log_trade "FAILED OPEN $symbol $direction entry=$entry sl=$sl tp=$tp qty=$quantity mode=REST response=$(echo "$response" | tr -d '\n')"
         send_telegram "❌ ORDER FAILED: $symbol $direction"
         return 1
     fi
@@ -328,6 +352,7 @@ EOF
     log "📝 [FINANDY] $symbol $direction | Entry:$entry SL:$sl TP:$tp"
     
     if [ "$DRY_RUN" = true ]; then
+        log_trade "DRY-RUN OPEN $symbol $direction entry=$entry sl=$sl tp=$tp mode=FINANDY"
         return 0
     fi
     
@@ -335,11 +360,15 @@ EOF
     
     if echo "$response" | jq -e '.code == 200 or .success == true' >/dev/null 2>&1; then
         log "✅ Order executed via Finandy"
+        log_trade "OPEN $symbol $direction entry=$entry sl=$sl tp=$tp mode=FINANDY status=ok"
         send_telegram "✅ ORDER: $symbol $direction Entry:$entry"
         ob_set ACTIVE "$symbol" "true"
         ob_set ACTIVE_TS "$symbol" "$(date +%s)"
+        ob_set POS_DIR "$symbol" "$direction"
+        ob_set LAST_ENTRY "$symbol" "$entry"
     else
         log_error "Order failed: $response"
+        log_trade "FAILED OPEN $symbol $direction entry=$entry mode=FINANDY response=$(echo "$response" | tr -d '\n')"
     fi
 }
 
@@ -367,12 +396,19 @@ send_order() {
     sl=$(round_price_for_symbol "$symbol" "$sl")
     tp=$(round_price_for_symbol "$symbol" "$tp")
     
-    # Verificar si ya hay posición activa
-    local position_status=$(check_open_position "$symbol")
-    if [ "$position_status" = "active" ]; then
-        log "⏸️ Position already active for $symbol - skipping order"
-        echo -e "  ${YELLOW}⏸️ Position already open - skipping${NC}"
-        return 0
+    if declare -f can_place_new_order >/dev/null 2>&1; then
+        if ! can_place_new_order "$symbol" "$direction" "$entry" log; then
+            echo -e "  ${YELLOW}⏸️ Order skipped (position or duplicate limit)${NC}"
+            return 0
+        fi
+    else
+        local position_status
+        position_status=$(check_open_position "$symbol")
+        if [ "$position_status" = "active" ]; then
+            log "⏸️ Position already active for $symbol - skipping order"
+            echo -e "  ${YELLOW}⏸️ Position already open - skipping${NC}"
+            return 0
+        fi
     fi
     
     case "$ORDER_EXECUTION_MODE" in
@@ -719,6 +755,12 @@ draw_and_execute() {
         if [ "$best_bid" != "0" ] && [ "$best_ask" != "0" ] && [ "$best_bid" != "null" ] && [ "$best_ask" != "null" ]; then
             spread=$(echo "$best_ask - $best_bid" | bc -l 2>/dev/null)
         fi
+
+        # Close position if price hits opposite OB (LONG at resistance / SHORT at support)
+        if declare -f try_close_on_opposite_ob >/dev/null 2>&1 \
+            && try_close_on_opposite_ob "$symbol" "$price" "$OB_ZONE_UPPER_PCT" "$OB_ZONE_LOWER_PCT" log; then
+            echo -e "   ${MAGENTA}🔒 Closed (or closing) — opposite OB touch${NC}"
+        fi
         
         # Get signal
         local signal_data=$(determine_signal "$symbol" "$price" "$change")
@@ -840,6 +882,10 @@ main() {
     echo "║                    SCALPER BOT v5.0 - CONTROL DE POSICIONES                        ║"
     echo "╚════════════════════════════════════════════════════════════════════════════════════╝"
     echo -e "${NC}"
+
+    if declare -f init_bot_logs >/dev/null 2>&1; then
+        init_bot_logs "ob_websocket v5.0"
+    fi
     
     log "🚀 Starting Scalper Bot v5.0"
     log "📋 Mode: $([ "$DRY_RUN" = true ] && echo "DRY-RUN" || echo "LIVE")"
@@ -850,6 +896,7 @@ main() {
     fi
     log "🎯 Min Confidence: ${MIN_CONFIDENCE}%"
     log "⏰ Order Cooldown: ${ORDER_COOLDOWN_SECONDS}s per symbol"
+    log "📁 Log: $LOG_FILE | Errors: $ERROR_LOG_FILE | Trades: $TRADES_LOG_FILE"
     
     if ! declare -f round_price_for_symbol >/dev/null 2>&1; then
         log_error "round_price_for_symbol missing — check $BINANCE_PRECISION_LIB"

@@ -21,3 +21,5 @@
 [0;31m[2026-05-21 12:49:34] ERROR: REST order failed: {"code":-1111,"msg":"Precision is over the maximum defined for this asset."}[0m
 [0;31m[2026-05-21 13:01:02] ERROR: Connection lost. Reconnecting in 5 seconds...[0m
 [0;31m[2026-05-21 13:09:58] ERROR: Connection lost. Reconnecting in 5 seconds...[0m
+[0;31m[2026-05-21 13:21:05] ERROR: Connection lost. Reconnecting in 5 seconds...[0m
+[0;31m[2026-05-21 13:31:38] ERROR: Connection lost. Reconnecting in 5 seconds...[0m

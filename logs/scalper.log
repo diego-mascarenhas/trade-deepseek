@@ -5897,3 +5897,1887 @@ main "$@"[2026-05-20 16:05:10] [0;34m⚡ Servicio Scalper 1 Minuto v1.2 Iniciad
 [2026-05-21 13:15:22] ⏭️ ALTUSDT sin order book activo, saltando
 [2026-05-21 13:15:24] [0;32m✅ Ciclo completado - 3 símbolos procesados[0m
 [2026-05-21 13:15:24] ⏰ Esperando 60 segundos para próximo ciclo...
+[2026-05-21 13:16:24] [0;34m📊 Ciclo #396[0m
+[2026-05-21 13:16:24] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 13:16:24] [0;34m⚡ Ciclo de Scalping - 2026-05-21 13:16:24[0m
+[2026-05-21 13:16:24] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 13:16:26] 📈 Top Gainers: ZECUSDT SUIUSDT ALTUSDT 
+[2026-05-21 13:16:26] 📉 Top Losers: INJUSDT CHZUSDT CHIPUSDT 
+[2026-05-21 13:16:26] [1;33m🔍 Analizando ZECUSDT[0m
+[2026-05-21 13:16:27] ⏭️ ZECUSDT sin order book activo, saltando
+[2026-05-21 13:16:29] [1;33m🔍 Analizando SUIUSDT[0m
+[2026-05-21 13:16:31] ⏭️ SUIUSDT sin order book activo, saltando
+[2026-05-21 13:16:33] [1;33m🔍 Analizando ALTUSDT[0m
+[2026-05-21 13:16:34] ⏭️ ALTUSDT sin order book activo, saltando
+[2026-05-21 13:16:36] [0;32m✅ Ciclo completado - 3 símbolos procesados[0m
+[2026-05-21 13:16:36] ⏰ Esperando 60 segundos para próximo ciclo...
+[2026-05-21 13:17:11] 📝 [REST] BNBUSDT SHORT | Entry:648.92 SL:650.86 TP:645.67 | Qty:0.03
+[2026-05-21 13:17:11] ✅ Order executed via Binance REST: BNBUSDT
+[2026-05-21 13:17:31] 📝 [REST] XRPUSDT LONG | Entry:1.3658 SL:1.3617 TP:1.3726 | Qty:18.3
+[2026-05-21 13:17:31] ✅ Order executed via Binance REST: XRPUSDT
+[2026-05-21 13:17:36] [0;34m📊 Ciclo #397[0m
+[2026-05-21 13:17:36] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 13:17:36] [0;34m⚡ Ciclo de Scalping - 2026-05-21 13:17:36[0m
+[2026-05-21 13:17:36] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 13:17:39] 📈 Top Gainers: ZECUSDT ALTUSDT EDENUSDT 
+[2026-05-21 13:17:39] 📉 Top Losers: INJUSDT CHZUSDT CHIPUSDT 
+[2026-05-21 13:17:39] [1;33m🔍 Analizando ZECUSDT[0m
+[2026-05-21 13:17:40] ⏭️ ZECUSDT sin order book activo, saltando
+[2026-05-21 13:17:42] [1;33m🔍 Analizando ALTUSDT[0m
+[2026-05-21 13:17:44] ⏭️ ALTUSDT sin order book activo, saltando
+[2026-05-21 13:17:46] [1;33m🔍 Analizando EDENUSDT[0m
+[2026-05-21 13:17:47] ⏭️ EDENUSDT sin order book activo, saltando
+[2026-05-21 13:17:49] [0;32m✅ Ciclo completado - 3 símbolos procesados[0m
+[2026-05-21 13:17:49] ⏰ Esperando 60 segundos para próximo ciclo...
+[2026-05-21 13:18:27] 📝 [REST] XRPUSDT LONG | Entry:1.3660 SL:1.3619 TP:1.3728 | Qty:18.3
+[2026-05-21 13:18:27] ✅ Order executed via Binance REST: XRPUSDT
+[2026-05-21 13:18:49] [0;34m📊 Ciclo #398[0m
+[2026-05-21 13:18:49] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 13:18:49] [0;34m⚡ Ciclo de Scalping - 2026-05-21 13:18:49[0m
+[2026-05-21 13:18:49] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 13:18:51] 📈 Top Gainers: ZECUSDT ALTUSDT EDENUSDT 
+[2026-05-21 13:18:51] 📉 Top Losers: INJUSDT CHZUSDT CHIPUSDT 
+[2026-05-21 13:18:51] [1;33m🔍 Analizando ZECUSDT[0m
+[2026-05-21 13:18:53] ⏭️ ZECUSDT sin order book activo, saltando
+[2026-05-21 13:18:55] [1;33m🔍 Analizando ALTUSDT[0m
+[2026-05-21 13:18:56] ⏭️ ALTUSDT sin order book activo, saltando
+[2026-05-21 13:18:58] [1;33m🔍 Analizando EDENUSDT[0m
+[2026-05-21 13:19:00] ⏭️ EDENUSDT sin order book activo, saltando
+[2026-05-21 13:19:02] [0;32m✅ Ciclo completado - 3 símbolos procesados[0m
+[2026-05-21 13:19:02] ⏰ Esperando 60 segundos para próximo ciclo...
+[2026-05-21 13:19:04] 📝 [REST] BNBUSDT SHORT | Entry:649.14 SL:651.08 TP:645.89 | Qty:0.03
+[2026-05-21 13:19:04] ✅ Order executed via Binance REST: BNBUSDT
+[2026-05-21 13:19:24] 📝 [REST] XRPUSDT LONG | Entry:1.3661 SL:1.3620 TP:1.3729 | Qty:18.3
+[2026-05-21 13:19:24] ✅ Order executed via Binance REST: XRPUSDT
+[2026-05-21 13:19:59] 📝 [REST] BNBUSDT SHORT | Entry:649.14 SL:651.08 TP:645.89 | Qty:0.03
+[2026-05-21 13:19:59] ✅ Order executed via Binance REST: BNBUSDT
+[2026-05-21 13:20:02] [0;34m📊 Ciclo #399[0m
+[2026-05-21 13:20:02] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 13:20:02] [0;34m⚡ Ciclo de Scalping - 2026-05-21 13:20:02[0m
+[2026-05-21 13:20:02] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 13:20:04] 📈 Top Gainers: ZECUSDT ALTUSDT EDENUSDT 
+[2026-05-21 13:20:04] 📉 Top Losers: CHZUSDT CHIPUSDT ARBUSDT 
+[2026-05-21 13:20:04] [1;33m🔍 Analizando ZECUSDT[0m
+[2026-05-21 13:20:06] ⏭️ ZECUSDT sin order book activo, saltando
+[2026-05-21 13:20:08] [1;33m🔍 Analizando ALTUSDT[0m
+[2026-05-21 13:20:09] ⏭️ ALTUSDT sin order book activo, saltando
+[2026-05-21 13:20:11] [1;33m🔍 Analizando EDENUSDT[0m
+[2026-05-21 13:20:12] ⏭️ EDENUSDT sin order book activo, saltando
+[2026-05-21 13:20:14] [0;32m✅ Ciclo completado - 3 símbolos procesados[0m
+[2026-05-21 13:20:14] ⏰ Esperando 60 segundos para próximo ciclo...
+[2026-05-21 13:20:54] 📝 [REST] BNBUSDT SHORT | Entry:649.14 SL:651.08 TP:645.89 | Qty:0.03
+[2026-05-21 13:20:55] ✅ Order executed via Binance REST: BNBUSDT
+[2026-05-21 13:21:14] [0;34m📊 Ciclo #400[0m
+[2026-05-21 13:21:14] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 13:21:14] [0;34m⚡ Ciclo de Scalping - 2026-05-21 13:21:14[0m
+[2026-05-21 13:21:14] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 13:21:16] 📈 Top Gainers: ZECUSDT ALTUSDT EDENUSDT 
+[2026-05-21 13:21:16] 📉 Top Losers: CHZUSDT CHIPUSDT ARBUSDT 
+[2026-05-21 13:21:16] [1;33m🔍 Analizando ZECUSDT[0m
+[2026-05-21 13:21:17] ⏭️ ZECUSDT sin order book activo, saltando
+[2026-05-21 13:21:19] [1;33m🔍 Analizando ALTUSDT[0m
+[2026-05-21 13:21:21] ⏭️ ALTUSDT sin order book activo, saltando
+[2026-05-21 13:21:23] [1;33m🔍 Analizando EDENUSDT[0m
+[2026-05-21 13:21:24] ⏭️ EDENUSDT sin order book activo, saltando
+[2026-05-21 13:21:26] [0;32m✅ Ciclo completado - 3 símbolos procesados[0m
+[2026-05-21 13:21:26] ⏰ Esperando 60 segundos para próximo ciclo...
+[2026-05-21 13:21:56] 📝 [REST] BNBUSDT SHORT | Entry:649.29 SL:651.23 TP:646.04 | Qty:0.03
+[2026-05-21 13:21:56] ✅ Order executed via Binance REST: BNBUSDT
+[2026-05-21 13:22:26] [0;34m📊 Ciclo #401[0m
+[2026-05-21 13:22:26] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 13:22:26] [0;34m⚡ Ciclo de Scalping - 2026-05-21 13:22:26[0m
+[2026-05-21 13:22:26] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 13:22:28] 📈 Top Gainers: ZECUSDT SUIUSDT ALTUSDT 
+[2026-05-21 13:22:28] 📉 Top Losers: CHZUSDT CHIPUSDT ARBUSDT 
+[2026-05-21 13:22:28] [1;33m🔍 Analizando ZECUSDT[0m
+[2026-05-21 13:22:30] ⏭️ ZECUSDT sin order book activo, saltando
+[2026-05-21 13:22:32] [1;33m🔍 Analizando SUIUSDT[0m
+[2026-05-21 13:22:33] ⏭️ SUIUSDT sin order book activo, saltando
+[2026-05-21 13:22:35] [1;33m🔍 Analizando ALTUSDT[0m
+[2026-05-21 13:22:36] ⏭️ ALTUSDT sin order book activo, saltando
+[2026-05-21 13:22:38] [0;32m✅ Ciclo completado - 3 símbolos procesados[0m
+[2026-05-21 13:22:38] ⏰ Esperando 60 segundos para próximo ciclo...
+[2026-05-21 13:23:12] 📝 [REST] XRPUSDT SHORT | Entry:1.3687 SL:1.3728 TP:1.3618 | Qty:18.2
+[2026-05-21 13:23:12] ✅ Order executed via Binance REST: XRPUSDT
+[2026-05-21 13:23:38] [0;34m📊 Ciclo #402[0m
+[2026-05-21 13:23:38] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 13:23:38] [0;34m⚡ Ciclo de Scalping - 2026-05-21 13:23:38[0m
+[2026-05-21 13:23:38] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 13:23:41] 📈 Top Gainers: ZECUSDT SUIUSDT ALTUSDT 
+[2026-05-21 13:23:41] 📉 Top Losers: CHZUSDT CHIPUSDT ARBUSDT 
+[2026-05-21 13:23:41] [1;33m🔍 Analizando ZECUSDT[0m
+[2026-05-21 13:23:42] ⏭️ ZECUSDT sin order book activo, saltando
+[2026-05-21 13:23:44] [1;33m🔍 Analizando SUIUSDT[0m
+[2026-05-21 13:23:45] ⏭️ SUIUSDT sin order book activo, saltando
+[2026-05-21 13:23:47] [1;33m🔍 Analizando ALTUSDT[0m
+[2026-05-21 13:23:48] ⏭️ ALTUSDT sin order book activo, saltando
+[2026-05-21 13:23:51] [0;32m✅ Ciclo completado - 3 símbolos procesados[0m
+[2026-05-21 13:23:51] ⏰ Esperando 60 segundos para próximo ciclo...
+[2026-05-21 13:24:51] [0;34m📊 Ciclo #403[0m
+[2026-05-21 13:24:51] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 13:24:51] [0;34m⚡ Ciclo de Scalping - 2026-05-21 13:24:51[0m
+[2026-05-21 13:24:51] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 13:24:53] 📈 Top Gainers: ZECUSDT ALTUSDT EDENUSDT 
+[2026-05-21 13:24:53] 📉 Top Losers: CHZUSDT CHIPUSDT ARBUSDT 
+[2026-05-21 13:24:53] [1;33m🔍 Analizando ZECUSDT[0m
+[2026-05-21 13:24:55] ⏭️ ZECUSDT sin order book activo, saltando
+[2026-05-21 13:24:57] [1;33m🔍 Analizando ALTUSDT[0m
+[2026-05-21 13:24:58] ⏭️ ALTUSDT sin order book activo, saltando
+[2026-05-21 13:25:00] [1;33m🔍 Analizando EDENUSDT[0m
+[2026-05-21 13:25:01] ⏭️ EDENUSDT sin order book activo, saltando
+[2026-05-21 13:25:03] [0;32m✅ Ciclo completado - 3 símbolos procesados[0m
+[2026-05-21 13:25:03] ⏰ Esperando 60 segundos para próximo ciclo...
+[2026-05-21 13:26:03] [0;34m📊 Ciclo #404[0m
+[2026-05-21 13:26:03] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 13:26:03] [0;34m⚡ Ciclo de Scalping - 2026-05-21 13:26:03[0m
+[2026-05-21 13:26:03] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 13:26:05] 📈 Top Gainers: ZECUSDT SUIUSDT ALTUSDT 
+[2026-05-21 13:26:05] 📉 Top Losers: CHZUSDT CHIPUSDT ARBUSDT 
+[2026-05-21 13:26:05] [1;33m🔍 Analizando ZECUSDT[0m
+[2026-05-21 13:26:07] ⏭️ ZECUSDT sin order book activo, saltando
+[2026-05-21 13:26:09] [1;33m🔍 Analizando SUIUSDT[0m
+[2026-05-21 13:26:10] ⏭️ SUIUSDT sin order book activo, saltando
+[2026-05-21 13:26:12] [1;33m🔍 Analizando ALTUSDT[0m
+[2026-05-21 13:26:13] ⏭️ ALTUSDT sin order book activo, saltando
+[2026-05-21 13:26:15] [0;32m✅ Ciclo completado - 3 símbolos procesados[0m
+[2026-05-21 13:26:15] ⏰ Esperando 60 segundos para próximo ciclo...
+[2026-05-21 13:26:47] 📝 [REST] ADAUSDT LONG | Entry:0.2477 SL:0.2469 TP:0.2489 | Qty:100
+[2026-05-21 13:26:47] ✅ Order executed via Binance REST: ADAUSDT
+[2026-05-21 13:26:51] 📝 [REST] XRPUSDT LONG | Entry:1.3685 SL:1.3643 TP:1.3753 | Qty:18.2
+[2026-05-21 13:26:52] ✅ Order executed via Binance REST: XRPUSDT
+[2026-05-21 13:27:15] [0;34m📊 Ciclo #405[0m
+[2026-05-21 13:27:15] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 13:27:15] [0;34m⚡ Ciclo de Scalping - 2026-05-21 13:27:15[0m
+[2026-05-21 13:27:15] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 13:27:17] 📈 Top Gainers: ZECUSDT SUIUSDT ALTUSDT 
+[2026-05-21 13:27:17] 📉 Top Losers: CHZUSDT CHIPUSDT ARBUSDT 
+[2026-05-21 13:27:17] [1;33m🔍 Analizando ZECUSDT[0m
+[2026-05-21 13:27:18] ⏭️ ZECUSDT sin order book activo, saltando
+[2026-05-21 13:27:21] [1;33m🔍 Analizando SUIUSDT[0m
+[2026-05-21 13:27:22] ⏭️ SUIUSDT sin order book activo, saltando
+[2026-05-21 13:27:24] [1;33m🔍 Analizando ALTUSDT[0m
+[2026-05-21 13:27:26] ⏭️ ALTUSDT sin order book activo, saltando
+[2026-05-21 13:27:28] [0;32m✅ Ciclo completado - 3 símbolos procesados[0m
+[2026-05-21 13:27:28] ⏰ Esperando 60 segundos para próximo ciclo...
+[2026-05-21 13:28:28] [0;34m📊 Ciclo #406[0m
+[2026-05-21 13:28:28] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 13:28:28] [0;34m⚡ Ciclo de Scalping - 2026-05-21 13:28:28[0m
+[2026-05-21 13:28:28] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 13:28:30] 📈 Top Gainers: ZECUSDT SUIUSDT ALTUSDT 
+[2026-05-21 13:28:30] 📉 Top Losers: CHZUSDT CHIPUSDT ARBUSDT 
+[2026-05-21 13:28:30] [1;33m🔍 Analizando ZECUSDT[0m
+[2026-05-21 13:28:32] ⏭️ ZECUSDT sin order book activo, saltando
+[2026-05-21 13:28:34] [1;33m🔍 Analizando SUIUSDT[0m
+[2026-05-21 13:28:35] ⏭️ SUIUSDT sin order book activo, saltando
+[2026-05-21 13:28:37] [1;33m🔍 Analizando ALTUSDT[0m
+[2026-05-21 13:28:37] 📝 [REST] ADAUSDT SHORT | Entry:0.2476 SL:0.2483 TP:0.2463 | Qty:100
+[2026-05-21 13:28:38] ✅ Order executed via Binance REST: ADAUSDT
+[2026-05-21 13:28:39] ⏭️ ALTUSDT sin order book activo, saltando
+[2026-05-21 13:28:41] [0;32m✅ Ciclo completado - 3 símbolos procesados[0m
+[2026-05-21 13:28:41] ⏰ Esperando 60 segundos para próximo ciclo...
+[2026-05-21 13:29:32] 📝 [REST] ADAUSDT SHORT | Entry:0.2476 SL:0.2483 TP:0.2463 | Qty:100
+[2026-05-21 13:29:32] ✅ Order executed via Binance REST: ADAUSDT
+[2026-05-21 13:29:36] 📝 [REST] XRPUSDT SHORT | Entry:1.3677 SL:1.3718 TP:1.3608 | Qty:18.2
+[2026-05-21 13:29:37] ✅ Order executed via Binance REST: XRPUSDT
+[2026-05-21 13:29:41] [0;34m📊 Ciclo #407[0m
+[2026-05-21 13:29:41] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 13:29:41] [0;34m⚡ Ciclo de Scalping - 2026-05-21 13:29:41[0m
+[2026-05-21 13:29:41] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 13:29:43] 📈 Top Gainers: ZECUSDT SUIUSDT ALTUSDT 
+[2026-05-21 13:29:43] 📉 Top Losers: CHZUSDT CHIPUSDT ARBUSDT 
+[2026-05-21 13:29:43] [1;33m🔍 Analizando ZECUSDT[0m
+[2026-05-21 13:29:44] ⏭️ ZECUSDT sin order book activo, saltando
+[2026-05-21 13:29:46] [1;33m🔍 Analizando SUIUSDT[0m
+[2026-05-21 13:29:48] ⏭️ SUIUSDT sin order book activo, saltando
+[2026-05-21 13:29:50] [1;33m🔍 Analizando ALTUSDT[0m
+[2026-05-21 13:29:51] ⏭️ ALTUSDT sin order book activo, saltando
+[2026-05-21 13:29:53] [0;32m✅ Ciclo completado - 3 símbolos procesados[0m
+[2026-05-21 13:29:53] ⏰ Esperando 60 segundos para próximo ciclo...
+[2026-05-21 13:30:07] 📝 [REST] BCHUSDT SHORT | Entry:374.86 SL:375.98 TP:372.98 | Qty:0.066
+[2026-05-21 13:30:07] ✅ Order executed via Binance REST: BCHUSDT
+[2026-05-21 13:30:12] 📝 [REST] BNBUSDT LONG | Entry:649.41 SL:647.46 TP:652.65 | Qty:0.03
+[2026-05-21 13:30:12] ✅ Order executed via Binance REST: BNBUSDT
+[2026-05-21 13:30:27] 📝 [REST] ADAUSDT SHORT | Entry:0.2476 SL:0.2483 TP:0.2463 | Qty:100
+[2026-05-21 13:30:27] ✅ Order executed via Binance REST: ADAUSDT
+[2026-05-21 13:30:53] [0;34m📊 Ciclo #408[0m
+[2026-05-21 13:30:53] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 13:30:53] [0;34m⚡ Ciclo de Scalping - 2026-05-21 13:30:53[0m
+[2026-05-21 13:30:53] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 13:30:55] 📈 Top Gainers: ZECUSDT SUIUSDT ALTUSDT 
+[2026-05-21 13:30:55] 📉 Top Losers: CHZUSDT CHIPUSDT ARBUSDT 
+[2026-05-21 13:30:55] [1;33m🔍 Analizando ZECUSDT[0m
+[2026-05-21 13:30:56] ⏭️ ZECUSDT sin order book activo, saltando
+[2026-05-21 13:30:58] [1;33m🔍 Analizando SUIUSDT[0m
+[2026-05-21 13:31:00] ⏭️ SUIUSDT sin order book activo, saltando
+[2026-05-21 13:31:02] [1;33m🔍 Analizando ALTUSDT[0m
+[2026-05-21 13:31:03] ⏭️ ALTUSDT sin order book activo, saltando
+[2026-05-21 13:31:05] [0;32m✅ Ciclo completado - 3 símbolos procesados[0m
+[2026-05-21 13:31:05] ⏰ Esperando 60 segundos para próximo ciclo...
+[2026-05-21 13:31:22] 📝 [REST] ADAUSDT SHORT | Entry:0.2476 SL:0.2483 TP:0.2463 | Qty:100
+[2026-05-21 13:31:22] ✅ Order executed via Binance REST: ADAUSDT
+[2026-05-21 13:31:54] ✅ Binance precision loaded for 11 symbols (lib/binance_precision.sh)
+[2026-05-21 13:31:55] ✅ Binance position mode: Hedge (dual) — orders use positionSide
+[2026-05-21 13:31:55] 🚀 Starting Advanced Scalper Bot v3.0
+[2026-05-21 13:31:55] 📋 Mode: LIVE
+[2026-05-21 13:31:55] 📊 Order Execution: rest
+[2026-05-21 13:31:55] 📈 Symbols: ADAUSDT,XRPUSDT,DOTUSDT,LINKUSDT,LTCUSDT,ATOMUSDT,AVAXUSDT,BCHUSDT,BNBUSDT,EIGENUSDT,ETCUSDT
+[2026-05-21 13:31:55] 🔧 Confirmers: RSI, Stoch, ADX, iCHoCH, Liquidity
+[2026-05-21 13:31:55] 🔌 Connecting to Binance WebSocket...
+[2026-05-21 13:31:55]    URL: wss://fstream.binance.com/stream?streams=adausdt@depth10@500ms/xrpusdt@depth10@500ms/dotusdt@depth10@500ms/linkusdt@depth10@500ms/ltcusdt@depth10@500ms/atomusdt@depth10@500ms/avaxusdt@depth10@500ms/bchusdt@depth10@500ms/bnbusdt@depth10@500ms/eigenusdt@depth10@500ms/etcusdt@depth10@500ms
+[2026-05-21 13:31:55]    Order Mode: rest
+[2026-05-21 13:32:05] [0;34m📊 Ciclo #409[0m
+[2026-05-21 13:32:05] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 13:32:05] [0;34m⚡ Ciclo de Scalping - 2026-05-21 13:32:05[0m
+[2026-05-21 13:32:05] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 13:32:06] ⏸️ XRPUSDT: open position on Binance — skipping order
+[2026-05-21 13:32:06] 📝 [REST] XRPUSDT LONG | Entry:1.3679 SL:1.3637 TP:1.3747 | Qty:18.2
+[2026-05-21 13:32:07] ✅ Order executed via Binance REST: XRPUSDT
+[2026-05-21 13:32:07] 📈 Top Gainers: ZECUSDT SUIUSDT ALTUSDT 
+[2026-05-21 13:32:07] 📉 Top Losers: CHZUSDT CHIPUSDT ARBUSDT 
+[2026-05-21 13:32:07] [1;33m🔍 Analizando ZECUSDT[0m
+[2026-05-21 13:32:08] ⏭️ ZECUSDT sin order book activo, saltando
+[2026-05-21 13:32:10] [1;33m🔍 Analizando SUIUSDT[0m
+[2026-05-21 13:32:12] ⏭️ SUIUSDT sin order book activo, saltando
+[2026-05-21 13:32:14] [1;33m🔍 Analizando ALTUSDT[0m
+[2026-05-21 13:32:15] ⏭️ ALTUSDT sin order book activo, saltando
+[2026-05-21 13:32:17] [0;32m✅ Ciclo completado - 3 símbolos procesados[0m
+[2026-05-21 13:32:17] ⏰ Esperando 60 segundos para próximo ciclo...
+[2026-05-21 13:32:41] ⏸️ BNBUSDT: open position on Binance — skipping order
+[2026-05-21 13:32:41] 📝 [REST] BNBUSDT LONG | Entry:649.40 SL:647.45 TP:652.64 | Qty:0.03
+[2026-05-21 13:32:41] ✅ Order executed via Binance REST: BNBUSDT
+[2026-05-21 13:33:01] ⏸️ XRPUSDT: open position on Binance — skipping order
+[2026-05-21 13:33:01] 📝 [REST] XRPUSDT LONG | Entry:1.3680 SL:1.3638 TP:1.3748 | Qty:18.2
+[2026-05-21 13:33:02] ✅ Order executed via Binance REST: XRPUSDT
+[2026-05-21 13:33:17] [0;34m📊 Ciclo #410[0m
+[2026-05-21 13:33:17] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 13:33:17] [0;34m⚡ Ciclo de Scalping - 2026-05-21 13:33:17[0m
+[2026-05-21 13:33:17] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 13:33:19] 📈 Top Gainers: ZECUSDT SUIUSDT ALTUSDT 
+[2026-05-21 13:33:19] 📉 Top Losers: CHZUSDT CHIPUSDT ARBUSDT 
+[2026-05-21 13:33:19] [1;33m🔍 Analizando ZECUSDT[0m
+[2026-05-21 13:33:20] ⏭️ ZECUSDT sin order book activo, saltando
+[2026-05-21 13:33:22] [1;33m🔍 Analizando SUIUSDT[0m
+[2026-05-21 13:33:24] ⏭️ SUIUSDT sin order book activo, saltando
+[2026-05-21 13:33:26] [1;33m🔍 Analizando ALTUSDT[0m
+[2026-05-21 13:33:27] ⏭️ ALTUSDT sin order book activo, saltando
+[2026-05-21 13:33:29] [0;32m✅ Ciclo completado - 3 símbolos procesados[0m
+[2026-05-21 13:33:29] ⏰ Esperando 60 segundos para próximo ciclo...
+[2026-05-21 13:34:29] [0;34m📊 Ciclo #411[0m
+[2026-05-21 13:34:29] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 13:34:29] [0;34m⚡ Ciclo de Scalping - 2026-05-21 13:34:29[0m
+[2026-05-21 13:34:29] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 13:34:31] 📈 Top Gainers: ZECUSDT ALTUSDT EDENUSDT 
+[2026-05-21 13:34:31] 📉 Top Losers: CHZUSDT CHIPUSDT ARBUSDT 
+[2026-05-21 13:34:31] [1;33m🔍 Analizando ZECUSDT[0m
+[2026-05-21 13:34:33] ⏭️ ZECUSDT sin order book activo, saltando
+[2026-05-21 13:34:35] [1;33m🔍 Analizando ALTUSDT[0m
+[2026-05-21 13:34:36] ⏭️ ALTUSDT sin order book activo, saltando
+[2026-05-21 13:34:38] [1;33m🔍 Analizando EDENUSDT[0m
+[2026-05-21 13:34:39] ⏭️ EDENUSDT sin order book activo, saltando
+[2026-05-21 13:34:41] [0;32m✅ Ciclo completado - 3 símbolos procesados[0m
+[2026-05-21 13:34:41] ⏰ Esperando 60 segundos para próximo ciclo...
+[2026-05-21 13:35:41] [0;34m📊 Ciclo #412[0m
+[2026-05-21 13:35:41] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 13:35:41] [0;34m⚡ Ciclo de Scalping - 2026-05-21 13:35:41[0m
+[2026-05-21 13:35:41] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 13:35:43] 📈 Top Gainers: ZECUSDT ALTUSDT EDENUSDT 
+[2026-05-21 13:35:43] 📉 Top Losers: CHZUSDT CHIPUSDT ARBUSDT 
+[2026-05-21 13:35:43] [1;33m🔍 Analizando ZECUSDT[0m
+[2026-05-21 13:35:44] ⏭️ ZECUSDT sin order book activo, saltando
+[2026-05-21 13:35:46] [1;33m🔍 Analizando ALTUSDT[0m
+[2026-05-21 13:35:48] ⏭️ ALTUSDT sin order book activo, saltando
+[2026-05-21 13:35:50] [1;33m🔍 Analizando EDENUSDT[0m
+[2026-05-21 13:35:51] ⏭️ EDENUSDT sin order book activo, saltando
+[2026-05-21 13:35:53] [0;32m✅ Ciclo completado - 3 símbolos procesados[0m
+[2026-05-21 13:35:53] ⏰ Esperando 60 segundos para próximo ciclo...
+[2026-05-21 13:36:53] [0;34m📊 Ciclo #413[0m
+[2026-05-21 13:36:53] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 13:36:53] [0;34m⚡ Ciclo de Scalping - 2026-05-21 13:36:53[0m
+[2026-05-21 13:36:53] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 13:36:56] 📈 Top Gainers: ZECUSDT ALTUSDT EDENUSDT 
+[2026-05-21 13:36:56] 📉 Top Losers: CHZUSDT CHIPUSDT ARBUSDT 
+[2026-05-21 13:36:56] [1;33m🔍 Analizando ZECUSDT[0m
+[2026-05-21 13:36:57] ⏭️ ZECUSDT sin order book activo, saltando
+[2026-05-21 13:36:59] [1;33m🔍 Analizando ALTUSDT[0m
+[2026-05-21 13:37:01] ⏭️ ALTUSDT sin order book activo, saltando
+[2026-05-21 13:37:03] [1;33m🔍 Analizando EDENUSDT[0m
+[2026-05-21 13:37:04] ⏭️ EDENUSDT sin order book activo, saltando
+[2026-05-21 13:37:06] [0;32m✅ Ciclo completado - 3 símbolos procesados[0m
+[2026-05-21 13:37:06] ⏰ Esperando 60 segundos para próximo ciclo...
+[2026-05-21 13:38:06] [0;34m📊 Ciclo #414[0m
+[2026-05-21 13:38:06] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 13:38:06] [0;34m⚡ Ciclo de Scalping - 2026-05-21 13:38:06[0m
+[2026-05-21 13:38:06] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 13:38:09] 📈 Top Gainers: ZECUSDT ALTUSDT EDENUSDT 
+[2026-05-21 13:38:09] 📉 Top Losers: CHZUSDT CHIPUSDT ARBUSDT 
+[2026-05-21 13:38:09] [1;33m🔍 Analizando ZECUSDT[0m
+[2026-05-21 13:38:10] ⏭️ ZECUSDT sin order book activo, saltando
+[2026-05-21 13:38:12] [1;33m🔍 Analizando ALTUSDT[0m
+[2026-05-21 13:38:14] ⏭️ ALTUSDT sin order book activo, saltando
+[2026-05-21 13:38:16] [1;33m🔍 Analizando EDENUSDT[0m
+[2026-05-21 13:38:17] ⏭️ EDENUSDT sin order book activo, saltando
+[2026-05-21 13:38:19] [0;32m✅ Ciclo completado - 3 símbolos procesados[0m
+[2026-05-21 13:38:19] ⏰ Esperando 60 segundos para próximo ciclo...
+[2026-05-21 13:39:19] [0;34m📊 Ciclo #415[0m
+[2026-05-21 13:39:19] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 13:39:19] [0;34m⚡ Ciclo de Scalping - 2026-05-21 13:39:19[0m
+[2026-05-21 13:39:19] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 13:39:21] 📈 Top Gainers: ZECUSDT ALTUSDT EDENUSDT 
+[2026-05-21 13:39:21] 📉 Top Losers: CHZUSDT CHIPUSDT ARBUSDT 
+[2026-05-21 13:39:21] [1;33m🔍 Analizando ZECUSDT[0m
+[2026-05-21 13:39:23] ⏭️ ZECUSDT sin order book activo, saltando
+[2026-05-21 13:39:25] [1;33m🔍 Analizando ALTUSDT[0m
+[2026-05-21 13:39:26] ⏭️ ALTUSDT sin order book activo, saltando
+[2026-05-21 13:39:28] [1;33m🔍 Analizando EDENUSDT[0m
+[2026-05-21 13:39:29] ⏭️ EDENUSDT sin order book activo, saltando
+[2026-05-21 13:39:31] [0;32m✅ Ciclo completado - 3 símbolos procesados[0m
+[2026-05-21 13:39:31] ⏰ Esperando 60 segundos para próximo ciclo...
+[2026-05-21 13:39:37] ⏸️ LINKUSDT: open position on Binance — skipping order
+[2026-05-21 13:39:37] 📝 [REST] LINKUSDT LONG | Entry:9.572 SL:9.543 TP:9.619 | Qty:2.61
+[2026-05-21 13:39:38] ✅ Order executed via Binance REST: LINKUSDT
+[2026-05-21 13:40:02] ⏸️ BNBUSDT: open position on Binance — skipping order
+[2026-05-21 13:40:02] 📝 [REST] BNBUSDT LONG | Entry:649.39 SL:647.44 TP:652.63 | Qty:0.03
+[2026-05-21 13:40:03] ✅ Order executed via Binance REST: BNBUSDT
+[2026-05-21 13:40:31] [0;34m📊 Ciclo #416[0m
+[2026-05-21 13:40:31] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 13:40:31] [0;34m⚡ Ciclo de Scalping - 2026-05-21 13:40:31[0m
+[2026-05-21 13:40:31] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 13:40:32] ⏸️ LINKUSDT: open position on Binance — skipping order
+[2026-05-21 13:40:32] 📝 [REST] LINKUSDT LONG | Entry:9.572 SL:9.543 TP:9.619 | Qty:2.61
+[2026-05-21 13:40:33] ✅ Order executed via Binance REST: LINKUSDT
+[2026-05-21 13:40:34] 📈 Top Gainers: ZECUSDT ALTUSDT EDENUSDT 
+[2026-05-21 13:40:34] 📉 Top Losers: CHZUSDT CHIPUSDT ARBUSDT 
+[2026-05-21 13:40:34] [1;33m🔍 Analizando ZECUSDT[0m
+[2026-05-21 13:40:35] ⏭️ ZECUSDT sin order book activo, saltando
+[2026-05-21 13:40:37] [1;33m🔍 Analizando ALTUSDT[0m
+[2026-05-21 13:40:38] ⏭️ ALTUSDT sin order book activo, saltando
+[2026-05-21 13:40:40] [1;33m🔍 Analizando EDENUSDT[0m
+[2026-05-21 13:40:41] ⏭️ EDENUSDT sin order book activo, saltando
+[2026-05-21 13:40:43] [0;32m✅ Ciclo completado - 3 símbolos procesados[0m
+[2026-05-21 13:40:43] ⏰ Esperando 60 segundos para próximo ciclo...
+[2026-05-21 13:40:47] ✅ Binance precision loaded for 11 symbols (lib/binance_precision.sh)
+[2026-05-21 13:40:47] ✅ Binance position mode: Hedge (dual) — orders use positionSide
+[2026-05-21 13:40:47] 🚀 Starting Advanced Scalper Bot v3.0
+[2026-05-21 13:40:47] 📋 Mode: LIVE
+[2026-05-21 13:40:47] 📊 Order Execution: rest
+[2026-05-21 13:40:47] 📈 Symbols: ADAUSDT,XRPUSDT,DOTUSDT,LINKUSDT,LTCUSDT,ATOMUSDT,AVAXUSDT,BCHUSDT,BNBUSDT,EIGENUSDT,ETCUSDT
+[2026-05-21 13:40:47] 🔧 Confirmers: RSI, Stoch, ADX, iCHoCH, Liquidity
+[2026-05-21 13:40:47] 🔌 Connecting to Binance WebSocket...
+[2026-05-21 13:40:47]    URL: wss://fstream.binance.com/stream?streams=adausdt@depth10@500ms/xrpusdt@depth10@500ms/dotusdt@depth10@500ms/linkusdt@depth10@500ms/ltcusdt@depth10@500ms/atomusdt@depth10@500ms/avaxusdt@depth10@500ms/bchusdt@depth10@500ms/bnbusdt@depth10@500ms/eigenusdt@depth10@500ms/etcusdt@depth10@500ms
+[2026-05-21 13:40:47]    Order Mode: rest
+[2026-05-21 13:41:23] 🔄 AVAXUSDT: SHORT open + price at support OB — closing
+[2026-05-21 13:41:24] ⏸️ AVAXUSDT: open position on Binance — skipping order
+[2026-05-21 13:41:24] 📝 [REST] AVAXUSDT LONG | Entry:9.315 SL:9.287 TP:9.361 | Qty:2
+[2026-05-21 13:41:24] ✅ Order executed via Binance REST: AVAXUSDT
+[2026-05-21 13:41:43] [0;34m📊 Ciclo #417[0m
+[2026-05-21 13:41:43] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 13:41:44] [0;34m⚡ Ciclo de Scalping - 2026-05-21 13:41:44[0m
+[2026-05-21 13:41:44] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 13:41:46] 📈 Top Gainers: ZECUSDT ALTUSDT EDENUSDT 
+[2026-05-21 13:41:46] 📉 Top Losers: CHZUSDT CHIPUSDT ARBUSDT 
+[2026-05-21 13:41:46] [1;33m🔍 Analizando ZECUSDT[0m
+[2026-05-21 13:41:47] ⏭️ ZECUSDT sin order book activo, saltando
+[2026-05-21 13:41:49] [1;33m🔍 Analizando ALTUSDT[0m
+[2026-05-21 13:41:50] ⏭️ ALTUSDT sin order book activo, saltando
+[2026-05-21 13:41:52] [1;33m🔍 Analizando EDENUSDT[0m
+[2026-05-21 13:41:54] ⏭️ EDENUSDT sin order book activo, saltando
+[2026-05-21 13:41:56] [0;32m✅ Ciclo completado - 3 símbolos procesados[0m
+[2026-05-21 13:41:56] ⏰ Esperando 60 segundos para próximo ciclo...
+[2026-05-21 13:42:17] 🔄 AVAXUSDT: SHORT open + price at support OB — closing
+[2026-05-21 13:42:18] ⏸️ AVAXUSDT: open position on Binance — skipping order
+[2026-05-21 13:42:19] 📝 [REST] AVAXUSDT LONG | Entry:9.315 SL:9.287 TP:9.361 | Qty:2
+[2026-05-21 13:42:19] ✅ Order executed via Binance REST: AVAXUSDT
+[2026-05-21 13:42:56] [0;34m📊 Ciclo #418[0m
+[2026-05-21 13:42:56] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 13:42:56] [0;34m⚡ Ciclo de Scalping - 2026-05-21 13:42:56[0m
+[2026-05-21 13:42:56] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 13:42:58] 📈 Top Gainers: ZECUSDT SUIUSDT ALTUSDT 
+[2026-05-21 13:42:58] 📉 Top Losers: CHZUSDT CHIPUSDT ARBUSDT 
+[2026-05-21 13:42:58] [1;33m🔍 Analizando ZECUSDT[0m
+[2026-05-21 13:42:59] ⏭️ ZECUSDT sin order book activo, saltando
+[2026-05-21 13:43:01] [1;33m🔍 Analizando SUIUSDT[0m
+[2026-05-21 13:43:03] ⏭️ SUIUSDT sin order book activo, saltando
+[2026-05-21 13:43:05] [1;33m🔍 Analizando ALTUSDT[0m
+[2026-05-21 13:43:06] ⏭️ ALTUSDT sin order book activo, saltando
+[2026-05-21 13:43:08] [0;32m✅ Ciclo completado - 3 símbolos procesados[0m
+[2026-05-21 13:43:08] ⏰ Esperando 60 segundos para próximo ciclo...
+[2026-05-21 13:43:40] ✅ Binance precision loaded for 11 symbols (lib/binance_precision.sh)
+[2026-05-21 13:43:40] ✅ Binance position mode: Hedge (dual) — orders use positionSide
+[2026-05-21 13:43:40] 🚀 Starting Advanced Scalper Bot v3.0
+[2026-05-21 13:43:40] 📁 Log: /Users/magoo/Development/trade-deepseek/logs/scalper.log | Errors: /Users/magoo/Development/trade-deepseek/logs/scalper_errors.log | Trades: /Users/magoo/Development/trade-deepseek/logs/scalper_trades.log
+[2026-05-21 13:43:40] 📋 Mode: LIVE
+[2026-05-21 13:43:40] 📊 Order Execution: rest
+[2026-05-21 13:43:40] 📈 Symbols: ADAUSDT,XRPUSDT,DOTUSDT,LINKUSDT,LTCUSDT,ATOMUSDT,AVAXUSDT,BCHUSDT,BNBUSDT,EIGENUSDT,ETCUSDT
+[2026-05-21 13:43:40] 🔧 Confirmers: RSI, Stoch, ADX, iCHoCH, Liquidity
+[2026-05-21 13:43:41] 🔌 Connecting to Binance WebSocket...
+[2026-05-21 13:43:41]    URL: wss://fstream.binance.com/stream?streams=adausdt@depth10@500ms/xrpusdt@depth10@500ms/dotusdt@depth10@500ms/linkusdt@depth10@500ms/ltcusdt@depth10@500ms/atomusdt@depth10@500ms/avaxusdt@depth10@500ms/bchusdt@depth10@500ms/bnbusdt@depth10@500ms/eigenusdt@depth10@500ms/etcusdt@depth10@500ms
+[2026-05-21 13:43:41]    Order Mode: rest
+[2026-05-21 13:44:08] [0;34m📊 Ciclo #419[0m
+[2026-05-21 13:44:08] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 13:44:08] [0;34m⚡ Ciclo de Scalping - 2026-05-21 13:44:08[0m
+[2026-05-21 13:44:08] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 13:44:10] 📈 Top Gainers: ZECUSDT SUIUSDT ALTUSDT 
+[2026-05-21 13:44:10] 📉 Top Losers: CHZUSDT CHIPUSDT ARBUSDT 
+[2026-05-21 13:44:10] [1;33m🔍 Analizando ZECUSDT[0m
+[2026-05-21 13:44:11] ⏭️ ZECUSDT sin order book activo, saltando
+[2026-05-21 13:44:14] [1;33m🔍 Analizando SUIUSDT[0m
+[2026-05-21 13:44:15] ⏭️ SUIUSDT sin order book activo, saltando
+[2026-05-21 13:44:15] 🔄 AVAXUSDT: SHORT open + price at support OB — closing
+[2026-05-21 13:44:17] ⏸️ AVAXUSDT: open position on Binance — skipping order
+[2026-05-21 13:44:17] 📝 [REST] AVAXUSDT LONG | Entry:9.298 SL:9.270 TP:9.344 | Qty:2
+[2026-05-21 13:44:17] [1;33m🔍 Analizando ALTUSDT[0m
+[2026-05-21 13:44:17] ✅ Order executed via Binance REST: AVAXUSDT
+[2026-05-21 13:44:18] ⏭️ ALTUSDT sin order book activo, saltando
+[2026-05-21 13:44:20] [0;32m✅ Ciclo completado - 3 símbolos procesados[0m
+[2026-05-21 13:44:20] ⏰ Esperando 60 segundos para próximo ciclo...
+[2026-05-21 13:44:21] ⏸️ BCHUSDT: open position on Binance — skipping order
+[2026-05-21 13:44:21] 📝 [REST] BCHUSDT SHORT | Entry:375.01 SL:376.13 TP:373.13 | Qty:0.066
+[2026-05-21 13:44:22] ✅ Order executed via Binance REST: BCHUSDT
+[2026-05-21 13:45:11] 🔄 AVAXUSDT: SHORT open + price at support OB — closing
+[2026-05-21 13:45:12] ⏸️ AVAXUSDT: open position on Binance — skipping order
+[2026-05-21 13:45:12] 📝 [REST] AVAXUSDT LONG | Entry:9.298 SL:9.270 TP:9.344 | Qty:2
+[2026-05-21 13:45:12] ✅ Order executed via Binance REST: AVAXUSDT
+[2026-05-21 13:45:20] [0;34m📊 Ciclo #420[0m
+[2026-05-21 13:45:20] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 13:45:20] [0;34m⚡ Ciclo de Scalping - 2026-05-21 13:45:20[0m
+[2026-05-21 13:45:20] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 13:45:22] 📈 Top Gainers: ZECUSDT SUIUSDT ALTUSDT 
+[2026-05-21 13:45:22] 📉 Top Losers: CHZUSDT CHIPUSDT ARBUSDT 
+[2026-05-21 13:45:22] [1;33m🔍 Analizando ZECUSDT[0m
+[2026-05-21 13:45:23] ⏭️ ZECUSDT sin order book activo, saltando
+[2026-05-21 13:45:25] [1;33m🔍 Analizando SUIUSDT[0m
+[2026-05-21 13:45:26] ⏭️ SUIUSDT sin order book activo, saltando
+[2026-05-21 13:45:28] [1;33m🔍 Analizando ALTUSDT[0m
+[2026-05-21 13:45:30] ⏭️ ALTUSDT sin order book activo, saltando
+[2026-05-21 13:45:32] [0;32m✅ Ciclo completado - 3 símbolos procesados[0m
+[2026-05-21 13:45:32] ⏰ Esperando 60 segundos para próximo ciclo...
+[2026-05-21 13:46:06] 🔄 AVAXUSDT: SHORT open + price at support OB — closing
+[2026-05-21 13:46:07] ⏸️ AVAXUSDT: open position on Binance — skipping order
+[2026-05-21 13:46:07] 📝 [REST] AVAXUSDT LONG | Entry:9.298 SL:9.270 TP:9.344 | Qty:2
+[2026-05-21 13:46:07] ✅ Order executed via Binance REST: AVAXUSDT
+[2026-05-21 13:46:11] 🔄 BCHUSDT: SHORT open + price at support OB — closing
+[2026-05-21 13:46:32] [0;34m📊 Ciclo #421[0m
+[2026-05-21 13:46:32] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 13:46:32] [0;34m⚡ Ciclo de Scalping - 2026-05-21 13:46:32[0m
+[2026-05-21 13:46:32] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 13:46:35] 📈 Top Gainers: ZECUSDT SUIUSDT ALTUSDT 
+[2026-05-21 13:46:35] 📉 Top Losers: CHZUSDT CHIPUSDT ARBUSDT 
+[2026-05-21 13:46:35] [1;33m🔍 Analizando ZECUSDT[0m
+[2026-05-21 13:46:36] ⏭️ ZECUSDT sin order book activo, saltando
+[2026-05-21 13:46:38] [1;33m🔍 Analizando SUIUSDT[0m
+[2026-05-21 13:46:39] ⏭️ SUIUSDT sin order book activo, saltando
+[2026-05-21 13:46:41] [1;33m🔍 Analizando ALTUSDT[0m
+[2026-05-21 13:46:42] ⏭️ ALTUSDT sin order book activo, saltando
+[2026-05-21 13:46:44] [0;32m✅ Ciclo completado - 3 símbolos procesados[0m
+[2026-05-21 13:46:44] ⏰ Esperando 60 segundos para próximo ciclo...
+[2026-05-21 13:47:06] 🔄 BCHUSDT: SHORT open + price at support OB — closing
+[2026-05-21 13:47:37] ✅ Binance precision loaded for 11 symbols (lib/binance_precision.sh)
+[2026-05-21 13:47:37] ✅ Binance position mode: Hedge (dual) — orders use positionSide
+[2026-05-21 13:47:37] 🚀 Starting Advanced Scalper Bot v3.0
+[2026-05-21 13:47:37] 📁 Log: /Users/magoo/Development/trade-deepseek/logs/scalper.log | Errors: /Users/magoo/Development/trade-deepseek/logs/scalper_errors.log | Trades: /Users/magoo/Development/trade-deepseek/logs/scalper_trades.log
+[2026-05-21 13:47:37] 📋 Mode: LIVE
+[2026-05-21 13:47:37] 📊 Order Execution: rest
+[2026-05-21 13:47:37] 📈 Symbols: ADAUSDT,XRPUSDT,DOTUSDT,LINKUSDT,LTCUSDT,ATOMUSDT,AVAXUSDT,BCHUSDT,BNBUSDT,EIGENUSDT,ETCUSDT
+[2026-05-21 13:47:37] 🔧 Confirmers: RSI, Stoch, ADX, iCHoCH, Liquidity
+[2026-05-21 13:47:38] 🔌 Connecting to Binance WebSocket...
+[2026-05-21 13:47:38]    URL: wss://fstream.binance.com/stream?streams=adausdt@depth10@500ms/xrpusdt@depth10@500ms/dotusdt@depth10@500ms/linkusdt@depth10@500ms/ltcusdt@depth10@500ms/atomusdt@depth10@500ms/avaxusdt@depth10@500ms/bchusdt@depth10@500ms/bnbusdt@depth10@500ms/eigenusdt@depth10@500ms/etcusdt@depth10@500ms
+[2026-05-21 13:47:38]    Order Mode: rest
+[2026-05-21 13:47:44] [0;34m📊 Ciclo #422[0m
+[2026-05-21 13:47:44] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 13:47:44] [0;34m⚡ Ciclo de Scalping - 2026-05-21 13:47:44[0m
+[2026-05-21 13:47:44] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 13:47:46] 📈 Top Gainers: ZECUSDT SUIUSDT ALTUSDT 
+[2026-05-21 13:47:46] 📉 Top Losers: CHZUSDT CHIPUSDT ARBUSDT 
+[2026-05-21 13:47:46] [1;33m🔍 Analizando ZECUSDT[0m
+[2026-05-21 13:47:48] ⏭️ ZECUSDT sin order book activo, saltando
+[2026-05-21 13:47:50] [1;33m🔍 Analizando SUIUSDT[0m
+[2026-05-21 13:47:51] ⏭️ SUIUSDT sin order book activo, saltando
+[2026-05-21 13:47:53] [1;33m🔍 Analizando ALTUSDT[0m
+[2026-05-21 13:47:55] ⏭️ ALTUSDT sin order book activo, saltando
+[2026-05-21 13:47:57] [0;32m✅ Ciclo completado - 3 símbolos procesados[0m
+[2026-05-21 13:47:57] ⏰ Esperando 60 segundos para próximo ciclo...
+[2026-05-21 13:48:39] 🔄 ADAUSDT: SHORT open + price at support OB — closing
+[2026-05-21 13:48:40] ⏸️ ADAUSDT: open position on Binance — skipping order
+[2026-05-21 13:48:57] [0;34m📊 Ciclo #423[0m
+[2026-05-21 13:48:57] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 13:48:57] [0;34m⚡ Ciclo de Scalping - 2026-05-21 13:48:57[0m
+[2026-05-21 13:48:57] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 13:49:00] 📈 Top Gainers: ZECUSDT SUIUSDT ALTUSDT 
+[2026-05-21 13:49:00] 📉 Top Losers: CHZUSDT CHIPUSDT ARBUSDT 
+[2026-05-21 13:49:00] [1;33m🔍 Analizando ZECUSDT[0m
+[2026-05-21 13:49:01] ⏭️ ZECUSDT sin order book activo, saltando
+[2026-05-21 13:49:03] [1;33m🔍 Analizando SUIUSDT[0m
+[2026-05-21 13:49:04] ⏭️ SUIUSDT sin order book activo, saltando
+[2026-05-21 13:49:06] [1;33m🔍 Analizando ALTUSDT[0m
+[2026-05-21 13:49:07] ⏭️ ALTUSDT sin order book activo, saltando
+[2026-05-21 13:49:09] [0;32m✅ Ciclo completado - 3 símbolos procesados[0m
+[2026-05-21 13:49:09] ⏰ Esperando 60 segundos para próximo ciclo...
+[2026-05-21 13:49:14] 🔄 BCHUSDT: SHORT open + price at support OB — closing
+[2026-05-21 13:49:15] ⏸️ BCHUSDT: open position on Binance — skipping order
+[2026-05-21 13:49:43] 🔄 DOTUSDT: SHORT open + price at support OB — closing
+[2026-05-21 13:49:44] ⏸️ DOTUSDT: open position on Binance — skipping order
+[2026-05-21 13:50:09] [0;34m📊 Ciclo #424[0m
+[2026-05-21 13:50:09] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 13:50:10] [0;34m⚡ Ciclo de Scalping - 2026-05-21 13:50:10[0m
+[2026-05-21 13:50:10] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 13:50:12] 📈 Top Gainers: ZECUSDT SUIUSDT ALTUSDT 
+[2026-05-21 13:50:12] 📉 Top Losers: CHZUSDT CHIPUSDT ARBUSDT 
+[2026-05-21 13:50:12] [1;33m🔍 Analizando ZECUSDT[0m
+[2026-05-21 13:50:13] ⏭️ ZECUSDT sin order book activo, saltando
+[2026-05-21 13:50:16] [1;33m🔍 Analizando SUIUSDT[0m
+[2026-05-21 13:50:17] ⏭️ SUIUSDT sin order book activo, saltando
+[2026-05-21 13:50:19] [1;33m🔍 Analizando ALTUSDT[0m
+[2026-05-21 13:50:20] ⏭️ ALTUSDT sin order book activo, saltando
+[2026-05-21 13:50:22] [0;32m✅ Ciclo completado - 3 símbolos procesados[0m
+[2026-05-21 13:50:22] ⏰ Esperando 60 segundos para próximo ciclo...
+[2026-05-21 13:51:10] ⏸️ BNBUSDT: open position on Binance — skipping order
+[2026-05-21 13:51:22] [0;34m📊 Ciclo #425[0m
+[2026-05-21 13:51:22] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 13:51:22] [0;34m⚡ Ciclo de Scalping - 2026-05-21 13:51:22[0m
+[2026-05-21 13:51:22] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 13:51:24] 📈 Top Gainers: ZECUSDT SUIUSDT ALTUSDT 
+[2026-05-21 13:51:24] 📉 Top Losers: CHZUSDT CHIPUSDT AIGENSYNUSDT 
+[2026-05-21 13:51:24] [1;33m🔍 Analizando ZECUSDT[0m
+[2026-05-21 13:51:25] ⏭️ ZECUSDT sin order book activo, saltando
+[2026-05-21 13:51:27] [1;33m🔍 Analizando SUIUSDT[0m
+[2026-05-21 13:51:28] ⏭️ SUIUSDT sin order book activo, saltando
+[2026-05-21 13:51:31] [1;33m🔍 Analizando ALTUSDT[0m
+[2026-05-21 13:51:32] ⏭️ ALTUSDT sin order book activo, saltando
+[2026-05-21 13:51:34] [0;32m✅ Ciclo completado - 3 símbolos procesados[0m
+[2026-05-21 13:51:34] ⏰ Esperando 60 segundos para próximo ciclo...
+[2026-05-21 13:51:37] === scalper_websocket v3.0 started | mode=LIVE ===
+[2026-05-21 13:51:40] ✅ Binance precision loaded for 11 symbols (lib/binance_precision.sh)
+[2026-05-21 13:51:40] ✅ Binance position mode: Hedge (dual) — orders use positionSide
+[2026-05-21 13:51:40] 🚀 Starting Advanced Scalper Bot v3.0
+[2026-05-21 13:51:40] 📁 Log: /Users/magoo/Development/trade-deepseek/logs/scalper.log | Errors: /Users/magoo/Development/trade-deepseek/logs/scalper_errors.log | Trades: /Users/magoo/Development/trade-deepseek/logs/scalper_trades.log
+[2026-05-21 13:51:40] 📋 Mode: LIVE
+[2026-05-21 13:51:40] 📊 Order Execution: rest
+[2026-05-21 13:51:41] 📈 Symbols: ADAUSDT,XRPUSDT,DOTUSDT,LINKUSDT,LTCUSDT,ATOMUSDT,AVAXUSDT,BCHUSDT,BNBUSDT,EIGENUSDT,ETCUSDT
+[2026-05-21 13:51:41] 🔧 Confirmers: RSI, Stoch, ADX, iCHoCH, Liquidity
+[2026-05-21 13:51:41] 🔌 Connecting to Binance WebSocket...
+[2026-05-21 13:51:41]    URL: wss://fstream.binance.com/stream?streams=adausdt@depth10@500ms/xrpusdt@depth10@500ms/dotusdt@depth10@500ms/linkusdt@depth10@500ms/ltcusdt@depth10@500ms/atomusdt@depth10@500ms/avaxusdt@depth10@500ms/bchusdt@depth10@500ms/bnbusdt@depth10@500ms/eigenusdt@depth10@500ms/etcusdt@depth10@500ms
+[2026-05-21 13:51:41]    Order Mode: rest
+[2026-05-21 13:52:28] ⏸️ BNBUSDT: open position on Binance — skipping order
+[2026-05-21 13:52:34] [0;34m📊 Ciclo #426[0m
+[2026-05-21 13:52:34] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 13:52:34] [0;34m⚡ Ciclo de Scalping - 2026-05-21 13:52:34[0m
+[2026-05-21 13:52:34] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 13:52:36] 📈 Top Gainers: ZECUSDT SUIUSDT ALTUSDT 
+[2026-05-21 13:52:36] 📉 Top Losers: CHZUSDT CHIPUSDT AIGENSYNUSDT 
+[2026-05-21 13:52:36] [1;33m🔍 Analizando ZECUSDT[0m
+[2026-05-21 13:52:37] ⏭️ ZECUSDT sin order book activo, saltando
+[2026-05-21 13:52:39] [1;33m🔍 Analizando SUIUSDT[0m
+[2026-05-21 13:52:41] ⏭️ SUIUSDT sin order book activo, saltando
+[2026-05-21 13:52:43] [1;33m🔍 Analizando ALTUSDT[0m
+[2026-05-21 13:52:43] ⏸️ ADAUSDT: open position on Binance — skipping order
+[2026-05-21 13:52:44] ⏭️ ALTUSDT sin order book activo, saltando
+[2026-05-21 13:52:46] [0;32m✅ Ciclo completado - 3 símbolos procesados[0m
+[2026-05-21 13:52:46] ⏰ Esperando 60 segundos para próximo ciclo...
+[2026-05-21 13:53:23] ⏸️ BNBUSDT: open position on Binance — skipping order
+[2026-05-21 13:53:46] [0;34m📊 Ciclo #427[0m
+[2026-05-21 13:53:46] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 13:53:46] [0;34m⚡ Ciclo de Scalping - 2026-05-21 13:53:46[0m
+[2026-05-21 13:53:46] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 13:53:49] 📈 Top Gainers: ZECUSDT SUIUSDT ALTUSDT 
+[2026-05-21 13:53:49] 📉 Top Losers: CHZUSDT CHIPUSDT ARBUSDT 
+[2026-05-21 13:53:49] [1;33m🔍 Analizando ZECUSDT[0m
+[2026-05-21 13:53:50] ⏭️ ZECUSDT sin order book activo, saltando
+[2026-05-21 13:53:52] [1;33m🔍 Analizando SUIUSDT[0m
+[2026-05-21 13:53:53] ⏭️ SUIUSDT sin order book activo, saltando
+[2026-05-21 13:53:55] [1;33m🔍 Analizando ALTUSDT[0m
+[2026-05-21 13:53:57] ⏭️ ALTUSDT sin order book activo, saltando
+[2026-05-21 13:53:59] [0;32m✅ Ciclo completado - 3 símbolos procesados[0m
+[2026-05-21 13:53:59] ⏰ Esperando 60 segundos para próximo ciclo...
+[2026-05-21 13:54:59] [0;34m📊 Ciclo #428[0m
+[2026-05-21 13:54:59] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 13:54:59] [0;34m⚡ Ciclo de Scalping - 2026-05-21 13:54:59[0m
+[2026-05-21 13:54:59] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 13:55:01] 📈 Top Gainers: ZECUSDT SUIUSDT ALTUSDT 
+[2026-05-21 13:55:01] 📉 Top Losers: CHZUSDT CHIPUSDT ARBUSDT 
+[2026-05-21 13:55:01] [1;33m🔍 Analizando ZECUSDT[0m
+[2026-05-21 13:55:02] ⏭️ ZECUSDT sin order book activo, saltando
+[2026-05-21 13:55:04] [1;33m🔍 Analizando SUIUSDT[0m
+[2026-05-21 13:55:06] ⏭️ SUIUSDT sin order book activo, saltando
+[2026-05-21 13:55:08] [1;33m🔍 Analizando ALTUSDT[0m
+[2026-05-21 13:55:09] ⏭️ ALTUSDT sin order book activo, saltando
+[2026-05-21 13:55:11] [0;32m✅ Ciclo completado - 3 símbolos procesados[0m
+[2026-05-21 13:55:11] ⏰ Esperando 60 segundos para próximo ciclo...
+[2026-05-21 13:55:12] 🔄 BNBUSDT: LONG open + price at resistance OB — closing
+[2026-05-21 13:55:13] ❌ Close failed BNBUSDT: {"code":-1106,"msg":"Parameter 'reduceonly' sent when not required."}
+[2026-05-21 13:55:29] ⏸️ ADAUSDT: open position on Binance — skipping order
+[2026-05-21 13:55:43] === scalper_websocket v3.0 started | mode=LIVE ===
+[2026-05-21 13:55:47] ✅ Binance precision loaded for 11 symbols (lib/binance_precision.sh)
+[2026-05-21 13:55:47] ✅ Binance position mode: Hedge (dual) — orders use positionSide
+[2026-05-21 13:55:47] 🚀 Starting Advanced Scalper Bot v3.0
+[2026-05-21 13:55:47] 📁 Log: /Users/magoo/Development/trade-deepseek/logs/scalper.log | Errors: /Users/magoo/Development/trade-deepseek/logs/scalper_errors.log | Trades: /Users/magoo/Development/trade-deepseek/logs/scalper_trades.log
+[2026-05-21 13:55:47] 📋 Mode: LIVE
+[2026-05-21 13:55:47] 📊 Order Execution: rest
+[2026-05-21 13:55:47] 📈 Symbols: ADAUSDT,XRPUSDT,DOTUSDT,LINKUSDT,LTCUSDT,ATOMUSDT,AVAXUSDT,BCHUSDT,BNBUSDT,EIGENUSDT,ETCUSDT
+[2026-05-21 13:55:47] 🔧 Confirmers: RSI, Stoch, ADX, iCHoCH, Liquidity
+[2026-05-21 13:55:48] 🔌 Connecting to Binance WebSocket...
+[2026-05-21 13:55:48]    URL: wss://fstream.binance.com/stream?streams=adausdt@depth10@500ms/xrpusdt@depth10@500ms/dotusdt@depth10@500ms/linkusdt@depth10@500ms/ltcusdt@depth10@500ms/atomusdt@depth10@500ms/avaxusdt@depth10@500ms/bchusdt@depth10@500ms/bnbusdt@depth10@500ms/eigenusdt@depth10@500ms/etcusdt@depth10@500ms
+[2026-05-21 13:55:48]    Order Mode: rest
+[2026-05-21 13:56:11] [0;34m📊 Ciclo #429[0m
+[2026-05-21 13:56:11] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 13:56:11] [0;34m⚡ Ciclo de Scalping - 2026-05-21 13:56:11[0m
+[2026-05-21 13:56:11] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 13:56:14] 📈 Top Gainers: ZECUSDT SUIUSDT ALTUSDT 
+[2026-05-21 13:56:14] 📉 Top Losers: CHZUSDT CHIPUSDT ARBUSDT 
+[2026-05-21 13:56:14] [1;33m🔍 Analizando ZECUSDT[0m
+[2026-05-21 13:56:15] ⏭️ ZECUSDT sin order book activo, saltando
+[2026-05-21 13:56:17] [1;33m🔍 Analizando SUIUSDT[0m
+[2026-05-21 13:56:18] ⏭️ SUIUSDT sin order book activo, saltando
+[2026-05-21 13:56:20] [1;33m🔍 Analizando ALTUSDT[0m
+[2026-05-21 13:56:22] ⏭️ ALTUSDT sin order book activo, saltando
+[2026-05-21 13:56:24] [0;32m✅ Ciclo completado - 3 símbolos procesados[0m
+[2026-05-21 13:56:24] ⏰ Esperando 60 segundos para próximo ciclo...
+[2026-05-21 13:56:27] 🔄 BCHUSDT: SHORT open + price at support OB — closing
+[2026-05-21 13:56:28] ❌ Close failed BCHUSDT: {"code":-1106,"msg":"Parameter 'reduceonly' sent when not required."}
+[2026-05-21 13:57:23] 🔄 BCHUSDT: SHORT open + price at support OB — closing
+[2026-05-21 13:57:24] ❌ Close failed BCHUSDT: {"code":-1106,"msg":"Parameter 'reduceonly' sent when not required."}
+[2026-05-21 13:57:24] [0;34m📊 Ciclo #430[0m
+[2026-05-21 13:57:24] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 13:57:24] [0;34m⚡ Ciclo de Scalping - 2026-05-21 13:57:24[0m
+[2026-05-21 13:57:24] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 13:57:26] 📈 Top Gainers: ZECUSDT SUIUSDT ALTUSDT 
+[2026-05-21 13:57:26] 📉 Top Losers: CHZUSDT CHIPUSDT ARBUSDT 
+[2026-05-21 13:57:26] [1;33m🔍 Analizando ZECUSDT[0m
+[2026-05-21 13:57:28] ⏭️ ZECUSDT sin order book activo, saltando
+[2026-05-21 13:57:30] [1;33m🔍 Analizando SUIUSDT[0m
+[2026-05-21 13:57:31] ⏭️ SUIUSDT sin order book activo, saltando
+[2026-05-21 13:57:33] [1;33m🔍 Analizando ALTUSDT[0m
+[2026-05-21 13:57:34] ⏭️ ALTUSDT sin order book activo, saltando
+[2026-05-21 13:57:36] [0;32m✅ Ciclo completado - 3 símbolos procesados[0m
+[2026-05-21 13:57:36] ⏰ Esperando 60 segundos para próximo ciclo...
+[2026-05-21 13:58:18] 🔄 BCHUSDT: SHORT open + price at support OB — closing
+[2026-05-21 13:58:19] ❌ Close failed BCHUSDT: {"code":-1106,"msg":"Parameter 'reduceonly' sent when not required."}
+[2026-05-21 13:58:20] ⏸️ BCHUSDT: open position on Binance — skipping order
+[2026-05-21 13:58:36] [0;34m📊 Ciclo #431[0m
+[2026-05-21 13:58:36] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 13:58:36] [0;34m⚡ Ciclo de Scalping - 2026-05-21 13:58:36[0m
+[2026-05-21 13:58:36] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 13:58:39] 📈 Top Gainers: ZECUSDT SUIUSDT ALTUSDT 
+[2026-05-21 13:58:39] 📉 Top Losers: CHZUSDT CHIPUSDT ARBUSDT 
+[2026-05-21 13:58:39] [1;33m🔍 Analizando ZECUSDT[0m
+[2026-05-21 13:58:40] ⏭️ ZECUSDT sin order book activo, saltando
+[2026-05-21 13:58:42] [1;33m🔍 Analizando SUIUSDT[0m
+[2026-05-21 13:58:44] ⏭️ SUIUSDT sin order book activo, saltando
+[2026-05-21 13:58:46] [1;33m🔍 Analizando ALTUSDT[0m
+[2026-05-21 13:58:48] ⏭️ ALTUSDT sin order book activo, saltando
+[2026-05-21 13:58:50] [0;32m✅ Ciclo completado - 3 símbolos procesados[0m
+[2026-05-21 13:58:50] ⏰ Esperando 60 segundos para próximo ciclo...
+[2026-05-21 13:59:13] 🔄 BCHUSDT: SHORT open + price at support OB — closing
+[2026-05-21 13:59:14] ❌ Close failed BCHUSDT: {"code":-1106,"msg":"Parameter 'reduceonly' sent when not required."}
+[2026-05-21 13:59:18] 🔄 BNBUSDT: LONG open + price at resistance OB — closing
+[2026-05-21 13:59:18] ❌ Close failed BNBUSDT: {"code":-1106,"msg":"Parameter 'reduceonly' sent when not required."}
+[2026-05-21 13:59:50] [0;34m📊 Ciclo #432[0m
+[2026-05-21 13:59:50] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 13:59:50] [0;34m⚡ Ciclo de Scalping - 2026-05-21 13:59:50[0m
+[2026-05-21 13:59:50] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 13:59:52] 📈 Top Gainers: ZECUSDT SUIUSDT ALTUSDT 
+[2026-05-21 13:59:52] 📉 Top Losers: CHZUSDT CHIPUSDT ARBUSDT 
+[2026-05-21 13:59:52] [1;33m🔍 Analizando ZECUSDT[0m
+[2026-05-21 13:59:53] ⏭️ ZECUSDT sin order book activo, saltando
+[2026-05-21 13:59:55] [1;33m🔍 Analizando SUIUSDT[0m
+[2026-05-21 13:59:57] ⏭️ SUIUSDT sin order book activo, saltando
+[2026-05-21 13:59:59] [1;33m🔍 Analizando ALTUSDT[0m
+[2026-05-21 14:00:00] ⏭️ ALTUSDT sin order book activo, saltando
+[2026-05-21 14:00:02] [0;32m✅ Ciclo completado - 3 símbolos procesados[0m
+[2026-05-21 14:00:02] ⏰ Esperando 60 segundos para próximo ciclo...
+[2026-05-21 14:00:08] 🔄 BCHUSDT: SHORT open + price at support OB — closing
+[2026-05-21 14:00:09] ❌ Close failed BCHUSDT: {"code":-1106,"msg":"Parameter 'reduceonly' sent when not required."}
+[2026-05-21 14:00:12] 🔄 BNBUSDT: LONG open + price at resistance OB — closing
+[2026-05-21 14:00:13] ❌ Close failed BNBUSDT: {"code":-1106,"msg":"Parameter 'reduceonly' sent when not required."}
+[2026-05-21 14:01:02] [0;34m📊 Ciclo #433[0m
+[2026-05-21 14:01:02] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 14:01:02] [0;34m⚡ Ciclo de Scalping - 2026-05-21 14:01:02[0m
+[2026-05-21 14:01:02] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 14:01:02] 🔄 BCHUSDT: SHORT open + price at support OB — closing
+[2026-05-21 14:01:03] ❌ Close failed BCHUSDT: {"code":-1106,"msg":"Parameter 'reduceonly' sent when not required."}
+[2026-05-21 14:01:04] 📈 Top Gainers: ZECUSDT SUIUSDT ALTUSDT 
+[2026-05-21 14:01:04] 📉 Top Losers: CHZUSDT CHIPUSDT ARBUSDT 
+[2026-05-21 14:01:04] [1;33m🔍 Analizando ZECUSDT[0m
+[2026-05-21 14:01:05] ⏭️ ZECUSDT sin order book activo, saltando
+[2026-05-21 14:01:07] [1;33m🔍 Analizando SUIUSDT[0m
+[2026-05-21 14:01:08] ⏭️ SUIUSDT sin order book activo, saltando
+[2026-05-21 14:01:09] ⏸️ BNBUSDT: open position on Binance — skipping order
+[2026-05-21 14:01:10] [1;33m🔍 Analizando ALTUSDT[0m
+[2026-05-21 14:01:12] ⏭️ ALTUSDT sin order book activo, saltando
+[2026-05-21 14:01:14] [0;32m✅ Ciclo completado - 3 símbolos procesados[0m
+[2026-05-21 14:01:14] ⏰ Esperando 60 segundos para próximo ciclo...
+[2026-05-21 14:01:58] 🔄 BCHUSDT: SHORT open + price at support OB — closing
+[2026-05-21 14:01:59] ❌ Close failed BCHUSDT: {"code":-1106,"msg":"Parameter 'reduceonly' sent when not required."}
+[2026-05-21 14:02:04] ⏸️ BNBUSDT: open position on Binance — skipping order
+[2026-05-21 14:02:14] [0;34m📊 Ciclo #434[0m
+[2026-05-21 14:02:14] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 14:02:14] [0;34m⚡ Ciclo de Scalping - 2026-05-21 14:02:14[0m
+[2026-05-21 14:02:14] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 14:02:17] 📈 Top Gainers: ZECUSDT SUIUSDT ALTUSDT 
+[2026-05-21 14:02:17] 📉 Top Losers: CHZUSDT CHIPUSDT ARBUSDT 
+[2026-05-21 14:02:17] [1;33m🔍 Analizando ZECUSDT[0m
+[2026-05-21 14:02:19] ⏭️ ZECUSDT sin order book activo, saltando
+[2026-05-21 14:02:21] [1;33m🔍 Analizando SUIUSDT[0m
+[2026-05-21 14:02:22] ⏭️ SUIUSDT sin order book activo, saltando
+[2026-05-21 14:02:24] [1;33m🔍 Analizando ALTUSDT[0m
+[2026-05-21 14:02:27] ⏭️ ALTUSDT sin order book activo, saltando
+[2026-05-21 14:02:29] [0;32m✅ Ciclo completado - 3 símbolos procesados[0m
+[2026-05-21 14:02:29] ⏰ Esperando 60 segundos para próximo ciclo...
+[2026-05-21 14:02:59] ⏸️ BNBUSDT: open position on Binance — skipping order
+[2026-05-21 14:03:18] ⏸️ XRPUSDT: open position on Binance — skipping order
+[2026-05-21 14:03:29] [0;34m📊 Ciclo #435[0m
+[2026-05-21 14:03:29] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 14:03:29] [0;34m⚡ Ciclo de Scalping - 2026-05-21 14:03:29[0m
+[2026-05-21 14:03:29] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 14:03:30] 📈 Top Gainers: ZECUSDT SUIUSDT ALTUSDT 
+[2026-05-21 14:03:30] 📉 Top Losers: CHZUSDT CHIPUSDT ARBUSDT 
+[2026-05-21 14:03:30] [1;33m🔍 Analizando ZECUSDT[0m
+[2026-05-21 14:03:32] ⏭️ ZECUSDT sin order book activo, saltando
+[2026-05-21 14:03:34] [1;33m🔍 Analizando SUIUSDT[0m
+[2026-05-21 14:03:35] ⏭️ SUIUSDT sin order book activo, saltando
+[2026-05-21 14:03:37] [1;33m🔍 Analizando ALTUSDT[0m
+[2026-05-21 14:03:38] ⏭️ ALTUSDT sin order book activo, saltando
+[2026-05-21 14:03:40] [0;32m✅ Ciclo completado - 3 símbolos procesados[0m
+[2026-05-21 14:03:40] ⏰ Esperando 60 segundos para próximo ciclo...
+[2026-05-21 14:03:53] === scalper_websocket v3.0 started | mode=LIVE ===
+[2026-05-21 14:03:57] ✅ Binance precision loaded for 11 symbols (lib/binance_precision.sh)
+[2026-05-21 14:03:57] ✅ Binance position mode: Hedge (dual) — orders use positionSide
+[2026-05-21 14:03:57] 🚀 Starting Advanced Scalper Bot v3.0
+[2026-05-21 14:03:57] 📁 Log: /Users/magoo/Development/trade-deepseek/logs/scalper.log | Errors: /Users/magoo/Development/trade-deepseek/logs/scalper_errors.log | Trades: /Users/magoo/Development/trade-deepseek/logs/scalper_trades.log
+[2026-05-21 14:03:57] 📋 Mode: LIVE
+[2026-05-21 14:03:57] 📊 Order Execution: rest
+[2026-05-21 14:03:57] 📈 Symbols: ADAUSDT,XRPUSDT,DOTUSDT,LINKUSDT,LTCUSDT,ATOMUSDT,AVAXUSDT,BCHUSDT,BNBUSDT,EIGENUSDT,ETCUSDT
+[2026-05-21 14:03:57] 🔧 Confirmers: RSI, Stoch, ADX, iCHoCH, Liquidity
+[2026-05-21 14:03:58] 🔌 Connecting to Binance WebSocket...
+[2026-05-21 14:03:58]    URL: wss://fstream.binance.com/stream?streams=adausdt@depth10@500ms/xrpusdt@depth10@500ms/dotusdt@depth10@500ms/linkusdt@depth10@500ms/ltcusdt@depth10@500ms/atomusdt@depth10@500ms/avaxusdt@depth10@500ms/bchusdt@depth10@500ms/bnbusdt@depth10@500ms/eigenusdt@depth10@500ms/etcusdt@depth10@500ms
+[2026-05-21 14:03:58]    Order Mode: rest
+[2026-05-21 14:04:19] ⏸️ LINKUSDT: open position on Binance — skipping order
+[2026-05-21 14:04:38] 🔄 BCHUSDT: SHORT open + price at support OB — closing
+[2026-05-21 14:04:39] ❌ Close failed BCHUSDT: {"code":-1106,"msg":"Parameter 'reduceonly' sent when not required."}
+[2026-05-21 14:04:40] ⏸️ BCHUSDT: open position on Binance — skipping order
+[2026-05-21 14:04:40] [0;34m📊 Ciclo #436[0m
+[2026-05-21 14:04:40] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 14:04:40] [0;34m⚡ Ciclo de Scalping - 2026-05-21 14:04:40[0m
+[2026-05-21 14:04:40] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 14:04:42] 📈 Top Gainers: ZECUSDT SUIUSDT ALTUSDT 
+[2026-05-21 14:04:42] 📉 Top Losers: CHZUSDT CHIPUSDT ARBUSDT 
+[2026-05-21 14:04:42] [1;33m🔍 Analizando ZECUSDT[0m
+[2026-05-21 14:04:43] 🔄 BNBUSDT: LONG open + price at resistance OB — closing
+[2026-05-21 14:04:44] ⏭️ ZECUSDT sin order book activo, saltando
+[2026-05-21 14:04:44] ❌ Close failed BNBUSDT: {"code":-1106,"msg":"Parameter 'reduceonly' sent when not required."}
+[2026-05-21 14:04:46] [1;33m🔍 Analizando SUIUSDT[0m
+[2026-05-21 14:04:47] ⏭️ SUIUSDT sin order book activo, saltando
+[2026-05-21 14:04:49] [1;33m🔍 Analizando ALTUSDT[0m
+[2026-05-21 14:04:50] ⏭️ ALTUSDT sin order book activo, saltando
+[2026-05-21 14:04:52] [0;32m✅ Ciclo completado - 3 símbolos procesados[0m
+[2026-05-21 14:04:52] ⏰ Esperando 60 segundos para próximo ciclo...
+[2026-05-21 14:05:32] 🔄 BCHUSDT: SHORT open + price at support OB — closing
+[2026-05-21 14:05:33] ❌ Close failed BCHUSDT: {"code":-1106,"msg":"Parameter 'reduceonly' sent when not required."}
+[2026-05-21 14:05:37] 🔄 BNBUSDT: LONG open + price at resistance OB — closing
+[2026-05-21 14:05:38] ❌ Close failed BNBUSDT: {"code":-1106,"msg":"Parameter 'reduceonly' sent when not required."}
+[2026-05-21 14:05:52] [0;34m📊 Ciclo #437[0m
+[2026-05-21 14:05:52] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 14:05:52] [0;34m⚡ Ciclo de Scalping - 2026-05-21 14:05:52[0m
+[2026-05-21 14:05:52] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 14:05:55] 📈 Top Gainers: ZECUSDT SUIUSDT ALTUSDT 
+[2026-05-21 14:05:55] 📉 Top Losers: CHZUSDT CHIPUSDT ARBUSDT 
+[2026-05-21 14:05:55] [1;33m🔍 Analizando ZECUSDT[0m
+[2026-05-21 14:05:56] ⏭️ ZECUSDT sin order book activo, saltando
+[2026-05-21 14:05:58] [1;33m🔍 Analizando SUIUSDT[0m
+[2026-05-21 14:05:59] ⏸️ XRPUSDT: open position on Binance — skipping order
+[2026-05-21 14:05:59] ⏭️ SUIUSDT sin order book activo, saltando
+[2026-05-21 14:06:01] [1;33m🔍 Analizando ALTUSDT[0m
+[2026-05-21 14:06:02] ⏭️ ALTUSDT sin order book activo, saltando
+[2026-05-21 14:06:05] [0;32m✅ Ciclo completado - 3 símbolos procesados[0m
+[2026-05-21 14:06:05] ⏰ Esperando 60 segundos para próximo ciclo...
+[2026-05-21 14:06:34] ⏸️ BNBUSDT: open position on Binance — skipping order
+[2026-05-21 14:07:05] [0;34m📊 Ciclo #438[0m
+[2026-05-21 14:07:05] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 14:07:05] [0;34m⚡ Ciclo de Scalping - 2026-05-21 14:07:05[0m
+[2026-05-21 14:07:05] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 14:07:06] 📈 Top Gainers: ZECUSDT SUIUSDT ALTUSDT 
+[2026-05-21 14:07:06] 📉 Top Losers: CHZUSDT CHIPUSDT ARBUSDT 
+[2026-05-21 14:07:06] [1;33m🔍 Analizando ZECUSDT[0m
+[2026-05-21 14:07:08] ⏭️ ZECUSDT sin order book activo, saltando
+[2026-05-21 14:07:10] [1;33m🔍 Analizando SUIUSDT[0m
+[2026-05-21 14:07:11] ⏭️ SUIUSDT sin order book activo, saltando
+[2026-05-21 14:07:13] [1;33m🔍 Analizando ALTUSDT[0m
+[2026-05-21 14:07:14] ⏭️ ALTUSDT sin order book activo, saltando
+[2026-05-21 14:07:16] [0;32m✅ Ciclo completado - 3 símbolos procesados[0m
+[2026-05-21 14:07:16] ⏰ Esperando 60 segundos para próximo ciclo...
+[2026-05-21 14:08:16] [0;34m📊 Ciclo #439[0m
+[2026-05-21 14:08:16] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 14:08:16] [0;34m⚡ Ciclo de Scalping - 2026-05-21 14:08:16[0m
+[2026-05-21 14:08:16] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 14:08:17] 🔄 BCHUSDT: SHORT open + price at support OB — closing
+[2026-05-21 14:08:18] 📈 Top Gainers: ZECUSDT SUIUSDT ALTUSDT 
+[2026-05-21 14:08:18] 📉 Top Losers: CHZUSDT CHIPUSDT ARBUSDT 
+[2026-05-21 14:08:18] [1;33m🔍 Analizando ZECUSDT[0m
+[2026-05-21 14:08:18] ❌ Close failed BCHUSDT: {"code":-1106,"msg":"Parameter 'reduceonly' sent when not required."}
+[2026-05-21 14:08:20] ⏭️ ZECUSDT sin order book activo, saltando
+[2026-05-21 14:08:22] [1;33m🔍 Analizando SUIUSDT[0m
+[2026-05-21 14:08:23] ⏭️ SUIUSDT sin order book activo, saltando
+[2026-05-21 14:08:25] [1;33m🔍 Analizando ALTUSDT[0m
+[2026-05-21 14:08:26] ⏭️ ALTUSDT sin order book activo, saltando
+[2026-05-21 14:08:28] [0;32m✅ Ciclo completado - 3 símbolos procesados[0m
+[2026-05-21 14:08:28] ⏰ Esperando 60 segundos para próximo ciclo...
+[2026-05-21 14:09:12] 🔄 BCHUSDT: SHORT open + price at support OB — closing
+[2026-05-21 14:09:13] ❌ Close failed BCHUSDT: {"code":-1106,"msg":"Parameter 'reduceonly' sent when not required."}
+[2026-05-21 14:09:28] [0;34m📊 Ciclo #440[0m
+[2026-05-21 14:09:28] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 14:09:28] [0;34m⚡ Ciclo de Scalping - 2026-05-21 14:09:28[0m
+[2026-05-21 14:09:28] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 14:09:30] 📈 Top Gainers: ZECUSDT SUIUSDT ALTUSDT 
+[2026-05-21 14:09:30] 📉 Top Losers: CHZUSDT CHIPUSDT ARBUSDT 
+[2026-05-21 14:09:30] [1;33m🔍 Analizando ZECUSDT[0m
+[2026-05-21 14:09:31] ⏭️ ZECUSDT sin order book activo, saltando
+[2026-05-21 14:09:34] [1;33m🔍 Analizando SUIUSDT[0m
+[2026-05-21 14:09:35] ⏭️ SUIUSDT sin order book activo, saltando
+[2026-05-21 14:09:37] [1;33m🔍 Analizando ALTUSDT[0m
+[2026-05-21 14:09:38] ⏭️ ALTUSDT sin order book activo, saltando
+[2026-05-21 14:09:40] [0;32m✅ Ciclo completado - 3 símbolos procesados[0m
+[2026-05-21 14:09:40] ⏰ Esperando 60 segundos para próximo ciclo...
+[2026-05-21 14:10:40] [0;34m📊 Ciclo #441[0m
+[2026-05-21 14:10:40] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 14:10:40] [0;34m⚡ Ciclo de Scalping - 2026-05-21 14:10:40[0m
+[2026-05-21 14:10:40] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 14:10:44] 📈 Top Gainers: ZECUSDT SUIUSDT ALTUSDT 
+[2026-05-21 14:10:44] 📉 Top Losers: CHZUSDT CHIPUSDT ARBUSDT 
+[2026-05-21 14:10:44] [1;33m🔍 Analizando ZECUSDT[0m
+[2026-05-21 14:10:49] ⏭️ ZECUSDT sin order book activo, saltando
+[2026-05-21 14:10:51] [1;33m🔍 Analizando SUIUSDT[0m
+[2026-05-21 14:10:54] ⏭️ SUIUSDT sin order book activo, saltando
+[2026-05-21 14:10:56] [1;33m🔍 Analizando ALTUSDT[0m
+[2026-05-21 14:10:58] ⏭️ ALTUSDT sin order book activo, saltando
+[2026-05-21 14:11:00] [0;32m✅ Ciclo completado - 3 símbolos procesados[0m
+[2026-05-21 14:11:00] ⏰ Esperando 60 segundos para próximo ciclo...
+[2026-05-21 14:11:06] ⏸️ XRPUSDT: open position on Binance — skipping order
+[2026-05-21 14:11:29] 🔄 AVAXUSDT: LONG open + price at resistance OB — closing
+[2026-05-21 14:11:30] ❌ Close failed AVAXUSDT: {"code":-1106,"msg":"Parameter 'reduceonly' sent when not required."}
+[2026-05-21 14:11:39] 🔄 BNBUSDT: LONG open + price at resistance OB — closing
+[2026-05-21 14:11:40] ❌ Close failed BNBUSDT: {"code":-1106,"msg":"Parameter 'reduceonly' sent when not required."}
+[2026-05-21 14:12:00] [0;34m📊 Ciclo #442[0m
+[2026-05-21 14:12:00] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 14:12:00] [0;34m⚡ Ciclo de Scalping - 2026-05-21 14:12:00[0m
+[2026-05-21 14:12:00] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 14:12:01] ⏸️ XRPUSDT: open position on Binance — skipping order
+[2026-05-21 14:12:02] 📈 Top Gainers: ZECUSDT SUIUSDT ALTUSDT 
+[2026-05-21 14:12:02] 📉 Top Losers: CHZUSDT CHIPUSDT ARBUSDT 
+[2026-05-21 14:12:02] [1;33m🔍 Analizando ZECUSDT[0m
+[2026-05-21 14:12:03] ⏭️ ZECUSDT sin order book activo, saltando
+[2026-05-21 14:12:05] [1;33m🔍 Analizando SUIUSDT[0m
+[2026-05-21 14:12:06] ⏭️ SUIUSDT sin order book activo, saltando
+[2026-05-21 14:12:08] [1;33m🔍 Analizando ALTUSDT[0m
+[2026-05-21 14:12:09] ⏭️ ALTUSDT sin order book activo, saltando
+[2026-05-21 14:12:11] [0;32m✅ Ciclo completado - 3 símbolos procesados[0m
+[2026-05-21 14:12:12] ⏰ Esperando 60 segundos para próximo ciclo...
+[2026-05-21 14:12:24] 🔄 AVAXUSDT: LONG open + price at resistance OB — closing
+[2026-05-21 14:12:25] ❌ Close failed AVAXUSDT: {"code":-1106,"msg":"Parameter 'reduceonly' sent when not required."}
+[2026-05-21 14:13:12] [0;34m📊 Ciclo #443[0m
+[2026-05-21 14:13:12] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 14:13:12] [0;34m⚡ Ciclo de Scalping - 2026-05-21 14:13:12[0m
+[2026-05-21 14:13:12] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 14:13:14] 📈 Top Gainers: ZECUSDT SUIUSDT ALTUSDT 
+[2026-05-21 14:13:14] 📉 Top Losers: CHZUSDT CHIPUSDT ARBUSDT 
+[2026-05-21 14:13:14] [1;33m🔍 Analizando ZECUSDT[0m
+[2026-05-21 14:13:15] ⏭️ ZECUSDT sin order book activo, saltando
+[2026-05-21 14:13:17] [1;33m🔍 Analizando SUIUSDT[0m
+[2026-05-21 14:13:18] ⏭️ SUIUSDT sin order book activo, saltando
+[2026-05-21 14:13:20] [1;33m🔍 Analizando ALTUSDT[0m
+[2026-05-21 14:13:22] ⏭️ ALTUSDT sin order book activo, saltando
+[2026-05-21 14:13:24] [0;32m✅ Ciclo completado - 3 símbolos procesados[0m
+[2026-05-21 14:13:24] ⏰ Esperando 60 segundos para próximo ciclo...
+[2026-05-21 14:14:24] [0;34m📊 Ciclo #444[0m
+[2026-05-21 14:14:24] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 14:14:24] [0;34m⚡ Ciclo de Scalping - 2026-05-21 14:14:24[0m
+[2026-05-21 14:14:24] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 14:14:26] 📈 Top Gainers: ZECUSDT SUIUSDT ALTUSDT 
+[2026-05-21 14:14:26] 📉 Top Losers: CHZUSDT CHIPUSDT ARBUSDT 
+[2026-05-21 14:14:26] [1;33m🔍 Analizando ZECUSDT[0m
+[2026-05-21 14:14:27] ⏭️ ZECUSDT sin order book activo, saltando
+[2026-05-21 14:14:29] [1;33m🔍 Analizando SUIUSDT[0m
+[2026-05-21 14:14:30] ⏭️ SUIUSDT sin order book activo, saltando
+[2026-05-21 14:14:32] [1;33m🔍 Analizando ALTUSDT[0m
+[2026-05-21 14:14:34] ⏭️ ALTUSDT sin order book activo, saltando
+[2026-05-21 14:14:36] [0;32m✅ Ciclo completado - 3 símbolos procesados[0m
+[2026-05-21 14:14:36] ⏰ Esperando 60 segundos para próximo ciclo...
+[2026-05-21 14:15:36] [0;34m📊 Ciclo #445[0m
+[2026-05-21 14:15:36] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 14:15:36] [0;34m⚡ Ciclo de Scalping - 2026-05-21 14:15:36[0m
+[2026-05-21 14:15:36] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 14:15:38] 📈 Top Gainers: ZECUSDT SUIUSDT ALTUSDT 
+[2026-05-21 14:15:38] 📉 Top Losers: CHZUSDT CHIPUSDT ARBUSDT 
+[2026-05-21 14:15:38] [1;33m🔍 Analizando ZECUSDT[0m
+[2026-05-21 14:15:39] ⏭️ ZECUSDT sin order book activo, saltando
+[2026-05-21 14:15:41] [1;33m🔍 Analizando SUIUSDT[0m
+[2026-05-21 14:15:42] ⏭️ SUIUSDT sin order book activo, saltando
+[2026-05-21 14:15:44] [1;33m🔍 Analizando ALTUSDT[0m
+[2026-05-21 14:15:46] ⏭️ ALTUSDT sin order book activo, saltando
+[2026-05-21 14:15:48] [0;32m✅ Ciclo completado - 3 símbolos procesados[0m
+[2026-05-21 14:15:48] ⏰ Esperando 60 segundos para próximo ciclo...
+[2026-05-21 14:16:15] ⏸️ BNBUSDT: open position on Binance — skipping order
+[2026-05-21 14:16:48] [0;34m📊 Ciclo #446[0m
+[2026-05-21 14:16:48] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 14:16:48] [0;34m⚡ Ciclo de Scalping - 2026-05-21 14:16:48[0m
+[2026-05-21 14:16:48] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 14:16:50] 🔄 LTCUSDT: SHORT open + price at support OB — closing
+[2026-05-21 14:16:50] 📈 Top Gainers: ZECUSDT SUIUSDT ALTUSDT 
+[2026-05-21 14:16:50] 📉 Top Losers: CHZUSDT CHIPUSDT AIGENSYNUSDT 
+[2026-05-21 14:16:50] [1;33m🔍 Analizando ZECUSDT[0m
+[2026-05-21 14:16:51] ❌ Close failed LTCUSDT: {"code":-1106,"msg":"Parameter 'reduceonly' sent when not required."}
+[2026-05-21 14:16:51] ⏭️ ZECUSDT sin order book activo, saltando
+[2026-05-21 14:16:52] ⏸️ LTCUSDT: open position on Binance — skipping order
+[2026-05-21 14:16:53] [1;33m🔍 Analizando SUIUSDT[0m
+[2026-05-21 14:16:54] ⏭️ SUIUSDT sin order book activo, saltando
+[2026-05-21 14:16:56] [1;33m🔍 Analizando ALTUSDT[0m
+[2026-05-21 14:16:58] ⏭️ ALTUSDT sin order book activo, saltando
+[2026-05-21 14:16:59] 🔄 AVAXUSDT: LONG open + price at resistance OB — closing
+[2026-05-21 14:17:00] [0;32m✅ Ciclo completado - 3 símbolos procesados[0m
+[2026-05-21 14:17:00] ⏰ Esperando 60 segundos para próximo ciclo...
+[2026-05-21 14:17:00] ❌ Close failed AVAXUSDT: {"code":-1106,"msg":"Parameter 'reduceonly' sent when not required."}
+[2026-05-21 14:17:16] ⏸️ BNBUSDT: open position on Binance — skipping order
+[2026-05-21 14:18:00] [0;34m📊 Ciclo #447[0m
+[2026-05-21 14:18:00] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 14:18:00] [0;34m⚡ Ciclo de Scalping - 2026-05-21 14:18:00[0m
+[2026-05-21 14:18:00] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 14:18:02] 📈 Top Gainers: ZECUSDT SUIUSDT ALTUSDT 
+[2026-05-21 14:18:02] 📉 Top Losers: CHZUSDT CHIPUSDT ARBUSDT 
+[2026-05-21 14:18:02] [1;33m🔍 Analizando ZECUSDT[0m
+[2026-05-21 14:18:04] ⏭️ ZECUSDT sin order book activo, saltando
+[2026-05-21 14:18:06] [1;33m🔍 Analizando SUIUSDT[0m
+[2026-05-21 14:18:07] ⏭️ SUIUSDT sin order book activo, saltando
+[2026-05-21 14:18:09] [1;33m🔍 Analizando ALTUSDT[0m
+[2026-05-21 14:18:10] ⏭️ ALTUSDT sin order book activo, saltando
+[2026-05-21 14:18:12] [0;32m✅ Ciclo completado - 3 símbolos procesados[0m
+[2026-05-21 14:18:12] ⏰ Esperando 60 segundos para próximo ciclo...
+[2026-05-21 14:19:01] 🔄 BCHUSDT: SHORT open + price at support OB — closing
+[2026-05-21 14:19:01] ❌ Close failed BCHUSDT: {"code":-1106,"msg":"Parameter 'reduceonly' sent when not required."}
+[2026-05-21 14:19:05] 🔄 BNBUSDT: LONG open + price at resistance OB — closing
+[2026-05-21 14:19:06] ❌ Close failed BNBUSDT: {"code":-1106,"msg":"Parameter 'reduceonly' sent when not required."}
+[2026-05-21 14:19:12] [0;34m📊 Ciclo #448[0m
+[2026-05-21 14:19:12] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 14:19:12] [0;34m⚡ Ciclo de Scalping - 2026-05-21 14:19:12[0m
+[2026-05-21 14:19:12] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 14:19:14] 📈 Top Gainers: ZECUSDT SUIUSDT ALTUSDT 
+[2026-05-21 14:19:14] 📉 Top Losers: CHZUSDT CHIPUSDT ARBUSDT 
+[2026-05-21 14:19:14] [1;33m🔍 Analizando ZECUSDT[0m
+[2026-05-21 14:19:15] ⏭️ ZECUSDT sin order book activo, saltando
+[2026-05-21 14:19:17] [1;33m🔍 Analizando SUIUSDT[0m
+[2026-05-21 14:19:19] ⏭️ SUIUSDT sin order book activo, saltando
+[2026-05-21 14:19:21] [1;33m🔍 Analizando ALTUSDT[0m
+[2026-05-21 14:19:22] ⏭️ ALTUSDT sin order book activo, saltando
+[2026-05-21 14:19:24] [0;32m✅ Ciclo completado - 3 símbolos procesados[0m
+[2026-05-21 14:19:24] ⏰ Esperando 60 segundos para próximo ciclo...
+[2026-05-21 14:20:23] ⏸️ XRPUSDT: open position on Binance — skipping order
+[2026-05-21 14:20:24] [0;34m📊 Ciclo #449[0m
+[2026-05-21 14:20:24] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 14:20:24] [0;34m⚡ Ciclo de Scalping - 2026-05-21 14:20:24[0m
+[2026-05-21 14:20:24] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 14:20:26] 📈 Top Gainers: ZECUSDT SUIUSDT ALTUSDT 
+[2026-05-21 14:20:26] 📉 Top Losers: CHZUSDT CHIPUSDT AIGENSYNUSDT 
+[2026-05-21 14:20:26] [1;33m🔍 Analizando ZECUSDT[0m
+[2026-05-21 14:20:27] ⏭️ ZECUSDT sin order book activo, saltando
+[2026-05-21 14:20:29] [1;33m🔍 Analizando SUIUSDT[0m
+[2026-05-21 14:20:30] ⏭️ SUIUSDT sin order book activo, saltando
+[2026-05-21 14:20:32] [1;33m🔍 Analizando ALTUSDT[0m
+[2026-05-21 14:20:33] ⏭️ ALTUSDT sin order book activo, saltando
+[2026-05-21 14:20:35] [0;32m✅ Ciclo completado - 3 símbolos procesados[0m
+[2026-05-21 14:20:35] ⏰ Esperando 60 segundos para próximo ciclo...
+[2026-05-21 14:20:50] 🔄 BCHUSDT: SHORT open + price at support OB — closing
+[2026-05-21 14:20:51] ❌ Close failed BCHUSDT: {"code":-1106,"msg":"Parameter 'reduceonly' sent when not required."}
+[2026-05-21 14:20:57] ⏸️ BNBUSDT: open position on Binance — skipping order
+[2026-05-21 14:21:35] [0;34m📊 Ciclo #450[0m
+[2026-05-21 14:21:35] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 14:21:35] [0;34m⚡ Ciclo de Scalping - 2026-05-21 14:21:35[0m
+[2026-05-21 14:21:35] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 14:21:37] 📈 Top Gainers: ZECUSDT SUIUSDT ALTUSDT 
+[2026-05-21 14:21:37] 📉 Top Losers: CHZUSDT CHIPUSDT AIGENSYNUSDT 
+[2026-05-21 14:21:37] [1;33m🔍 Analizando ZECUSDT[0m
+[2026-05-21 14:21:38] ⏭️ ZECUSDT sin order book activo, saltando
+[2026-05-21 14:21:40] [1;33m🔍 Analizando SUIUSDT[0m
+[2026-05-21 14:21:41] ⏭️ SUIUSDT sin order book activo, saltando
+[2026-05-21 14:21:43] [1;33m🔍 Analizando ALTUSDT[0m
+[2026-05-21 14:21:44] ⏭️ ALTUSDT sin order book activo, saltando
+[2026-05-21 14:21:45] 🔄 BCHUSDT: SHORT open + price at support OB — closing
+[2026-05-21 14:21:46] ❌ Close failed BCHUSDT: {"code":-1106,"msg":"Parameter 'reduceonly' sent when not required."}
+[2026-05-21 14:21:46] [0;32m✅ Ciclo completado - 3 símbolos procesados[0m
+[2026-05-21 14:21:46] ⏰ Esperando 60 segundos para próximo ciclo...
+[2026-05-21 14:22:45] 🔄 BNBUSDT: LONG open + price at resistance OB — closing
+[2026-05-21 14:22:46] [0;34m📊 Ciclo #451[0m
+[2026-05-21 14:22:46] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 14:22:46] ❌ Close failed BNBUSDT: {"code":-1106,"msg":"Parameter 'reduceonly' sent when not required."}
+[2026-05-21 14:22:46] [0;34m⚡ Ciclo de Scalping - 2026-05-21 14:22:46[0m
+[2026-05-21 14:22:46] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 14:22:48] 📈 Top Gainers: ZECUSDT SUIUSDT ALTUSDT 
+[2026-05-21 14:22:48] 📉 Top Losers: CHZUSDT CHIPUSDT AIGENSYNUSDT 
+[2026-05-21 14:22:48] [1;33m🔍 Analizando ZECUSDT[0m
+[2026-05-21 14:22:49] ⏭️ ZECUSDT sin order book activo, saltando
+[2026-05-21 14:22:51] [1;33m🔍 Analizando SUIUSDT[0m
+[2026-05-21 14:22:52] ⏭️ SUIUSDT sin order book activo, saltando
+[2026-05-21 14:22:54] [1;33m🔍 Analizando ALTUSDT[0m
+[2026-05-21 14:22:55] ⏭️ ALTUSDT sin order book activo, saltando
+[2026-05-21 14:22:57] [0;32m✅ Ciclo completado - 3 símbolos procesados[0m
+[2026-05-21 14:22:57] ⏰ Esperando 60 segundos para próximo ciclo...
+[2026-05-21 14:23:05] 🔄 XRPUSDT: LONG open + price at resistance OB — closing
+[2026-05-21 14:23:06] ❌ Close failed XRPUSDT: {"code":-1106,"msg":"Parameter 'reduceonly' sent when not required."}
+[2026-05-21 14:23:08] ⏸️ XRPUSDT: open position on Binance — skipping order
+[2026-05-21 14:23:40] 🔄 BNBUSDT: LONG open + price at resistance OB — closing
+[2026-05-21 14:23:41] ❌ Close failed BNBUSDT: {"code":-1106,"msg":"Parameter 'reduceonly' sent when not required."}
+[2026-05-21 14:23:57] [0;34m📊 Ciclo #452[0m
+[2026-05-21 14:23:57] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 14:23:57] [0;34m⚡ Ciclo de Scalping - 2026-05-21 14:23:57[0m
+[2026-05-21 14:23:57] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 14:23:59] 📈 Top Gainers: ZECUSDT SUIUSDT ALTUSDT 
+[2026-05-21 14:23:59] 📉 Top Losers: CHZUSDT CHIPUSDT ARBUSDT 
+[2026-05-21 14:23:59] [1;33m🔍 Analizando ZECUSDT[0m
+[2026-05-21 14:24:00] ⏭️ ZECUSDT sin order book activo, saltando
+[2026-05-21 14:24:02] [1;33m🔍 Analizando SUIUSDT[0m
+[2026-05-21 14:24:04] ⏭️ SUIUSDT sin order book activo, saltando
+[2026-05-21 14:24:06] [1;33m🔍 Analizando ALTUSDT[0m
+[2026-05-21 14:24:07] ⏭️ ALTUSDT sin order book activo, saltando
+[2026-05-21 14:24:09] [0;32m✅ Ciclo completado - 3 símbolos procesados[0m
+[2026-05-21 14:24:09] ⏰ Esperando 60 segundos para próximo ciclo...
+[2026-05-21 14:24:31] ⏸️ BCHUSDT: open position on Binance — skipping order
+[2026-05-21 14:24:36] 🔄 BNBUSDT: LONG open + price at resistance OB — closing
+[2026-05-21 14:24:37] ❌ Close failed BNBUSDT: {"code":-1106,"msg":"Parameter 'reduceonly' sent when not required."}
+[2026-05-21 14:24:38] ⏸️ BNBUSDT: open position on Binance — skipping order
+[2026-05-21 14:24:46] 🔄 ETCUSDT: SHORT open + price at support OB — closing
+[2026-05-21 14:24:46] ❌ Close failed ETCUSDT: {"code":-1106,"msg":"Parameter 'reduceonly' sent when not required."}
+[2026-05-21 14:25:09] [0;34m📊 Ciclo #453[0m
+[2026-05-21 14:25:09] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 14:25:09] [0;34m⚡ Ciclo de Scalping - 2026-05-21 14:25:09[0m
+[2026-05-21 14:25:09] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 14:25:10] 📈 Top Gainers: ZECUSDT SUIUSDT ALTUSDT 
+[2026-05-21 14:25:10] 📉 Top Losers: CHZUSDT CHIPUSDT ARBUSDT 
+[2026-05-21 14:25:10] [1;33m🔍 Analizando ZECUSDT[0m
+[2026-05-21 14:25:12] ⏭️ ZECUSDT sin order book activo, saltando
+[2026-05-21 14:25:14] [1;33m🔍 Analizando SUIUSDT[0m
+[2026-05-21 14:25:15] ⏭️ SUIUSDT sin order book activo, saltando
+[2026-05-21 14:25:17] [1;33m🔍 Analizando ALTUSDT[0m
+[2026-05-21 14:25:18] ⏭️ ALTUSDT sin order book activo, saltando
+[2026-05-21 14:25:20] [0;32m✅ Ciclo completado - 3 símbolos procesados[0m
+[2026-05-21 14:25:20] ⏰ Esperando 60 segundos para próximo ciclo...
+[2026-05-21 14:25:32] ⏸️ BNBUSDT: open position on Binance — skipping order
+[2026-05-21 14:25:40] 🔄 ETCUSDT: SHORT open + price at support OB — closing
+[2026-05-21 14:25:41] ❌ Close failed ETCUSDT: {"code":-1106,"msg":"Parameter 'reduceonly' sent when not required."}
+[2026-05-21 14:25:46] ⏸️ ADAUSDT: open position on Binance — skipping order
+[2026-05-21 14:25:50] 🔄 XRPUSDT: LONG open + price at resistance OB — closing
+[2026-05-21 14:25:51] ❌ Close failed XRPUSDT: {"code":-1106,"msg":"Parameter 'reduceonly' sent when not required."}
+[2026-05-21 14:25:53] ⏸️ XRPUSDT: open position on Binance — skipping order
+[2026-05-21 14:26:20] [0;34m📊 Ciclo #454[0m
+[2026-05-21 14:26:20] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 14:26:20] [0;34m⚡ Ciclo de Scalping - 2026-05-21 14:26:20[0m
+[2026-05-21 14:26:20] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 14:26:22] ⏸️ BCHUSDT: open position on Binance — skipping order
+[2026-05-21 14:26:22] 📈 Top Gainers: ZECUSDT SUIUSDT ALTUSDT 
+[2026-05-21 14:26:22] 📉 Top Losers: CHZUSDT CHIPUSDT ARBUSDT 
+[2026-05-21 14:26:22] [1;33m🔍 Analizando ZECUSDT[0m
+[2026-05-21 14:26:23] ⏭️ ZECUSDT sin order book activo, saltando
+[2026-05-21 14:26:25] [1;33m🔍 Analizando SUIUSDT[0m
+[2026-05-21 14:26:26] 🔄 BNBUSDT: LONG open + price at resistance OB — closing
+[2026-05-21 14:26:26] ⏭️ SUIUSDT sin order book activo, saltando
+[2026-05-21 14:26:27] ❌ Close failed BNBUSDT: {"code":-1106,"msg":"Parameter 'reduceonly' sent when not required."}
+[2026-05-21 14:26:28] [1;33m🔍 Analizando ALTUSDT[0m
+[2026-05-21 14:26:30] ⏭️ ALTUSDT sin order book activo, saltando
+[2026-05-21 14:26:32] [0;32m✅ Ciclo completado - 3 símbolos procesados[0m
+[2026-05-21 14:26:32] ⏰ Esperando 60 segundos para próximo ciclo...
+[2026-05-21 14:26:36] 🔄 ETCUSDT: SHORT open + price at support OB — closing
+[2026-05-21 14:26:37] ❌ Close failed ETCUSDT: {"code":-1106,"msg":"Parameter 'reduceonly' sent when not required."}
+[2026-05-21 14:26:42] ⏸️ ADAUSDT: open position on Binance — skipping order
+[2026-05-21 14:27:17] ⏸️ BCHUSDT: open position on Binance — skipping order
+[2026-05-21 14:27:31] 🔄 ETCUSDT: SHORT open + price at support OB — closing
+[2026-05-21 14:27:32] [0;34m📊 Ciclo #455[0m
+[2026-05-21 14:27:32] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 14:27:32] [0;34m⚡ Ciclo de Scalping - 2026-05-21 14:27:32[0m
+[2026-05-21 14:27:32] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 14:27:32] ❌ Close failed ETCUSDT: {"code":-1106,"msg":"Parameter 'reduceonly' sent when not required."}
+[2026-05-21 14:27:33] 📈 Top Gainers: ZECUSDT SUIUSDT ALTUSDT 
+[2026-05-21 14:27:33] 📉 Top Losers: CHZUSDT CHIPUSDT ARBUSDT 
+[2026-05-21 14:27:33] [1;33m🔍 Analizando ZECUSDT[0m
+[2026-05-21 14:27:34] ⏭️ ZECUSDT sin order book activo, saltando
+[2026-05-21 14:27:36] [1;33m🔍 Analizando SUIUSDT[0m
+[2026-05-21 14:27:37] ⏸️ ADAUSDT: open position on Binance — skipping order
+[2026-05-21 14:27:38] ⏭️ SUIUSDT sin order book activo, saltando
+[2026-05-21 14:27:40] [1;33m🔍 Analizando ALTUSDT[0m
+[2026-05-21 14:27:41] ⏭️ ALTUSDT sin order book activo, saltando
+[2026-05-21 14:27:43] [0;32m✅ Ciclo completado - 3 símbolos procesados[0m
+[2026-05-21 14:27:43] ⏰ Esperando 60 segundos para próximo ciclo...
+[2026-05-21 14:28:13] ⏸️ BCHUSDT: open position on Binance — skipping order
+[2026-05-21 14:28:26] 🔄 ETCUSDT: SHORT open + price at support OB — closing
+[2026-05-21 14:28:27] ❌ Close failed ETCUSDT: {"code":-1106,"msg":"Parameter 'reduceonly' sent when not required."}
+[2026-05-21 14:28:32] ⏸️ ADAUSDT: open position on Binance — skipping order
+[2026-05-21 14:28:43] [0;34m📊 Ciclo #456[0m
+[2026-05-21 14:28:43] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 14:28:43] [0;34m⚡ Ciclo de Scalping - 2026-05-21 14:28:43[0m
+[2026-05-21 14:28:43] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 14:28:45] 📈 Top Gainers: ZECUSDT SUIUSDT ALTUSDT 
+[2026-05-21 14:28:45] 📉 Top Losers: CHZUSDT CHIPUSDT ARBUSDT 
+[2026-05-21 14:28:45] [1;33m🔍 Analizando ZECUSDT[0m
+[2026-05-21 14:28:46] ⏭️ ZECUSDT sin order book activo, saltando
+[2026-05-21 14:28:48] [1;33m🔍 Analizando SUIUSDT[0m
+[2026-05-21 14:28:49] ⏭️ SUIUSDT sin order book activo, saltando
+[2026-05-21 14:28:51] [1;33m🔍 Analizando ALTUSDT[0m
+[2026-05-21 14:28:52] ⏭️ ALTUSDT sin order book activo, saltando
+[2026-05-21 14:28:54] [0;32m✅ Ciclo completado - 3 símbolos procesados[0m
+[2026-05-21 14:28:54] ⏰ Esperando 60 segundos para próximo ciclo...
+[2026-05-21 14:29:08] ⏸️ BCHUSDT: open position on Binance — skipping order
+[2026-05-21 14:29:21] 🔄 ETCUSDT: SHORT open + price at support OB — closing
+[2026-05-21 14:29:22] ❌ Close failed ETCUSDT: {"code":-1106,"msg":"Parameter 'reduceonly' sent when not required."}
+[2026-05-21 14:29:29] ⏸️ ADAUSDT: open position on Binance — skipping order
+[2026-05-21 14:29:54] [0;34m📊 Ciclo #457[0m
+[2026-05-21 14:29:54] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 14:29:54] [0;34m⚡ Ciclo de Scalping - 2026-05-21 14:29:54[0m
+[2026-05-21 14:29:54] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 14:29:56] 📈 Top Gainers: ZECUSDT SUIUSDT ALTUSDT 
+[2026-05-21 14:29:56] 📉 Top Losers: CHZUSDT CHIPUSDT ARBUSDT 
+[2026-05-21 14:29:56] [1;33m🔍 Analizando ZECUSDT[0m
+[2026-05-21 14:29:57] ⏭️ ZECUSDT sin order book activo, saltando
+[2026-05-21 14:29:59] [1;33m🔍 Analizando SUIUSDT[0m
+[2026-05-21 14:30:01] ⏭️ SUIUSDT sin order book activo, saltando
+[2026-05-21 14:30:03] [1;33m🔍 Analizando ALTUSDT[0m
+[2026-05-21 14:30:03] ⏸️ BCHUSDT: open position on Binance — skipping order
+[2026-05-21 14:30:04] ⏭️ ALTUSDT sin order book activo, saltando
+[2026-05-21 14:30:06] [0;32m✅ Ciclo completado - 3 símbolos procesados[0m
+[2026-05-21 14:30:06] ⏰ Esperando 60 segundos para próximo ciclo...
+[2026-05-21 14:30:16] 🔄 ETCUSDT: SHORT open + price at support OB — closing
+[2026-05-21 14:30:17] ❌ Close failed ETCUSDT: {"code":-1106,"msg":"Parameter 'reduceonly' sent when not required."}
+[2026-05-21 14:30:23] ⏸️ ADAUSDT: open position on Binance — skipping order
+[2026-05-21 14:30:59] ⏸️ BCHUSDT: open position on Binance — skipping order
+[2026-05-21 14:31:04] ⏸️ BNBUSDT: open position on Binance — skipping order
+[2026-05-21 14:31:06] [0;34m📊 Ciclo #458[0m
+[2026-05-21 14:31:06] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 14:31:06] [0;34m⚡ Ciclo de Scalping - 2026-05-21 14:31:06[0m
+[2026-05-21 14:31:06] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 14:31:09] 📈 Top Gainers: ZECUSDT ALTUSDT EDENUSDT 
+[2026-05-21 14:31:09] 📉 Top Losers: CHZUSDT CHIPUSDT ARBUSDT 
+[2026-05-21 14:31:09] [1;33m🔍 Analizando ZECUSDT[0m
+[2026-05-21 14:31:10] ⏭️ ZECUSDT sin order book activo, saltando
+[2026-05-21 14:31:12] [1;33m🔍 Analizando ALTUSDT[0m
+[2026-05-21 14:31:13] ⏭️ ALTUSDT sin order book activo, saltando
+[2026-05-21 14:31:15] 🔄 ETCUSDT: SHORT open + price at support OB — closing
+[2026-05-21 14:31:15] [1;33m🔍 Analizando EDENUSDT[0m
+[2026-05-21 14:31:16] ❌ Close failed ETCUSDT: {"code":-1106,"msg":"Parameter 'reduceonly' sent when not required."}
+[2026-05-21 14:31:16] ⏭️ EDENUSDT sin order book activo, saltando
+[2026-05-21 14:31:18] [0;32m✅ Ciclo completado - 3 símbolos procesados[0m
+[2026-05-21 14:31:18] ⏰ Esperando 60 segundos para próximo ciclo...
+[2026-05-21 14:31:20] ⏸️ ADAUSDT: open position on Binance — skipping order
+[2026-05-21 14:31:56] ⏸️ BCHUSDT: open position on Binance — skipping order
+[2026-05-21 14:32:01] ⏸️ BNBUSDT: open position on Binance — skipping order
+[2026-05-21 14:32:09] 🔄 ETCUSDT: SHORT open + price at support OB — closing
+[2026-05-21 14:32:10] ❌ Close failed ETCUSDT: {"code":-1106,"msg":"Parameter 'reduceonly' sent when not required."}
+[2026-05-21 14:32:16] ⏸️ ADAUSDT: open position on Binance — skipping order
+[2026-05-21 14:32:18] [0;34m📊 Ciclo #459[0m
+[2026-05-21 14:32:18] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 14:32:18] [0;34m⚡ Ciclo de Scalping - 2026-05-21 14:32:18[0m
+[2026-05-21 14:32:18] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 14:32:20] 📈 Top Gainers: ZECUSDT ALTUSDT EDENUSDT 
+[2026-05-21 14:32:20] 📉 Top Losers: CHZUSDT CHIPUSDT ARBUSDT 
+[2026-05-21 14:32:20] [1;33m🔍 Analizando ZECUSDT[0m
+[2026-05-21 14:32:21] ⏭️ ZECUSDT sin order book activo, saltando
+[2026-05-21 14:32:23] [1;33m🔍 Analizando ALTUSDT[0m
+[2026-05-21 14:32:24] ⏭️ ALTUSDT sin order book activo, saltando
+[2026-05-21 14:32:26] [1;33m🔍 Analizando EDENUSDT[0m
+[2026-05-21 14:32:27] ⏭️ EDENUSDT sin order book activo, saltando
+[2026-05-21 14:32:29] [0;32m✅ Ciclo completado - 3 símbolos procesados[0m
+[2026-05-21 14:32:29] ⏰ Esperando 60 segundos para próximo ciclo...
+[2026-05-21 14:32:51] ⏸️ BCHUSDT: open position on Binance — skipping order
+[2026-05-21 14:32:55] ⏸️ BNBUSDT: open position on Binance — skipping order
+[2026-05-21 14:33:04] 🔄 ETCUSDT: SHORT open + price at support OB — closing
+[2026-05-21 14:33:05] ❌ Close failed ETCUSDT: {"code":-1106,"msg":"Parameter 'reduceonly' sent when not required."}
+[2026-05-21 14:33:11] ⏸️ ADAUSDT: open position on Binance — skipping order
+[2026-05-21 14:33:29] [0;34m📊 Ciclo #460[0m
+[2026-05-21 14:33:29] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 14:33:29] [0;34m⚡ Ciclo de Scalping - 2026-05-21 14:33:29[0m
+[2026-05-21 14:33:29] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 14:33:32] 📈 Top Gainers: ZECUSDT SUIUSDT ALTUSDT 
+[2026-05-21 14:33:32] 📉 Top Losers: CHZUSDT CHIPUSDT AIGENSYNUSDT 
+[2026-05-21 14:33:32] [1;33m🔍 Analizando ZECUSDT[0m
+[2026-05-21 14:33:33] ⏭️ ZECUSDT sin order book activo, saltando
+[2026-05-21 14:33:35] [1;33m🔍 Analizando SUIUSDT[0m
+[2026-05-21 14:33:36] ⏭️ SUIUSDT sin order book activo, saltando
+[2026-05-21 14:33:38] [1;33m🔍 Analizando ALTUSDT[0m
+[2026-05-21 14:33:39] ⏭️ ALTUSDT sin order book activo, saltando
+[2026-05-21 14:33:41] [0;32m✅ Ciclo completado - 3 símbolos procesados[0m
+[2026-05-21 14:33:41] ⏰ Esperando 60 segundos para próximo ciclo...
+[2026-05-21 14:33:58] ⏸️ BNBUSDT: open position on Binance — skipping order
+[2026-05-21 14:34:41] [0;34m📊 Ciclo #461[0m
+[2026-05-21 14:34:41] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 14:34:41] [0;34m⚡ Ciclo de Scalping - 2026-05-21 14:34:41[0m
+[2026-05-21 14:34:41] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 14:34:43] 📈 Top Gainers: ZECUSDT ALTUSDT EDENUSDT 
+[2026-05-21 14:34:43] 📉 Top Losers: CHZUSDT CHIPUSDT ARBUSDT 
+[2026-05-21 14:34:43] [1;33m🔍 Analizando ZECUSDT[0m
+[2026-05-21 14:34:44] ⏭️ ZECUSDT sin order book activo, saltando
+[2026-05-21 14:34:46] [1;33m🔍 Analizando ALTUSDT[0m
+[2026-05-21 14:34:47] ⏭️ ALTUSDT sin order book activo, saltando
+[2026-05-21 14:34:49] [1;33m🔍 Analizando EDENUSDT[0m
+[2026-05-21 14:34:51] ⏭️ EDENUSDT sin order book activo, saltando
+[2026-05-21 14:34:53] ⏸️ BNBUSDT: open position on Binance — skipping order
+[2026-05-21 14:34:53] [0;32m✅ Ciclo completado - 3 símbolos procesados[0m
+[2026-05-21 14:34:53] ⏰ Esperando 60 segundos para próximo ciclo...
+[2026-05-21 14:35:28] 🔄 LTCUSDT: SHORT open + price at support OB — closing
+[2026-05-21 14:35:29] ❌ Close failed LTCUSDT: {"code":-1106,"msg":"Parameter 'reduceonly' sent when not required."}
+[2026-05-21 14:35:39] 🔄 AVAXUSDT: LONG open + price at resistance OB — closing
+[2026-05-21 14:35:40] ❌ Close failed AVAXUSDT: {"code":-1106,"msg":"Parameter 'reduceonly' sent when not required."}
+[2026-05-21 14:35:53] [0;34m📊 Ciclo #462[0m
+[2026-05-21 14:35:53] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 14:35:53] [0;34m⚡ Ciclo de Scalping - 2026-05-21 14:35:53[0m
+[2026-05-21 14:35:53] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 14:35:55] 📈 Top Gainers: ZECUSDT ALTUSDT EDENUSDT 
+[2026-05-21 14:35:55] 📉 Top Losers: CHZUSDT CHIPUSDT ARBUSDT 
+[2026-05-21 14:35:55] [1;33m🔍 Analizando ZECUSDT[0m
+[2026-05-21 14:35:56] ⏭️ ZECUSDT sin order book activo, saltando
+[2026-05-21 14:35:58] [1;33m🔍 Analizando ALTUSDT[0m
+[2026-05-21 14:35:59] ⏭️ ALTUSDT sin order book activo, saltando
+[2026-05-21 14:36:01] [1;33m🔍 Analizando EDENUSDT[0m
+[2026-05-21 14:36:02] ⏭️ EDENUSDT sin order book activo, saltando
+[2026-05-21 14:36:04] [0;32m✅ Ciclo completado - 3 símbolos procesados[0m
+[2026-05-21 14:36:04] ⏰ Esperando 60 segundos para próximo ciclo...
+[2026-05-21 14:36:25] 🔄 LTCUSDT: SHORT open + price at support OB — closing
+[2026-05-21 14:36:25] ❌ Close failed LTCUSDT: {"code":-1106,"msg":"Parameter 'reduceonly' sent when not required."}
+[2026-05-21 14:37:04] [0;34m📊 Ciclo #463[0m
+[2026-05-21 14:37:04] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 14:37:04] [0;34m⚡ Ciclo de Scalping - 2026-05-21 14:37:04[0m
+[2026-05-21 14:37:04] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 14:37:05] ⏸️ XRPUSDT: open position on Binance — skipping order
+[2026-05-21 14:37:06] 📈 Top Gainers: ZECUSDT ALTUSDT EDENUSDT 
+[2026-05-21 14:37:06] 📉 Top Losers: CHZUSDT CHIPUSDT AIGENSYNUSDT 
+[2026-05-21 14:37:06] [1;33m🔍 Analizando ZECUSDT[0m
+[2026-05-21 14:37:07] ⏭️ ZECUSDT sin order book activo, saltando
+[2026-05-21 14:37:09] [1;33m🔍 Analizando ALTUSDT[0m
+[2026-05-21 14:37:10] ⏭️ ALTUSDT sin order book activo, saltando
+[2026-05-21 14:37:12] [1;33m🔍 Analizando EDENUSDT[0m
+[2026-05-21 14:37:13] ⏭️ EDENUSDT sin order book activo, saltando
+[2026-05-21 14:37:15] [0;32m✅ Ciclo completado - 3 símbolos procesados[0m
+[2026-05-21 14:37:16] ⏰ Esperando 60 segundos para próximo ciclo...
+[2026-05-21 14:38:00] ⏸️ XRPUSDT: open position on Binance — skipping order
+[2026-05-21 14:38:16] [0;34m📊 Ciclo #464[0m
+[2026-05-21 14:38:16] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 14:38:16] [0;34m⚡ Ciclo de Scalping - 2026-05-21 14:38:16[0m
+[2026-05-21 14:38:16] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 14:38:18] 📈 Top Gainers: ZECUSDT SUIUSDT ALTUSDT 
+[2026-05-21 14:38:18] 📉 Top Losers: CHZUSDT CHIPUSDT ARBUSDT 
+[2026-05-21 14:38:18] [1;33m🔍 Analizando ZECUSDT[0m
+[2026-05-21 14:38:19] ⏭️ ZECUSDT sin order book activo, saltando
+[2026-05-21 14:38:21] [1;33m🔍 Analizando SUIUSDT[0m
+[2026-05-21 14:38:22] ⏭️ SUIUSDT sin order book activo, saltando
+[2026-05-21 14:38:24] [1;33m🔍 Analizando ALTUSDT[0m
+[2026-05-21 14:38:25] ⏭️ ALTUSDT sin order book activo, saltando
+[2026-05-21 14:38:27] [0;32m✅ Ciclo completado - 3 símbolos procesados[0m
+[2026-05-21 14:38:27] ⏰ Esperando 60 segundos para próximo ciclo...
+[2026-05-21 14:38:33] 🔄 BNBUSDT: LONG open + price at resistance OB — closing
+[2026-05-21 14:38:34] ❌ Close failed BNBUSDT: {"code":-1106,"msg":"Parameter 'reduceonly' sent when not required."}
+[2026-05-21 14:38:36] ⏸️ BNBUSDT: open position on Binance — skipping order
+[2026-05-21 14:39:27] [0;34m📊 Ciclo #465[0m
+[2026-05-21 14:39:27] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 14:39:27] [0;34m⚡ Ciclo de Scalping - 2026-05-21 14:39:27[0m
+[2026-05-21 14:39:27] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 14:39:29] 📈 Top Gainers: ZECUSDT SUIUSDT ALTUSDT 
+[2026-05-21 14:39:29] 📉 Top Losers: CHZUSDT CHIPUSDT ARBUSDT 
+[2026-05-21 14:39:29] [1;33m🔍 Analizando ZECUSDT[0m
+[2026-05-21 14:39:31] ⏭️ ZECUSDT sin order book activo, saltando
+[2026-05-21 14:39:33] [1;33m🔍 Analizando SUIUSDT[0m
+[2026-05-21 14:39:34] ⏭️ SUIUSDT sin order book activo, saltando
+[2026-05-21 14:39:36] [1;33m🔍 Analizando ALTUSDT[0m
+[2026-05-21 14:39:37] ⏭️ ALTUSDT sin order book activo, saltando
+[2026-05-21 14:39:39] [0;32m✅ Ciclo completado - 3 símbolos procesados[0m
+[2026-05-21 14:39:39] ⏰ Esperando 60 segundos para próximo ciclo...
+[2026-05-21 14:40:39] [0;34m📊 Ciclo #466[0m
+[2026-05-21 14:40:39] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 14:40:39] [0;34m⚡ Ciclo de Scalping - 2026-05-21 14:40:39[0m
+[2026-05-21 14:40:39] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 14:40:41] 📈 Top Gainers: ZECUSDT SUIUSDT ALTUSDT 
+[2026-05-21 14:40:41] 📉 Top Losers: CHZUSDT CHIPUSDT AIGENSYNUSDT 
+[2026-05-21 14:40:41] [1;33m🔍 Analizando ZECUSDT[0m
+[2026-05-21 14:40:42] ⏭️ ZECUSDT sin order book activo, saltando
+[2026-05-21 14:40:44] [1;33m🔍 Analizando SUIUSDT[0m
+[2026-05-21 14:40:45] ⏭️ SUIUSDT sin order book activo, saltando
+[2026-05-21 14:40:47] [1;33m🔍 Analizando ALTUSDT[0m
+[2026-05-21 14:40:49] ⏭️ ALTUSDT sin order book activo, saltando
+[2026-05-21 14:40:51] [0;32m✅ Ciclo completado - 3 símbolos procesados[0m
+[2026-05-21 14:40:51] ⏰ Esperando 60 segundos para próximo ciclo...
+[2026-05-21 14:41:51] [0;34m📊 Ciclo #467[0m
+[2026-05-21 14:41:51] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 14:41:51] [0;34m⚡ Ciclo de Scalping - 2026-05-21 14:41:51[0m
+[2026-05-21 14:41:51] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 14:41:52] 📈 Top Gainers: ZECUSDT SUIUSDT ALTUSDT 
+[2026-05-21 14:41:52] 📉 Top Losers: CHZUSDT CHIPUSDT AIGENSYNUSDT 
+[2026-05-21 14:41:52] [1;33m🔍 Analizando ZECUSDT[0m
+[2026-05-21 14:41:54] ⏭️ ZECUSDT sin order book activo, saltando
+[2026-05-21 14:41:56] [1;33m🔍 Analizando SUIUSDT[0m
+[2026-05-21 14:41:56] 🔄 LTCUSDT: SHORT open + price at support OB — closing
+[2026-05-21 14:41:57] ❌ Close failed LTCUSDT: {"code":-1106,"msg":"Parameter 'reduceonly' sent when not required."}
+[2026-05-21 14:41:57] ⏭️ SUIUSDT sin order book activo, saltando
+[2026-05-21 14:41:59] [1;33m🔍 Analizando ALTUSDT[0m
+[2026-05-21 14:42:00] ⏭️ ALTUSDT sin order book activo, saltando
+[2026-05-21 14:42:02] [0;32m✅ Ciclo completado - 3 símbolos procesados[0m
+[2026-05-21 14:42:02] ⏰ Esperando 60 segundos para próximo ciclo...
+[2026-05-21 14:42:11] 🔄 BCHUSDT: SHORT open + price at support OB — closing
+[2026-05-21 14:42:12] ❌ Close failed BCHUSDT: {"code":-1106,"msg":"Parameter 'reduceonly' sent when not required."}
+[2026-05-21 14:42:15] 🔄 BNBUSDT: LONG open + price at resistance OB — closing
+[2026-05-21 14:42:16] ❌ Close failed BNBUSDT: {"code":-1106,"msg":"Parameter 'reduceonly' sent when not required."}
+[2026-05-21 14:42:17] ⏸️ BNBUSDT: open position on Binance — skipping order
+[2026-05-21 14:43:02] [0;34m📊 Ciclo #468[0m
+[2026-05-21 14:43:02] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 14:43:02] [0;34m⚡ Ciclo de Scalping - 2026-05-21 14:43:02[0m
+[2026-05-21 14:43:02] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 14:43:04] 📈 Top Gainers: ZECUSDT ALTUSDT EDENUSDT 
+[2026-05-21 14:43:04] 📉 Top Losers: CHZUSDT CHIPUSDT AIGENSYNUSDT 
+[2026-05-21 14:43:04] [1;33m🔍 Analizando ZECUSDT[0m
+[2026-05-21 14:43:05] ⏭️ ZECUSDT sin order book activo, saltando
+[2026-05-21 14:43:07] [1;33m🔍 Analizando ALTUSDT[0m
+[2026-05-21 14:43:08] ⏭️ ALTUSDT sin order book activo, saltando
+[2026-05-21 14:43:10] [1;33m🔍 Analizando EDENUSDT[0m
+[2026-05-21 14:43:11] ⏭️ EDENUSDT sin order book activo, saltando
+[2026-05-21 14:43:13] [0;32m✅ Ciclo completado - 3 símbolos procesados[0m
+[2026-05-21 14:43:13] ⏰ Esperando 60 segundos para próximo ciclo...
+[2026-05-21 14:43:45] 🔄 LTCUSDT: SHORT open + price at support OB — closing
+[2026-05-21 14:43:46] ❌ Close failed LTCUSDT: {"code":-1106,"msg":"Parameter 'reduceonly' sent when not required."}
+[2026-05-21 14:44:13] [0;34m📊 Ciclo #469[0m
+[2026-05-21 14:44:13] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 14:44:13] [0;34m⚡ Ciclo de Scalping - 2026-05-21 14:44:13[0m
+[2026-05-21 14:44:13] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 14:44:15] 📈 Top Gainers: ZECUSDT ALTUSDT EDENUSDT 
+[2026-05-21 14:44:15] 📉 Top Losers: CHZUSDT CHIPUSDT ARBUSDT 
+[2026-05-21 14:44:15] [1;33m🔍 Analizando ZECUSDT[0m
+[2026-05-21 14:44:16] ⏭️ ZECUSDT sin order book activo, saltando
+[2026-05-21 14:44:18] [1;33m🔍 Analizando ALTUSDT[0m
+[2026-05-21 14:44:19] ⏭️ ALTUSDT sin order book activo, saltando
+[2026-05-21 14:44:21] [1;33m🔍 Analizando EDENUSDT[0m
+[2026-05-21 14:44:22] ⏭️ EDENUSDT sin order book activo, saltando
+[2026-05-21 14:44:24] [0;32m✅ Ciclo completado - 3 símbolos procesados[0m
+[2026-05-21 14:44:24] ⏰ Esperando 60 segundos para próximo ciclo...
+[2026-05-21 14:45:24] [0;34m📊 Ciclo #470[0m
+[2026-05-21 14:45:24] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 14:45:24] [0;34m⚡ Ciclo de Scalping - 2026-05-21 14:45:24[0m
+[2026-05-21 14:45:24] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 14:45:27] 📈 Top Gainers: ZECUSDT ALTUSDT EDENUSDT 
+[2026-05-21 14:45:27] 📉 Top Losers: CHZUSDT CHIPUSDT ARBUSDT 
+[2026-05-21 14:45:27] [1;33m🔍 Analizando ZECUSDT[0m
+[2026-05-21 14:45:29] ⏭️ ZECUSDT sin order book activo, saltando
+[2026-05-21 14:45:31] [1;33m🔍 Analizando ALTUSDT[0m
+[2026-05-21 14:45:35] ⏭️ ALTUSDT sin order book activo, saltando
+[2026-05-21 14:45:37] [1;33m🔍 Analizando EDENUSDT[0m
+[2026-05-21 14:45:38] ⏭️ EDENUSDT sin order book activo, saltando
+[2026-05-21 14:45:40] [0;32m✅ Ciclo completado - 3 símbolos procesados[0m
+[2026-05-21 14:45:40] ⏰ Esperando 60 segundos para próximo ciclo...
+[2026-05-21 14:46:40] [0;34m📊 Ciclo #471[0m
+[2026-05-21 14:46:40] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 14:46:40] [0;34m⚡ Ciclo de Scalping - 2026-05-21 14:46:40[0m
+[2026-05-21 14:46:40] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 14:46:42] 📈 Top Gainers: ZECUSDT SUIUSDT ALTUSDT 
+[2026-05-21 14:46:42] 📉 Top Losers: CHZUSDT CHIPUSDT ARBUSDT 
+[2026-05-21 14:46:42] [1;33m🔍 Analizando ZECUSDT[0m
+[2026-05-21 14:46:43] ⏭️ ZECUSDT sin order book activo, saltando
+[2026-05-21 14:46:45] [1;33m🔍 Analizando SUIUSDT[0m
+[2026-05-21 14:46:46] ⏭️ SUIUSDT sin order book activo, saltando
+[2026-05-21 14:46:48] [1;33m🔍 Analizando ALTUSDT[0m
+[2026-05-21 14:46:49] ⏭️ ALTUSDT sin order book activo, saltando
+[2026-05-21 14:46:51] [0;32m✅ Ciclo completado - 3 símbolos procesados[0m
+[2026-05-21 14:46:51] ⏰ Esperando 60 segundos para próximo ciclo...
+[2026-05-21 14:47:13] 🔄 XRPUSDT: LONG open + price at resistance OB — closing
+[2026-05-21 14:47:14] ❌ Close failed XRPUSDT: {"code":-1106,"msg":"Parameter 'reduceonly' sent when not required."}
+[2026-05-21 14:47:16] ⏸️ XRPUSDT: open position on Binance — skipping order
+[2026-05-21 14:47:48] 🔄 BNBUSDT: LONG open + price at resistance OB — closing
+[2026-05-21 14:47:49] ❌ Close failed BNBUSDT: {"code":-1106,"msg":"Parameter 'reduceonly' sent when not required."}
+[2026-05-21 14:47:51] [0;34m📊 Ciclo #472[0m
+[2026-05-21 14:47:51] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 14:47:51] [0;34m⚡ Ciclo de Scalping - 2026-05-21 14:47:51[0m
+[2026-05-21 14:47:51] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 14:47:53] 📈 Top Gainers: ZECUSDT SUIUSDT ALTUSDT 
+[2026-05-21 14:47:53] 📉 Top Losers: CHZUSDT CHIPUSDT ARBUSDT 
+[2026-05-21 14:47:53] [1;33m🔍 Analizando ZECUSDT[0m
+[2026-05-21 14:47:54] ⏭️ ZECUSDT sin order book activo, saltando
+[2026-05-21 14:47:56] [1;33m🔍 Analizando SUIUSDT[0m
+[2026-05-21 14:47:58] ⏭️ SUIUSDT sin order book activo, saltando
+[2026-05-21 14:48:00] [1;33m🔍 Analizando ALTUSDT[0m
+[2026-05-21 14:48:01] ⏭️ ALTUSDT sin order book activo, saltando
+[2026-05-21 14:48:03] [0;32m✅ Ciclo completado - 3 símbolos procesados[0m
+[2026-05-21 14:48:03] ⏰ Esperando 60 segundos para próximo ciclo...
+[2026-05-21 14:49:03] [0;34m📊 Ciclo #473[0m
+[2026-05-21 14:49:03] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 14:49:03] [0;34m⚡ Ciclo de Scalping - 2026-05-21 14:49:03[0m
+[2026-05-21 14:49:03] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 14:49:05] 📈 Top Gainers: ZECUSDT SUIUSDT ALTUSDT 
+[2026-05-21 14:49:05] 📉 Top Losers: CHZUSDT CHIPUSDT ARBUSDT 
+[2026-05-21 14:49:05] [1;33m🔍 Analizando ZECUSDT[0m
+[2026-05-21 14:49:06] ⏭️ ZECUSDT sin order book activo, saltando
+[2026-05-21 14:49:08] [1;33m🔍 Analizando SUIUSDT[0m
+[2026-05-21 14:49:09] ⏭️ SUIUSDT sin order book activo, saltando
+[2026-05-21 14:49:11] [1;33m🔍 Analizando ALTUSDT[0m
+[2026-05-21 14:49:12] ⏭️ ALTUSDT sin order book activo, saltando
+[2026-05-21 14:49:14] [0;32m✅ Ciclo completado - 3 símbolos procesados[0m
+[2026-05-21 14:49:14] ⏰ Esperando 60 segundos para próximo ciclo...
+[2026-05-21 14:49:44] ⏸️ BNBUSDT: open position on Binance — skipping order
+[2026-05-21 14:50:14] [0;34m📊 Ciclo #474[0m
+[2026-05-21 14:50:14] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 14:50:14] [0;34m⚡ Ciclo de Scalping - 2026-05-21 14:50:14[0m
+[2026-05-21 14:50:14] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 14:50:16] 📈 Top Gainers: ZECUSDT ALTUSDT EDENUSDT 
+[2026-05-21 14:50:16] 📉 Top Losers: CHZUSDT CHIPUSDT ARBUSDT 
+[2026-05-21 14:50:16] [1;33m🔍 Analizando ZECUSDT[0m
+[2026-05-21 14:50:17] ⏭️ ZECUSDT sin order book activo, saltando
+[2026-05-21 14:50:19] [1;33m🔍 Analizando ALTUSDT[0m
+[2026-05-21 14:50:20] ⏭️ ALTUSDT sin order book activo, saltando
+[2026-05-21 14:50:22] [1;33m🔍 Analizando EDENUSDT[0m
+[2026-05-21 14:50:24] ⏭️ EDENUSDT sin order book activo, saltando
+[2026-05-21 14:50:26] [0;32m✅ Ciclo completado - 3 símbolos procesados[0m
+[2026-05-21 14:50:26] ⏰ Esperando 60 segundos para próximo ciclo...
+[2026-05-21 14:51:26] [0;34m📊 Ciclo #475[0m
+[2026-05-21 14:51:26] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 14:51:26] [0;34m⚡ Ciclo de Scalping - 2026-05-21 14:51:26[0m
+[2026-05-21 14:51:26] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 14:51:29] 📈 Top Gainers: ZECUSDT ALTUSDT EDENUSDT 
+[2026-05-21 14:51:29] 📉 Top Losers: CHZUSDT CHIPUSDT ARBUSDT 
+[2026-05-21 14:51:29] [1;33m🔍 Analizando ZECUSDT[0m
+[2026-05-21 14:51:29] ⏸️ BCHUSDT: open position on Binance — skipping order
+[2026-05-21 14:51:30] ⏭️ ZECUSDT sin order book activo, saltando
+[2026-05-21 14:51:32] [1;33m🔍 Analizando ALTUSDT[0m
+[2026-05-21 14:51:33] ⏭️ ALTUSDT sin order book activo, saltando
+[2026-05-21 14:51:34] ⏸️ BNBUSDT: open position on Binance — skipping order
+[2026-05-21 14:51:35] [1;33m🔍 Analizando EDENUSDT[0m
+[2026-05-21 14:51:36] ⏭️ EDENUSDT sin order book activo, saltando
+[2026-05-21 14:51:38] [0;32m✅ Ciclo completado - 3 símbolos procesados[0m
+[2026-05-21 14:51:38] ⏰ Esperando 60 segundos para próximo ciclo...
+[2026-05-21 14:52:24] ⏸️ BCHUSDT: open position on Binance — skipping order
+[2026-05-21 14:52:28] 🔄 BNBUSDT: LONG open + price at resistance OB — closing
+[2026-05-21 14:52:29] ❌ Close failed BNBUSDT: {"code":-1106,"msg":"Parameter 'reduceonly' sent when not required."}
+[2026-05-21 14:52:38] [0;34m📊 Ciclo #476[0m
+[2026-05-21 14:52:38] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 14:52:38] [0;34m⚡ Ciclo de Scalping - 2026-05-21 14:52:38[0m
+[2026-05-21 14:52:38] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 14:52:40] 📈 Top Gainers: ZECUSDT ALTUSDT EDENUSDT 
+[2026-05-21 14:52:40] 📉 Top Losers: CHZUSDT CHIPUSDT ARBUSDT 
+[2026-05-21 14:52:40] [1;33m🔍 Analizando ZECUSDT[0m
+[2026-05-21 14:52:41] ⏭️ ZECUSDT sin order book activo, saltando
+[2026-05-21 14:52:43] [1;33m🔍 Analizando ALTUSDT[0m
+[2026-05-21 14:52:44] ⏭️ ALTUSDT sin order book activo, saltando
+[2026-05-21 14:52:46] [1;33m🔍 Analizando EDENUSDT[0m
+[2026-05-21 14:52:47] ⏭️ EDENUSDT sin order book activo, saltando
+[2026-05-21 14:52:49] [0;32m✅ Ciclo completado - 3 símbolos procesados[0m
+[2026-05-21 14:52:49] ⏰ Esperando 60 segundos para próximo ciclo...
+[2026-05-21 14:53:19] ⏸️ BCHUSDT: open position on Binance — skipping order
+[2026-05-21 14:53:22] 🔄 BNBUSDT: LONG open + price at resistance OB — closing
+[2026-05-21 14:53:23] ❌ Close failed BNBUSDT: {"code":-1106,"msg":"Parameter 'reduceonly' sent when not required."}
+[2026-05-21 14:53:24] ⏸️ BNBUSDT: open position on Binance — skipping order
+[2026-05-21 14:53:43] 🔄 XRPUSDT: LONG open + price at resistance OB — closing
+[2026-05-21 14:53:43] ❌ Close failed XRPUSDT: {"code":-1106,"msg":"Parameter 'reduceonly' sent when not required."}
+[2026-05-21 14:53:45] ⏸️ XRPUSDT: open position on Binance — skipping order
+[2026-05-21 14:53:49] [0;34m📊 Ciclo #477[0m
+[2026-05-21 14:53:49] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 14:53:49] [0;34m⚡ Ciclo de Scalping - 2026-05-21 14:53:49[0m
+[2026-05-21 14:53:49] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 14:53:51] 📈 Top Gainers: ZECUSDT ALTUSDT EDENUSDT 
+[2026-05-21 14:53:51] 📉 Top Losers: CHZUSDT CHIPUSDT ARBUSDT 
+[2026-05-21 14:53:51] [1;33m🔍 Analizando ZECUSDT[0m
+[2026-05-21 14:53:52] ⏭️ ZECUSDT sin order book activo, saltando
+[2026-05-21 14:53:54] [1;33m🔍 Analizando ALTUSDT[0m
+[2026-05-21 14:53:55] ⏭️ ALTUSDT sin order book activo, saltando
+[2026-05-21 14:53:57] [1;33m🔍 Analizando EDENUSDT[0m
+[2026-05-21 14:53:58] ⏭️ EDENUSDT sin order book activo, saltando
+[2026-05-21 14:54:00] [0;32m✅ Ciclo completado - 3 símbolos procesados[0m
+[2026-05-21 14:54:00] ⏰ Esperando 60 segundos para próximo ciclo...
+[2026-05-21 14:54:14] ⏸️ BCHUSDT: open position on Binance — skipping order
+[2026-05-21 14:55:00] [0;34m📊 Ciclo #478[0m
+[2026-05-21 14:55:00] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 14:55:00] [0;34m⚡ Ciclo de Scalping - 2026-05-21 14:55:00[0m
+[2026-05-21 14:55:00] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 14:55:02] 📈 Top Gainers: ZECUSDT ALTUSDT EDENUSDT 
+[2026-05-21 14:55:02] 📉 Top Losers: CHZUSDT CHIPUSDT ARBUSDT 
+[2026-05-21 14:55:02] [1;33m🔍 Analizando ZECUSDT[0m
+[2026-05-21 14:55:03] ⏭️ ZECUSDT sin order book activo, saltando
+[2026-05-21 14:55:05] [1;33m🔍 Analizando ALTUSDT[0m
+[2026-05-21 14:55:06] ⏭️ ALTUSDT sin order book activo, saltando
+[2026-05-21 14:55:08] [1;33m🔍 Analizando EDENUSDT[0m
+[2026-05-21 14:55:09] ⏭️ EDENUSDT sin order book activo, saltando
+[2026-05-21 14:55:11] [0;32m✅ Ciclo completado - 3 símbolos procesados[0m
+[2026-05-21 14:55:11] ⏰ Esperando 60 segundos para próximo ciclo...
+[2026-05-21 14:56:03] 🔄 BCHUSDT: SHORT open + price at support OB — closing
+[2026-05-21 14:56:03] ❌ Close failed BCHUSDT: {"code":-1106,"msg":"Parameter 'reduceonly' sent when not required."}
+[2026-05-21 14:56:12] [0;34m📊 Ciclo #479[0m
+[2026-05-21 14:56:12] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 14:56:12] [0;34m⚡ Ciclo de Scalping - 2026-05-21 14:56:12[0m
+[2026-05-21 14:56:12] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 14:56:14] 📈 Top Gainers: ZECUSDT ALTUSDT EDENUSDT 
+[2026-05-21 14:56:14] 📉 Top Losers: CHZUSDT CHIPUSDT ARBUSDT 
+[2026-05-21 14:56:14] [1;33m🔍 Analizando ZECUSDT[0m
+[2026-05-21 14:56:15] ⏭️ ZECUSDT sin order book activo, saltando
+[2026-05-21 14:56:17] [1;33m🔍 Analizando ALTUSDT[0m
+[2026-05-21 14:56:18] ⏭️ ALTUSDT sin order book activo, saltando
+[2026-05-21 14:56:20] [1;33m🔍 Analizando EDENUSDT[0m
+[2026-05-21 14:56:22] ⏭️ EDENUSDT sin order book activo, saltando
+[2026-05-21 14:56:24] [0;32m✅ Ciclo completado - 3 símbolos procesados[0m
+[2026-05-21 14:56:24] ⏰ Esperando 60 segundos para próximo ciclo...
+[2026-05-21 14:56:27] 🔄 XRPUSDT: LONG open + price at resistance OB — closing
+[2026-05-21 14:56:28] ❌ Close failed XRPUSDT: {"code":-1106,"msg":"Parameter 'reduceonly' sent when not required."}
+[2026-05-21 14:56:29] ⏸️ XRPUSDT: open position on Binance — skipping order
+[2026-05-21 14:56:57] 🔄 BCHUSDT: SHORT open + price at support OB — closing
+[2026-05-21 14:56:58] ❌ Close failed BCHUSDT: {"code":-1106,"msg":"Parameter 'reduceonly' sent when not required."}
+[2026-05-21 14:57:24] [0;34m📊 Ciclo #480[0m
+[2026-05-21 14:57:24] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 14:57:24] [0;34m⚡ Ciclo de Scalping - 2026-05-21 14:57:24[0m
+[2026-05-21 14:57:24] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 14:57:25] 📈 Top Gainers: ZECUSDT ALTUSDT EDENUSDT 
+[2026-05-21 14:57:25] 📉 Top Losers: CHZUSDT CHIPUSDT ARBUSDT 
+[2026-05-21 14:57:25] [1;33m🔍 Analizando ZECUSDT[0m
+[2026-05-21 14:57:26] ⏭️ ZECUSDT sin order book activo, saltando
+[2026-05-21 14:57:28] [1;33m🔍 Analizando ALTUSDT[0m
+[2026-05-21 14:57:30] ⏭️ ALTUSDT sin order book activo, saltando
+[2026-05-21 14:57:32] [1;33m🔍 Analizando EDENUSDT[0m
+[2026-05-21 14:57:33] ⏭️ EDENUSDT sin order book activo, saltando
+[2026-05-21 14:57:35] [0;32m✅ Ciclo completado - 3 símbolos procesados[0m
+[2026-05-21 14:57:35] ⏰ Esperando 60 segundos para próximo ciclo...
+[2026-05-21 14:57:53] 🔄 BCHUSDT: SHORT open + price at support OB — closing
+[2026-05-21 14:57:54] ❌ Close failed BCHUSDT: {"code":-1106,"msg":"Parameter 'reduceonly' sent when not required."}
+[2026-05-21 14:58:35] [0;34m📊 Ciclo #481[0m
+[2026-05-21 14:58:35] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 14:58:35] [0;34m⚡ Ciclo de Scalping - 2026-05-21 14:58:35[0m
+[2026-05-21 14:58:35] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 14:58:37] 📈 Top Gainers: ZECUSDT ALTUSDT EDENUSDT 
+[2026-05-21 14:58:37] 📉 Top Losers: CHZUSDT CHIPUSDT ARBUSDT 
+[2026-05-21 14:58:37] [1;33m🔍 Analizando ZECUSDT[0m
+[2026-05-21 14:58:38] ⏭️ ZECUSDT sin order book activo, saltando
+[2026-05-21 14:58:40] [1;33m🔍 Analizando ALTUSDT[0m
+[2026-05-21 14:58:42] ⏭️ ALTUSDT sin order book activo, saltando
+[2026-05-21 14:58:44] [1;33m🔍 Analizando EDENUSDT[0m
+[2026-05-21 14:58:45] ⏭️ EDENUSDT sin order book activo, saltando
+[2026-05-21 14:58:47] [0;32m✅ Ciclo completado - 3 símbolos procesados[0m
+[2026-05-21 14:58:47] ⏰ Esperando 60 segundos para próximo ciclo...
+[2026-05-21 14:58:47] 🔄 BCHUSDT: SHORT open + price at support OB — closing
+[2026-05-21 14:58:48] ❌ Close failed BCHUSDT: {"code":-1106,"msg":"Parameter 'reduceonly' sent when not required."}
+[2026-05-21 14:59:12] 🔄 XRPUSDT: LONG open + price at resistance OB — closing
+[2026-05-21 14:59:13] ❌ Close failed XRPUSDT: {"code":-1106,"msg":"Parameter 'reduceonly' sent when not required."}
+[2026-05-21 14:59:15] ⏸️ XRPUSDT: open position on Binance — skipping order
+[2026-05-21 14:59:42] 🔄 BCHUSDT: SHORT open + price at support OB — closing
+[2026-05-21 14:59:43] ❌ Close failed BCHUSDT: {"code":-1106,"msg":"Parameter 'reduceonly' sent when not required."}
+[2026-05-21 14:59:47] [0;34m📊 Ciclo #482[0m
+[2026-05-21 14:59:47] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 14:59:47] [0;34m⚡ Ciclo de Scalping - 2026-05-21 14:59:47[0m
+[2026-05-21 14:59:47] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 14:59:49] 📈 Top Gainers: ZECUSDT ALTUSDT EDENUSDT 
+[2026-05-21 14:59:49] 📉 Top Losers: CHZUSDT CHIPUSDT ARBUSDT 
+[2026-05-21 14:59:49] [1;33m🔍 Analizando ZECUSDT[0m
+[2026-05-21 14:59:50] ⏭️ ZECUSDT sin order book activo, saltando
+[2026-05-21 14:59:52] [1;33m🔍 Analizando ALTUSDT[0m
+[2026-05-21 14:59:53] ⏭️ ALTUSDT sin order book activo, saltando
+[2026-05-21 14:59:55] [1;33m🔍 Analizando EDENUSDT[0m
+[2026-05-21 14:59:56] ⏭️ EDENUSDT sin order book activo, saltando
+[2026-05-21 14:59:58] [0;32m✅ Ciclo completado - 3 símbolos procesados[0m
+[2026-05-21 14:59:59] ⏰ Esperando 60 segundos para próximo ciclo...
+[2026-05-21 15:00:37] 🔄 BCHUSDT: SHORT open + price at support OB — closing
+[2026-05-21 15:00:38] ❌ Close failed BCHUSDT: {"code":-1106,"msg":"Parameter 'reduceonly' sent when not required."}
+[2026-05-21 15:00:59] [0;34m📊 Ciclo #483[0m
+[2026-05-21 15:00:59] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 15:00:59] [0;34m⚡ Ciclo de Scalping - 2026-05-21 15:00:59[0m
+[2026-05-21 15:00:59] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 15:01:00] 📈 Top Gainers: ZECUSDT SUIUSDT ALTUSDT 
+[2026-05-21 15:01:00] 📉 Top Losers: CHZUSDT CHIPUSDT ARBUSDT 
+[2026-05-21 15:01:00] [1;33m🔍 Analizando ZECUSDT[0m
+[2026-05-21 15:01:01] ⏭️ ZECUSDT sin order book activo, saltando
+[2026-05-21 15:01:04] [1;33m🔍 Analizando SUIUSDT[0m
+[2026-05-21 15:01:05] ⏭️ SUIUSDT sin order book activo, saltando
+[2026-05-21 15:01:07] [1;33m🔍 Analizando ALTUSDT[0m
+[2026-05-21 15:01:08] ⏭️ ALTUSDT sin order book activo, saltando
+[2026-05-21 15:01:10] [0;32m✅ Ciclo completado - 3 símbolos procesados[0m
+[2026-05-21 15:01:10] ⏰ Esperando 60 segundos para próximo ciclo...
+[2026-05-21 15:01:39] ⏸️ BNBUSDT: open position on Binance — skipping order
+[2026-05-21 15:02:10] [0;34m📊 Ciclo #484[0m
+[2026-05-21 15:02:10] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 15:02:10] [0;34m⚡ Ciclo de Scalping - 2026-05-21 15:02:10[0m
+[2026-05-21 15:02:10] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 15:02:11] 📈 Top Gainers: ZECUSDT SUIUSDT ALTUSDT 
+[2026-05-21 15:02:11] 📉 Top Losers: CHZUSDT CHIPUSDT ARBUSDT 
+[2026-05-21 15:02:11] [1;33m🔍 Analizando ZECUSDT[0m
+[2026-05-21 15:02:13] ⏭️ ZECUSDT sin order book activo, saltando
+[2026-05-21 15:02:15] [1;33m🔍 Analizando SUIUSDT[0m
+[2026-05-21 15:02:16] ⏭️ SUIUSDT sin order book activo, saltando
+[2026-05-21 15:02:18] [1;33m🔍 Analizando ALTUSDT[0m
+[2026-05-21 15:02:19] ⏭️ ALTUSDT sin order book activo, saltando
+[2026-05-21 15:02:21] [0;32m✅ Ciclo completado - 3 símbolos procesados[0m
+[2026-05-21 15:02:21] ⏰ Esperando 60 segundos para próximo ciclo...
+[2026-05-21 15:02:27] 🔄 BCHUSDT: SHORT open + price at support OB — closing
+[2026-05-21 15:02:28] ❌ Close failed BCHUSDT: {"code":-1106,"msg":"Parameter 'reduceonly' sent when not required."}
+[2026-05-21 15:02:34] ⏸️ BNBUSDT: open position on Binance — skipping order
+[2026-05-21 15:03:21] [0;34m📊 Ciclo #485[0m
+[2026-05-21 15:03:21] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 15:03:21] [0;34m⚡ Ciclo de Scalping - 2026-05-21 15:03:21[0m
+[2026-05-21 15:03:21] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 15:03:23] 📈 Top Gainers: ZECUSDT SUIUSDT ALTUSDT 
+[2026-05-21 15:03:23] 📉 Top Losers: CHZUSDT CHIPUSDT ARBUSDT 
+[2026-05-21 15:03:23] [1;33m🔍 Analizando ZECUSDT[0m
+[2026-05-21 15:03:24] ⏭️ ZECUSDT sin order book activo, saltando
+[2026-05-21 15:03:26] [1;33m🔍 Analizando SUIUSDT[0m
+[2026-05-21 15:03:27] ⏭️ SUIUSDT sin order book activo, saltando
+[2026-05-21 15:03:30] [1;33m🔍 Analizando ALTUSDT[0m
+[2026-05-21 15:03:31] ⏭️ ALTUSDT sin order book activo, saltando
+[2026-05-21 15:03:33] [0;32m✅ Ciclo completado - 3 símbolos procesados[0m
+[2026-05-21 15:03:33] ⏰ Esperando 60 segundos para próximo ciclo...
+[2026-05-21 15:04:33] [0;34m📊 Ciclo #486[0m
+[2026-05-21 15:04:33] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 15:04:33] [0;34m⚡ Ciclo de Scalping - 2026-05-21 15:04:33[0m
+[2026-05-21 15:04:33] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 15:04:34] 📈 Top Gainers: ZECUSDT SUIUSDT ALTUSDT 
+[2026-05-21 15:04:34] 📉 Top Losers: CHZUSDT CHIPUSDT ARBUSDT 
+[2026-05-21 15:04:34] [1;33m🔍 Analizando ZECUSDT[0m
+[2026-05-21 15:04:35] ⏭️ ZECUSDT sin order book activo, saltando
+[2026-05-21 15:04:37] [1;33m🔍 Analizando SUIUSDT[0m
+[2026-05-21 15:04:39] ⏭️ SUIUSDT sin order book activo, saltando
+[2026-05-21 15:04:41] [1;33m🔍 Analizando ALTUSDT[0m
+[2026-05-21 15:04:42] ⏭️ ALTUSDT sin order book activo, saltando
+[2026-05-21 15:04:44] [0;32m✅ Ciclo completado - 3 símbolos procesados[0m
+[2026-05-21 15:04:44] ⏰ Esperando 60 segundos para próximo ciclo...
+[2026-05-21 15:05:23] 🔄 BNBUSDT: LONG open + price at resistance OB — closing
+[2026-05-21 15:05:24] ❌ Close failed BNBUSDT: {"code":-1106,"msg":"Parameter 'reduceonly' sent when not required."}
+[2026-05-21 15:05:44] [0;34m📊 Ciclo #487[0m
+[2026-05-21 15:05:44] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 15:05:44] [0;34m⚡ Ciclo de Scalping - 2026-05-21 15:05:44[0m
+[2026-05-21 15:05:44] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 15:05:46] 📈 Top Gainers: ZECUSDT SUIUSDT ALTUSDT 
+[2026-05-21 15:05:46] 📉 Top Losers: CHZUSDT CHIPUSDT ARBUSDT 
+[2026-05-21 15:05:46] [1;33m🔍 Analizando ZECUSDT[0m
+[2026-05-21 15:05:47] ⏭️ ZECUSDT sin order book activo, saltando
+[2026-05-21 15:05:49] [1;33m🔍 Analizando SUIUSDT[0m
+[2026-05-21 15:05:50] ⏭️ SUIUSDT sin order book activo, saltando
+[2026-05-21 15:05:52] [1;33m🔍 Analizando ALTUSDT[0m
+[2026-05-21 15:05:53] ⏭️ ALTUSDT sin order book activo, saltando
+[2026-05-21 15:05:55] [0;32m✅ Ciclo completado - 3 símbolos procesados[0m
+[2026-05-21 15:05:55] ⏰ Esperando 60 segundos para próximo ciclo...
+[2026-05-21 15:06:07] 🔄 AVAXUSDT: LONG open + price at resistance OB — closing
+[2026-05-21 15:06:08] ❌ Close failed AVAXUSDT: {"code":-1106,"msg":"Parameter 'reduceonly' sent when not required."}
+[2026-05-21 15:06:10] ⏸️ AVAXUSDT: open position on Binance — skipping order
+[2026-05-21 15:06:18] 🔄 BNBUSDT: LONG open + price at resistance OB — closing
+[2026-05-21 15:06:19] ❌ Close failed BNBUSDT: {"code":-1106,"msg":"Parameter 'reduceonly' sent when not required."}
+[2026-05-21 15:06:55] [0;34m📊 Ciclo #488[0m
+[2026-05-21 15:06:55] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 15:06:55] [0;34m⚡ Ciclo de Scalping - 2026-05-21 15:06:55[0m
+[2026-05-21 15:06:55] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 15:06:57] 📈 Top Gainers: ZECUSDT SUIUSDT ALTUSDT 
+[2026-05-21 15:06:57] 📉 Top Losers: CHZUSDT CHIPUSDT ARBUSDT 
+[2026-05-21 15:06:57] [1;33m🔍 Analizando ZECUSDT[0m
+[2026-05-21 15:06:59] ⏭️ ZECUSDT sin order book activo, saltando
+[2026-05-21 15:07:01] [1;33m🔍 Analizando SUIUSDT[0m
+[2026-05-21 15:07:02] ⏭️ SUIUSDT sin order book activo, saltando
+[2026-05-21 15:07:04] [1;33m🔍 Analizando ALTUSDT[0m
+[2026-05-21 15:07:05] ⏭️ ALTUSDT sin order book activo, saltando
+[2026-05-21 15:07:05] 📝 [REST] AVAXUSDT SHORT | Entry:9.322 SL:9.349 TP:9.275 | Qty:2
+[2026-05-21 15:07:06] ✅ Order executed via Binance REST: AVAXUSDT
+[2026-05-21 15:07:07] [0;32m✅ Ciclo completado - 3 símbolos procesados[0m
+[2026-05-21 15:07:07] ⏰ Esperando 60 segundos para próximo ciclo...
+[2026-05-21 15:08:07] [0;34m📊 Ciclo #489[0m
+[2026-05-21 15:08:07] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 15:08:07] [0;34m⚡ Ciclo de Scalping - 2026-05-21 15:08:07[0m
+[2026-05-21 15:08:07] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 15:08:09] 📈 Top Gainers: ZECUSDT SUIUSDT ALTUSDT 
+[2026-05-21 15:08:09] 📉 Top Losers: CHZUSDT CHIPUSDT ARBUSDT 
+[2026-05-21 15:08:09] [1;33m🔍 Analizando ZECUSDT[0m
+[2026-05-21 15:08:10] ⏭️ ZECUSDT sin order book activo, saltando
+[2026-05-21 15:08:12] [1;33m🔍 Analizando SUIUSDT[0m
+[2026-05-21 15:08:13] ⏭️ SUIUSDT sin order book activo, saltando
+[2026-05-21 15:08:15] [1;33m🔍 Analizando ALTUSDT[0m
+[2026-05-21 15:08:16] ⏭️ ALTUSDT sin order book activo, saltando
+[2026-05-21 15:08:18] [0;32m✅ Ciclo completado - 3 símbolos procesados[0m
+[2026-05-21 15:08:18] ⏰ Esperando 60 segundos para próximo ciclo...
+[2026-05-21 15:09:03] 🔄 BNBUSDT: SHORT open + price at support OB — closing
+[2026-05-21 15:09:04] ❌ Close failed BNBUSDT: {"code":-1106,"msg":"Parameter 'reduceonly' sent when not required."}
+[2026-05-21 15:09:18] [0;34m📊 Ciclo #490[0m
+[2026-05-21 15:09:18] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 15:09:18] [0;34m⚡ Ciclo de Scalping - 2026-05-21 15:09:18[0m
+[2026-05-21 15:09:18] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 15:09:20] 📈 Top Gainers: ZECUSDT SUIUSDT ALTUSDT 
+[2026-05-21 15:09:20] 📉 Top Losers: CHZUSDT CHIPUSDT ARBUSDT 
+[2026-05-21 15:09:20] [1;33m🔍 Analizando ZECUSDT[0m
+[2026-05-21 15:09:21] ⏭️ ZECUSDT sin order book activo, saltando
+[2026-05-21 15:09:23] [1;33m🔍 Analizando SUIUSDT[0m
+[2026-05-21 15:09:25] ⏭️ SUIUSDT sin order book activo, saltando
+[2026-05-21 15:09:27] [1;33m🔍 Analizando ALTUSDT[0m
+[2026-05-21 15:09:28] ⏭️ ALTUSDT sin order book activo, saltando
+[2026-05-21 15:09:30] [0;32m✅ Ciclo completado - 3 símbolos procesados[0m
+[2026-05-21 15:09:30] ⏰ Esperando 60 segundos para próximo ciclo...
+[2026-05-21 15:09:50] ⏸️ AVAXUSDT: open position on Binance — skipping order
+[2026-05-21 15:10:30] [0;34m📊 Ciclo #491[0m
+[2026-05-21 15:10:30] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 15:10:30] [0;34m⚡ Ciclo de Scalping - 2026-05-21 15:10:30[0m
+[2026-05-21 15:10:30] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 15:10:32] 📈 Top Gainers: ZECUSDT SUIUSDT ALTUSDT 
+[2026-05-21 15:10:32] 📉 Top Losers: CHZUSDT CHIPUSDT ARBUSDT 
+[2026-05-21 15:10:32] [1;33m🔍 Analizando ZECUSDT[0m
+[2026-05-21 15:10:33] ⏭️ ZECUSDT sin order book activo, saltando
+[2026-05-21 15:10:35] [1;33m🔍 Analizando SUIUSDT[0m
+[2026-05-21 15:10:36] ⏭️ SUIUSDT sin order book activo, saltando
+[2026-05-21 15:10:38] [1;33m🔍 Analizando ALTUSDT[0m
+[2026-05-21 15:10:39] ⏭️ ALTUSDT sin order book activo, saltando
+[2026-05-21 15:10:41] [0;32m✅ Ciclo completado - 3 símbolos procesados[0m
+[2026-05-21 15:10:41] ⏰ Esperando 60 segundos para próximo ciclo...
+[2026-05-21 15:10:45] ⏸️ AVAXUSDT: open position on Binance — skipping order
+[2026-05-21 15:10:55] ⏸️ BNBUSDT: open position on Binance — skipping order
+[2026-05-21 15:11:41] [0;34m📊 Ciclo #492[0m
+[2026-05-21 15:11:41] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 15:11:41] [0;34m⚡ Ciclo de Scalping - 2026-05-21 15:11:41[0m
+[2026-05-21 15:11:41] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 15:11:43] 📈 Top Gainers: ZECUSDT SUIUSDT ALTUSDT 
+[2026-05-21 15:11:43] 📉 Top Losers: CHZUSDT CHIPUSDT ARBUSDT 
+[2026-05-21 15:11:43] [1;33m🔍 Analizando ZECUSDT[0m
+[2026-05-21 15:11:44] ⏭️ ZECUSDT sin order book activo, saltando
+[2026-05-21 15:11:46] [1;33m🔍 Analizando SUIUSDT[0m
+[2026-05-21 15:11:48] ⏭️ SUIUSDT sin order book activo, saltando
+[2026-05-21 15:11:50] [1;33m🔍 Analizando ALTUSDT[0m
+[2026-05-21 15:11:51] ⏭️ ALTUSDT sin order book activo, saltando
+[2026-05-21 15:11:53] [0;32m✅ Ciclo completado - 3 símbolos procesados[0m
+[2026-05-21 15:11:53] ⏰ Esperando 60 segundos para próximo ciclo...
+[2026-05-21 15:12:10] ⏸️ XRPUSDT: open position on Binance — skipping order
+[2026-05-21 15:12:53] [0;34m📊 Ciclo #493[0m
+[2026-05-21 15:12:53] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 15:12:53] [0;34m⚡ Ciclo de Scalping - 2026-05-21 15:12:53[0m
+[2026-05-21 15:12:53] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 15:12:54] 📈 Top Gainers: ZECUSDT SUIUSDT ALTUSDT 
+[2026-05-21 15:12:54] 📉 Top Losers: CHZUSDT CHIPUSDT ARBUSDT 
+[2026-05-21 15:12:54] [1;33m🔍 Analizando ZECUSDT[0m
+[2026-05-21 15:12:56] ⏭️ ZECUSDT sin order book activo, saltando
+[2026-05-21 15:12:58] [1;33m🔍 Analizando SUIUSDT[0m
+[2026-05-21 15:12:59] ⏭️ SUIUSDT sin order book activo, saltando
+[2026-05-21 15:13:01] [1;33m🔍 Analizando ALTUSDT[0m
+[2026-05-21 15:13:02] ⏭️ ALTUSDT sin order book activo, saltando
+[2026-05-21 15:13:04] [0;32m✅ Ciclo completado - 3 símbolos procesados[0m
+[2026-05-21 15:13:04] ⏰ Esperando 60 segundos para próximo ciclo...
+[2026-05-21 15:14:04] [0;34m📊 Ciclo #494[0m
+[2026-05-21 15:14:04] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 15:14:04] [0;34m⚡ Ciclo de Scalping - 2026-05-21 15:14:04[0m
+[2026-05-21 15:14:04] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 15:14:06] 📈 Top Gainers: ZECUSDT SUIUSDT ALTUSDT 
+[2026-05-21 15:14:06] 📉 Top Losers: CHZUSDT CHIPUSDT ARBUSDT 
+[2026-05-21 15:14:06] [1;33m🔍 Analizando ZECUSDT[0m
+[2026-05-21 15:14:07] ⏭️ ZECUSDT sin order book activo, saltando
+[2026-05-21 15:14:09] [1;33m🔍 Analizando SUIUSDT[0m
+[2026-05-21 15:14:10] ⏭️ SUIUSDT sin order book activo, saltando
+[2026-05-21 15:14:12] [1;33m🔍 Analizando ALTUSDT[0m
+[2026-05-21 15:14:13] ⏭️ ALTUSDT sin order book activo, saltando
+[2026-05-21 15:14:15] [0;32m✅ Ciclo completado - 3 símbolos procesados[0m
+[2026-05-21 15:14:15] ⏰ Esperando 60 segundos para próximo ciclo...
+[2026-05-21 15:15:15] [0;34m📊 Ciclo #495[0m
+[2026-05-21 15:15:15] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 15:15:15] [0;34m⚡ Ciclo de Scalping - 2026-05-21 15:15:15[0m
+[2026-05-21 15:15:15] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 15:15:19] 📈 Top Gainers: ZECUSDT SUIUSDT ALTUSDT 
+[2026-05-21 15:15:19] 📉 Top Losers: CHZUSDT CHIPUSDT ARBUSDT 
+[2026-05-21 15:15:19] [1;33m🔍 Analizando ZECUSDT[0m
+[2026-05-21 15:15:21] ⏭️ ZECUSDT sin order book activo, saltando
+[2026-05-21 15:15:23] [1;33m🔍 Analizando SUIUSDT[0m
+[2026-05-21 15:15:25] ⏭️ SUIUSDT sin order book activo, saltando
+[2026-05-21 15:15:27] [1;33m🔍 Analizando ALTUSDT[0m
+[2026-05-21 15:15:54] ⏭️ ALTUSDT sin order book activo, saltando
+[2026-05-21 15:15:56] [0;32m✅ Ciclo completado - 3 símbolos procesados[0m
+[2026-05-21 15:15:56] ⏰ Esperando 60 segundos para próximo ciclo...
+[2026-05-21 15:16:56] [0;34m📊 Ciclo #496[0m
+[2026-05-21 15:16:56] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 15:16:56] [0;34m⚡ Ciclo de Scalping - 2026-05-21 15:16:56[0m
+[2026-05-21 15:16:56] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 15:16:58] 📈 Top Gainers: ZECUSDT SUIUSDT ALTUSDT 
+[2026-05-21 15:16:58] 📉 Top Losers: CHZUSDT CHIPUSDT AIGENSYNUSDT 
+[2026-05-21 15:16:58] [1;33m🔍 Analizando ZECUSDT[0m
+[2026-05-21 15:16:59] ⏭️ ZECUSDT sin order book activo, saltando
+[2026-05-21 15:17:01] [1;33m🔍 Analizando SUIUSDT[0m
+[2026-05-21 15:17:03] ⏭️ SUIUSDT sin order book activo, saltando
+[2026-05-21 15:17:05] [1;33m🔍 Analizando ALTUSDT[0m
+[2026-05-21 15:17:06] ⏭️ ALTUSDT sin order book activo, saltando
+[2026-05-21 15:17:08] [0;32m✅ Ciclo completado - 3 símbolos procesados[0m
+[2026-05-21 15:17:08] ⏰ Esperando 60 segundos para próximo ciclo...
+[2026-05-21 15:17:22] 🔄 BNBUSDT: SHORT open + price at support OB — closing
+[2026-05-21 15:17:22] ❌ Close failed BNBUSDT: {"code":-1106,"msg":"Parameter 'reduceonly' sent when not required."}
+[2026-05-21 15:17:24] ⏸️ BNBUSDT: open position on Binance — skipping order
+[2026-05-21 15:18:08] [0;34m📊 Ciclo #497[0m
+[2026-05-21 15:18:08] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 15:18:08] [0;34m⚡ Ciclo de Scalping - 2026-05-21 15:18:08[0m
+[2026-05-21 15:18:08] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 15:18:11] 📈 Top Gainers: ZECUSDT SUIUSDT ALTUSDT 
+[2026-05-21 15:18:11] 📉 Top Losers: CHZUSDT CHIPUSDT AIGENSYNUSDT 
+[2026-05-21 15:18:11] [1;33m🔍 Analizando ZECUSDT[0m
+[2026-05-21 15:18:12] ⏭️ ZECUSDT sin order book activo, saltando
+[2026-05-21 15:18:14] [1;33m🔍 Analizando SUIUSDT[0m
+[2026-05-21 15:18:15] ⏭️ SUIUSDT sin order book activo, saltando
+[2026-05-21 15:18:16] 🔄 BNBUSDT: SHORT open + price at support OB — closing
+[2026-05-21 15:18:17] [1;33m🔍 Analizando ALTUSDT[0m
+[2026-05-21 15:18:17] ❌ Close failed BNBUSDT: {"code":-1106,"msg":"Parameter 'reduceonly' sent when not required."}
+[2026-05-21 15:18:18] ⏭️ ALTUSDT sin order book activo, saltando
+[2026-05-21 15:18:20] [0;32m✅ Ciclo completado - 3 símbolos procesados[0m
+[2026-05-21 15:18:20] ⏰ Esperando 60 segundos para próximo ciclo...
+[2026-05-21 15:19:12] 🔄 BNBUSDT: SHORT open + price at support OB — closing
+[2026-05-21 15:19:13] ❌ Close failed BNBUSDT: {"code":-1106,"msg":"Parameter 'reduceonly' sent when not required."}
+[2026-05-21 15:19:20] [0;34m📊 Ciclo #498[0m
+[2026-05-21 15:19:20] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 15:19:20] [0;34m⚡ Ciclo de Scalping - 2026-05-21 15:19:20[0m
+[2026-05-21 15:19:20] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 15:19:22] 📈 Top Gainers: ZECUSDT SUIUSDT ALTUSDT 
+[2026-05-21 15:19:22] 📉 Top Losers: CHZUSDT CHIPUSDT AIGENSYNUSDT 
+[2026-05-21 15:19:22] [1;33m🔍 Analizando ZECUSDT[0m
+[2026-05-21 15:19:23] ⏭️ ZECUSDT sin order book activo, saltando
+[2026-05-21 15:19:25] [1;33m🔍 Analizando SUIUSDT[0m
+[2026-05-21 15:19:26] ⏭️ SUIUSDT sin order book activo, saltando
+[2026-05-21 15:19:29] [1;33m🔍 Analizando ALTUSDT[0m
+[2026-05-21 15:19:30] ⏭️ ALTUSDT sin order book activo, saltando
+[2026-05-21 15:19:31] 🔄 XRPUSDT: LONG open + price at resistance OB — closing
+[2026-05-21 15:19:32] [0;32m✅ Ciclo completado - 3 símbolos procesados[0m
+[2026-05-21 15:19:32] ⏰ Esperando 60 segundos para próximo ciclo...
+[2026-05-21 15:19:32] ❌ Close failed XRPUSDT: {"code":-1106,"msg":"Parameter 'reduceonly' sent when not required."}
+[2026-05-21 15:19:33] ⏸️ XRPUSDT: open position on Binance — skipping order
+[2026-05-21 15:20:32] [0;34m📊 Ciclo #499[0m
+[2026-05-21 15:20:32] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 15:20:32] [0;34m⚡ Ciclo de Scalping - 2026-05-21 15:20:32[0m
+[2026-05-21 15:20:32] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 15:20:34] 📈 Top Gainers: ZECUSDT SUIUSDT ALTUSDT 
+[2026-05-21 15:20:34] 📉 Top Losers: CHZUSDT CHIPUSDT AIGENSYNUSDT 
+[2026-05-21 15:20:34] [1;33m🔍 Analizando ZECUSDT[0m
+[2026-05-21 15:20:35] ⏭️ ZECUSDT sin order book activo, saltando
+[2026-05-21 15:20:37] [1;33m🔍 Analizando SUIUSDT[0m
+[2026-05-21 15:20:39] ⏭️ SUIUSDT sin order book activo, saltando
+[2026-05-21 15:20:41] [1;33m🔍 Analizando ALTUSDT[0m
+[2026-05-21 15:20:42] ⏭️ ALTUSDT sin order book activo, saltando
+[2026-05-21 15:20:44] [0;32m✅ Ciclo completado - 3 símbolos procesados[0m
+[2026-05-21 15:20:44] ⏰ Esperando 60 segundos para próximo ciclo...
+[2026-05-21 15:21:19] ⏸️ ADAUSDT: open position on Binance — skipping order
+[2026-05-21 15:21:44] [0;34m📊 Ciclo #500[0m
+[2026-05-21 15:21:44] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 15:21:44] [0;34m⚡ Ciclo de Scalping - 2026-05-21 15:21:44[0m
+[2026-05-21 15:21:44] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 15:21:47] 📈 Top Gainers: ZECUSDT SUIUSDT ALTUSDT 
+[2026-05-21 15:21:47] 📉 Top Losers: CHZUSDT CHIPUSDT AIGENSYNUSDT 
+[2026-05-21 15:21:47] [1;33m🔍 Analizando ZECUSDT[0m
+[2026-05-21 15:21:48] ⏭️ ZECUSDT sin order book activo, saltando
+[2026-05-21 15:21:51] [1;33m🔍 Analizando SUIUSDT[0m
+[2026-05-21 15:21:52] ⏭️ SUIUSDT sin order book activo, saltando
+[2026-05-21 15:21:54] [1;33m🔍 Analizando ALTUSDT[0m
+[2026-05-21 15:21:55] ⏭️ ALTUSDT sin order book activo, saltando
+[2026-05-21 15:21:57] [0;32m✅ Ciclo completado - 3 símbolos procesados[0m
+[2026-05-21 15:21:57] ⏰ Esperando 60 segundos para próximo ciclo...
+[2026-05-21 15:22:14] ⏸️ ADAUSDT: open position on Binance — skipping order
+[2026-05-21 15:22:57] [0;34m📊 Ciclo #501[0m
+[2026-05-21 15:22:57] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 15:22:57] [0;34m⚡ Ciclo de Scalping - 2026-05-21 15:22:57[0m
+[2026-05-21 15:22:57] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 15:22:59] 📈 Top Gainers: ZECUSDT SUIUSDT ALTUSDT 
+[2026-05-21 15:22:59] 📉 Top Losers: CHZUSDT CHIPUSDT AIGENSYNUSDT 
+[2026-05-21 15:22:59] [1;33m🔍 Analizando ZECUSDT[0m
+[2026-05-21 15:23:00] ⏭️ ZECUSDT sin order book activo, saltando
+[2026-05-21 15:23:02] [1;33m🔍 Analizando SUIUSDT[0m
+[2026-05-21 15:23:03] ⏭️ SUIUSDT sin order book activo, saltando
+[2026-05-21 15:23:05] [1;33m🔍 Analizando ALTUSDT[0m
+[2026-05-21 15:23:07] ⏭️ ALTUSDT sin order book activo, saltando
+[2026-05-21 15:23:09] ⏸️ ADAUSDT: open position on Binance — skipping order
+[2026-05-21 15:23:09] [0;32m✅ Ciclo completado - 3 símbolos procesados[0m
+[2026-05-21 15:23:09] ⏰ Esperando 60 segundos para próximo ciclo...
+[2026-05-21 15:23:53] 🔄 EIGENUSDT: SHORT open + price at support OB — closing
+[2026-05-21 15:23:54] ❌ Close failed EIGENUSDT: {"code":-1106,"msg":"Parameter 'reduceonly' sent when not required."}
+[2026-05-21 15:23:55] ⏸️ EIGENUSDT: open position on Binance — skipping order
+[2026-05-21 15:24:03] ⏸️ ADAUSDT: open position on Binance — skipping order
+[2026-05-21 15:24:09] [0;34m📊 Ciclo #502[0m
+[2026-05-21 15:24:09] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 15:24:09] [0;34m⚡ Ciclo de Scalping - 2026-05-21 15:24:09[0m
+[2026-05-21 15:24:09] [0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[2026-05-21 15:24:11] 📈 Top Gainers: ZECUSDT SUIUSDT ALTUSDT 
+[2026-05-21 15:24:11] 📉 Top Losers: CHZUSDT CHIPUSDT AIGENSYNUSDT 
+[2026-05-21 15:24:11] [1;33m🔍 Analizando ZECUSDT[0m
+[2026-05-21 15:24:12] ⏭️ ZECUSDT sin order book activo, saltando
+[2026-05-21 15:24:14] [1;33m🔍 Analizando SUIUSDT[0m
+[2026-05-21 15:24:16] ⏭️ SUIUSDT sin order book activo, saltando
+[2026-05-21 15:24:18] [1;33m🔍 Analizando ALTUSDT[0m
+[2026-05-21 15:24:19] ⏭️ ALTUSDT sin order book activo, saltando
+[2026-05-21 15:24:21] [0;32m✅ Ciclo completado - 3 símbolos procesados[0m
+[2026-05-21 15:24:21] ⏰ Esperando 60 segundos para próximo ciclo...
