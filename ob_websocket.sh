@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # ============================================
-# Scalper Bot v5.0 - CON CONTROL DE POSICIONES
+# OB Bot v5.0 (ob_websocket.sh) — multi-symbol order book, position guards
 # - Evita múltiples órdenes del mismo símbolo
 # - Order Book funcional
 # - Envío directo a Binance REST
@@ -753,7 +753,7 @@ update_24h_changes() {
 draw_and_execute() {
     screen_refresh
     echo -e "${CYAN}${BOLD}════════════════════════════════════════════════════════════════════════════════════════════════════════════${NC}"
-    echo -e "${CYAN}${BOLD}  SCALPER BOT v5.0 - CON CONTROL DE POSICIONES - $(date '+%Y-%m-%d %H:%M:%S')${NC}"
+    echo -e "${CYAN}${BOLD}  OB BOT v5.0 (ob_websocket) — multi-symbol — $(date '+%Y-%m-%d %H:%M:%S')${NC}"
     echo -e "${CYAN}${BOLD}════════════════════════════════════════════════════════════════════════════════════════════════════════════${NC}"
     echo -e "${YELLOW}  Mode: $([ "$DRY_RUN" = true ] && echo "DRY-RUN" || echo "LIVE") | Min Confidence: ${MIN_CONFIDENCE}% | Cooldown: ${ORDER_COOLDOWN_SECONDS}s${NC}"
     echo -e "${CYAN}────────────────────────────────────────────────────────────────────────────────────────────────────────────────${NC}"
@@ -780,7 +780,11 @@ draw_and_execute() {
             spread=$(echo "$best_ask - $best_bid" | bc -l 2>/dev/null)
         fi
 
-        # Close position if price hits opposite OB (LONG at resistance / SHORT at support)
+        if declare -f sync_symbol_position_flags >/dev/null 2>&1; then
+            sync_symbol_position_flags "$symbol"
+        fi
+
+        # Close only if a real position exists (not dust); opposite OB touch
         if declare -f try_close_on_opposite_ob >/dev/null 2>&1 \
             && try_close_on_opposite_ob "$symbol" "$price" "$OB_ZONE_UPPER_PCT" "$OB_ZONE_LOWER_PCT" log; then
             echo -e "   ${MAGENTA}🔒 Closed (or closing) — opposite OB touch${NC}"
@@ -914,7 +918,7 @@ connect_websocket() {
 main() {
     echo -e "${BLUE}${BOLD}"
     echo "╔════════════════════════════════════════════════════════════════════════════════════╗"
-    echo "║                    SCALPER BOT v5.0 - CONTROL DE POSICIONES                        ║"
+    echo "║              OB BOT v5.0 — Order Book WebSocket (ob_websocket.sh)                   ║"
     echo "╚════════════════════════════════════════════════════════════════════════════════════╝"
     echo -e "${NC}"
 
@@ -922,7 +926,7 @@ main() {
         init_bot_logs "ob_websocket v5.0"
     fi
     
-    log "🚀 Starting Scalper Bot v5.0"
+    log "🚀 Starting OB Bot v5.0 (ob_websocket.sh)"
     log "📋 Mode: $([ "$DRY_RUN" = true ] && echo "DRY-RUN" || echo "LIVE")"
     if [ "$SINGLE_SYMBOL_MODE" = true ]; then
         log "📊 Symbol: ${SYMBOL_ARRAY[0]} (single-symbol mode)"
@@ -967,7 +971,7 @@ main() {
         exit 1
     fi
     
-    send_telegram "🤖 Scalper Bot v5.0 Started - Mode: $([ "$DRY_RUN" = true ] && echo "DRY-RUN" || echo "LIVE") | Cooldown: ${ORDER_COOLDOWN_SECONDS}s"
+    send_telegram "🤖 OB Bot v5.0 (ob_websocket) Started - Mode: $([ "$DRY_RUN" = true ] && echo "DRY-RUN" || echo "LIVE") | Cooldown: ${ORDER_COOLDOWN_SECONDS}s"
     
     screen_enable_alt
     connect_websocket

@@ -132,3 +132,9 @@
 [0;31m[2026-05-21 15:56:16] ERROR: Close failed AVAXUSDT: {"code":-1106,"msg":"Parameter 'reduceonly' sent when not required."}[0m
 [2026-05-21 15:57:55] === scalper_websocket v3.0 started | mode=LIVE ===
 [2026-05-21 15:59:06] === scalper_websocket v3.0 started | mode=LIVE ===
+[0;31m[2026-05-21 16:00:41] ERROR: Close failed AVAXUSDT: {"code":-1106,"msg":"Parameter 'reduceonly' sent when not required."}[0m
+[0;31m[2026-05-21 16:01:36] ERROR: Close failed AVAXUSDT: {"code":-1106,"msg":"Parameter 'reduceonly' sent when not required."}[0m
+[0;31m[2026-05-21 16:02:31] ERROR: Close failed AVAXUSDT: {"code":-1106,"msg":"Parameter 'reduceonly' sent when not required."}[0m
+[0;31m[2026-05-21 16:02:37] ERROR: Close failed BCHUSDT: {"code":-1106,"msg":"Parameter 'reduceonly' sent when not required."}[0m
+[0;31m[2026-05-21 16:03:27] ERROR: Close failed AVAXUSDT: {"code":-1106,"msg":"Parameter 'reduceonly' sent when not required."}[0m
+[0;31m[2026-05-21 16:04:22] ERROR: Close failed AVAXUSDT: {"code":-1106,"msg":"Parameter 'reduceonly' sent when not required."}[0m

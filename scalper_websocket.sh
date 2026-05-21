@@ -49,6 +49,10 @@ if [ -f "$SCRIPT_DIR/lib/binance_order_guard.sh" ]; then
     # shellcheck source=lib/binance_order_guard.sh
     source "$SCRIPT_DIR/lib/binance_order_guard.sh"
 fi
+if [ -f "$SCRIPT_DIR/lib/scalper_ob_dca.sh" ]; then
+    # shellcheck source=lib/scalper_ob_dca.sh
+    source "$SCRIPT_DIR/lib/scalper_ob_dca.sh"
+fi
 
 # ============================================
 # LOAD CONFIGURATION
@@ -108,6 +112,18 @@ CYCLE_INTERVAL="${SCALPER_CYCLE_INTERVAL:-5}"
 REST_PLACE_SL_TP="${REST_PLACE_SL_TP:-true}"
 REST_SL_TP_FILL_WAIT="${REST_SL_TP_FILL_WAIT:-90}"
 REST_SL_TP_POLL_INTERVAL="${REST_SL_TP_POLL_INTERVAL:-2}"
+
+# OB-based DCA grid (5 levels; level 4 = SL on Binance after first fill)
+SCALPER_DCA_ENABLED="${SCALPER_DCA_ENABLED:-false}"
+SCALPER_DCA_LEVELS="${SCALPER_DCA_LEVELS:-5}"
+SCALPER_DCA_SL_LEVEL="${SCALPER_DCA_SL_LEVEL:-4}"
+SCALPER_DCA_MIN_DISTANCE_PCT="${SCALPER_DCA_MIN_DISTANCE_PCT:-0.15}"
+SCALPER_DCA_LIMIT_ORDERS="${SCALPER_DCA_LIMIT_ORDERS:-4}"
+# When DCA on, skip generic % SL (grid L4 is the stop)
+REST_PLACE_SL_TP="${REST_PLACE_SL_TP:-true}"
+if [ "$(echo "${SCALPER_DCA_ENABLED}" | tr '[:upper:]' '[:lower:]')" = "true" ]; then
+    REST_PLACE_SL_TP=false
+fi
 
 # Close open position when price touches opposite OB wall
 OB_CLOSE_ON_OPPOSITE="${OB_CLOSE_ON_OPPOSITE:-${SCALPER_OB_CLOSE_OPPOSITE:-true}}"
@@ -408,6 +424,23 @@ send_order() {
     entry=$(round_price_for_symbol "$symbol" "$entry")
     sl=$(round_price_for_symbol "$symbol" "$sl")
     tp=$(round_price_for_symbol "$symbol" "$tp")
+
+    local dca_on=false
+    case "$(echo "${SCALPER_DCA_ENABLED}" | tr '[:upper:]' '[:lower:]')" in
+        true|1|yes|on) dca_on=true ;;
+    esac
+
+    if [ "$dca_on" = true ] && [ "$ORDER_EXECUTION_MODE" = "rest" ] \
+        && declare -f send_scalper_ob_dca_grid >/dev/null 2>&1; then
+        if declare -f can_place_dca_grid >/dev/null 2>&1 && ! can_place_dca_grid "$symbol" log; then
+            log_trade "SKIP_DCA_GRID $symbol $direction reason=guard_blocked"
+            return 0
+        fi
+        local total_qty
+        total_qty=$(calculate_quantity "$symbol" "$entry")
+        send_scalper_ob_dca_grid "$symbol" "$direction" "$entry" "$tp" "$total_qty" log
+        return 0
+    fi
 
     if declare -f can_place_new_order >/dev/null 2>&1; then
         if ! can_place_new_order "$symbol" "$direction" "$entry" log; then
@@ -918,6 +951,14 @@ draw_visualization() {
     if [ "$signal" = "LONG" ] || [ "$signal" = "SHORT" ]; then
         echo -e "${GREEN}  🎯 ENTRY DETAILS:${NC}"
         printf "    Entry: %s  TP: %s  SL: %s\n" "$entry" "$tp" "$sl"
+        if [ "$(echo "${SCALPER_DCA_ENABLED}" | tr '[:upper:]' '[:lower:]')" = "true" ] \
+            && declare -f calculate_ob_dca_grid >/dev/null 2>&1; then
+            local dca_g dca_sl
+            dca_g=$(calculate_ob_dca_grid "$signal" "$entry" "$support" "$resistance" "$CURRENT_SYMBOL")
+            dca_sl=$(echo "$dca_g" | cut -d'|' -f4)
+            echo -e "    ${MAGENTA}DCA OB: L1-L3,L5 limits | L4 SL @ ${dca_sl}${NC}"
+            echo -e "    ${MAGENTA}Grid: $(echo "$dca_g" | tr '|' ' ')${NC}"
+        fi
         echo -e "    ${CYAN}Reasons: $reasons${NC}"
         echo -e "    ${YELLOW}Volatility: |Δ24h|=${CHANGE_24H}% | Spread: $spread${NC}"
     fi
@@ -973,6 +1014,9 @@ run_cycle_analysis() {
     fi
     
     hydrate_scalper_symbol "$CURRENT_SYMBOL"
+    if declare -f scalper_dca_clear_if_done >/dev/null 2>&1; then
+        scalper_dca_clear_if_done "$CURRENT_SYMBOL"
+    fi
     update_indicators
     draw_visualization
     rotate_symbol
@@ -1122,6 +1166,9 @@ main() {
         log "📈 Symbols: ${SYMBOLS}"
     fi
     log "🔧 Confirmers: RSI, Stoch, ADX, iCHoCH, Liquidity"
+    if [ "$(echo "${SCALPER_DCA_ENABLED}" | tr '[:upper:]' '[:lower:]')" = "true" ]; then
+        log "📐 DCA: OB grid ${SCALPER_DCA_LEVELS} levels | L${SCALPER_DCA_SL_LEVEL}=SL | min dist ${SCALPER_DCA_MIN_DISTANCE_PCT}% | ${SCALPER_DCA_LIMIT_ORDERS} limits"
+    fi
     
     if ! command -v jq &> /dev/null; then
         log_error "jq not installed. Run: brew install jq"

@@ -9,6 +9,14 @@ fi
 
 BINANCE_HEDGE_MODE=false
 
+# return 0 if account uses dual-side (hedge) position mode
+binance_is_hedge_mode() {
+    case "$(echo "${BINANCE_HEDGE_MODE}" | tr '[:upper:]' '[:lower:]')" in
+        true|1|yes|on) return 0 ;;
+    esac
+    return 1
+}
+
 _binance_fapi_signature() {
     echo -n "$1" | openssl dgst -sha256 -hmac "$BINANCE_SECRET_KEY" | awk '{print $2}'
 }
@@ -64,7 +72,7 @@ detect_binance_position_mode() {
 append_position_side_param() {
     local direction="$1"
     local query_string="$2"
-    if [ "$BINANCE_HEDGE_MODE" != true ]; then
+    if ! binance_is_hedge_mode; then
         echo "$query_string"
         return 0
     fi
@@ -73,4 +81,14 @@ append_position_side_param() {
         pos_side="SHORT"
     fi
     echo "${query_string}&positionSide=${pos_side}"
+}
+
+# Hedge mode: reduceOnly is not allowed when positionSide is set (-1106)
+append_reduce_only_param() {
+    local query_string="$1"
+    if binance_is_hedge_mode; then
+        echo "$query_string"
+        return 0
+    fi
+    echo "${query_string}&reduceOnly=true"
 }

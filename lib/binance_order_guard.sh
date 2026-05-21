@@ -61,6 +61,63 @@ _binance_fapi_signed_post() {
     echo "$response"
 }
 
+# Ignore dust / rounding leftovers (default 1 USDT notional)
+BINANCE_MIN_POSITION_USDT="${BINANCE_MIN_POSITION_USDT:-1.0}"
+
+_futures_position_notional_usd() {
+    local symbol="$1"
+    local qty="$2"
+    local mark notional
+    if ! declare -f get_futures_mark_price >/dev/null 2>&1; then
+        echo "0"
+        return 0
+    fi
+    mark=$(get_futures_mark_price "$symbol")
+    if [ -z "$mark" ] || ! _bn_is_positive "$mark"; then
+        echo "0"
+        return 0
+    fi
+    notional=$(echo "scale=8; $qty * $mark" | bc -l 2>/dev/null)
+    echo "${notional:-0}"
+}
+
+# return 0 if position size is worth tracking (not dust)
+futures_position_is_significant() {
+    local symbol="$1"
+    local qty="$2"
+    local min_usd notional
+    min_usd="${BINANCE_MIN_POSITION_USDT:-1.0}"
+    if [ -z "$qty" ] || ! _bn_is_positive "$qty"; then
+        return 1
+    fi
+    notional=$(_futures_position_notional_usd "$symbol" "$qty")
+    if [ -z "$notional" ]; then
+        return 1
+    fi
+    awk -v n="$notional" -v m="$min_usd" 'BEGIN { exit (n + 0 >= m + 0) ? 0 : 1 }'
+}
+
+# Clear local ACTIVE/DCA when exchange has no real position
+sync_symbol_position_flags() {
+    local symbol="$1"
+    if ! declare -f ob_set >/dev/null 2>&1; then
+        return 0
+    fi
+    local pos_info
+    pos_info=$(futures_get_position "$symbol")
+    if [ "$pos_info" != "none" ]; then
+        return 0
+    fi
+    ob_set ACTIVE "$symbol" "false"
+    ob_set POS_DIR "$symbol" ""
+    ob_set LAST_ENTRY "$symbol" ""
+    ob_set DCA_ACTIVE "$symbol" "false"
+    ob_set DCA_DIR "$symbol" ""
+    ob_set DCA_SL "$symbol" ""
+    ob_set DCA_TP "$symbol" ""
+    return 0
+}
+
 # Echo: none | LONG|<abs_qty> | SHORT|<abs_qty>
 futures_get_position() {
     local symbol="$1"
@@ -72,14 +129,15 @@ futures_get_position() {
     fi
 
     positions=$(_binance_fapi_signed_get "/fapi/v2/positionRisk" "symbol=${symbol}")
-    # Hedge: two rows (LONG/SHORT); take first non-zero positionAmt
-    position_amt=$(echo "$positions" | jq -r ".[] | select(.symbol==\"$symbol\") | .positionAmt" 2>/dev/null \
-        | while read -r _amt; do
-            if [ -n "$_amt" ] && [ "$_amt" != "0" ] && [ "$_amt" != "null" ]; then
-                echo "$_amt"
-                break
-            fi
-        done)
+    local row direction_hint
+    if declare -f binance_is_hedge_mode >/dev/null 2>&1 && binance_is_hedge_mode; then
+        row=$(echo "$positions" | jq -r ".[] | select(.symbol==\"$symbol\") | select(.positionAmt != \"0\" and .positionAmt != \"0.000\" and .positionAmt != \"0.0\") | \"\(.positionSide)|\(.positionAmt)\"" 2>/dev/null | head -1)
+        direction_hint=$(echo "$row" | cut -d'|' -f1)
+        position_amt=$(echo "$row" | cut -d'|' -f2)
+    else
+        position_amt=$(echo "$positions" | jq -r ".[] | select(.symbol==\"$symbol\") | .positionAmt" 2>/dev/null | head -1)
+        direction_hint=""
+    fi
     if declare -f _bn_sanitize_num >/dev/null 2>&1; then
         position_amt=$(_bn_sanitize_num "$position_amt")
     else
@@ -91,17 +149,35 @@ futures_get_position() {
         return 0
     fi
 
-    if _bn_is_positive "$position_amt"; then
-        direction="LONG"
-        abs_amt="$position_amt"
-    else
-        direction="SHORT"
-        abs_amt=$(echo "$position_amt" | tr -d '-')
-    fi
+    case "$(echo "$direction_hint" | tr '[:lower:]' '[:upper:]')" in
+        LONG)
+            direction="LONG"
+            abs_amt=$(echo "$position_amt" | tr -d '-')
+            ;;
+        SHORT)
+            direction="SHORT"
+            abs_amt=$(echo "$position_amt" | tr -d '-')
+            ;;
+        *)
+            if _bn_is_positive "$position_amt"; then
+                direction="LONG"
+                abs_amt="$position_amt"
+            else
+                direction="SHORT"
+                abs_amt=$(echo "$position_amt" | tr -d '-')
+            fi
+            ;;
+    esac
 
     if declare -f round_qty_for_symbol >/dev/null 2>&1; then
         abs_amt=$(round_qty_for_symbol "$symbol" "$abs_amt")
     fi
+
+    if ! futures_position_is_significant "$symbol" "$abs_amt"; then
+        echo "none"
+        return 0
+    fi
+
     echo "${direction}|${abs_amt}"
 }
 
@@ -119,16 +195,26 @@ futures_cancel_open_orders() {
     curl -s -X DELETE "$url" -H "X-MBX-APIKEY: $BINANCE_API_KEY" >/dev/null 2>&1
 }
 
-# Close open LONG/SHORT with MARKET reduceOnly
+# Close open LONG/SHORT with MARKET (hedge: positionSide + qty; one-way: reduceOnly + qty)
 futures_close_position_market() {
     local symbol="$1"
     local position_direction="$2"
     local quantity="$3"
     local log_fn="${4:-}"
-    local side close_dir query_string response dry_run
+    local side close_dir query_string response dry_run pos_info
 
     dry_run="${DRY_RUN:-false}"
-    case "$(echo "$position_direction" | tr '[:lower:]' '[:upper:]')" in
+
+    # Always refresh size/side from exchange (avoids stale qty → -2022)
+    if declare -f futures_get_position >/dev/null 2>&1; then
+        pos_info=$(futures_get_position "$symbol")
+        if [ "$pos_info" != "none" ]; then
+            close_dir=$(echo "$pos_info" | cut -d'|' -f1)
+            quantity=$(echo "$pos_info" | cut -d'|' -f2)
+        fi
+    fi
+
+    case "$(echo "${close_dir:-$position_direction}" | tr '[:lower:]' '[:upper:]')" in
         LONG) side="SELL"; close_dir="LONG" ;;
         SHORT) side="BUY"; close_dir="SHORT" ;;
         *)
@@ -155,9 +241,16 @@ futures_close_position_market() {
 
     futures_cancel_open_orders "$symbol"
 
-    query_string="symbol=${symbol}&side=${side}&type=MARKET&quantity=${quantity}&reduceOnly=true"
-    if declare -f append_position_side_param >/dev/null 2>&1; then
-        query_string=$(append_position_side_param "$close_dir" "$query_string")
+    # Hedge: MARKET + quantity + positionSide (closePosition invalid on MARKET → -4136)
+    query_string="symbol=${symbol}&side=${side}&type=MARKET&quantity=${quantity}"
+    if declare -f binance_is_hedge_mode >/dev/null 2>&1 && binance_is_hedge_mode; then
+        if declare -f append_position_side_param >/dev/null 2>&1; then
+            query_string=$(append_position_side_param "$close_dir" "$query_string")
+        fi
+    elif declare -f append_reduce_only_param >/dev/null 2>&1; then
+        query_string=$(append_reduce_only_param "$query_string")
+    else
+        query_string="${query_string}&reduceOnly=true"
     fi
 
     response=$(_binance_fapi_signed_post "/fapi/v1/order" "$query_string")
@@ -171,6 +264,10 @@ futures_close_position_market() {
             ob_set ACTIVE "$symbol" "false"
             ob_set POS_DIR "$symbol" ""
             ob_set LAST_ENTRY "$symbol" ""
+            ob_set DCA_ACTIVE "$symbol" "false"
+            ob_set DCA_DIR "$symbol" ""
+            ob_set DCA_SL "$symbol" ""
+            ob_set DCA_TP "$symbol" ""
         fi
         if declare -f send_telegram >/dev/null 2>&1; then
             send_telegram "🔒 CLOSE $symbol $close_dir — opposite order book (qty $quantity)"
@@ -184,6 +281,13 @@ futures_close_position_market() {
     fi
     if declare -f log_error >/dev/null 2>&1; then
         log_error "Close failed $symbol: $response"
+    fi
+    # No position / dust / invalid close → stop retrying and clear local flags
+    if echo "$response" | grep -qE '"code":-2022|"code":-4136|"code":-2019|ReduceOnly|closePosition'; then
+        if declare -f sync_symbol_position_flags >/dev/null 2>&1; then
+            sync_symbol_position_flags "$symbol"
+            [ -n "$log_fn" ] && $log_fn "ℹ️ $symbol: cleared local position flags (nothing to close on exchange)"
+        fi
     fi
     return 1
 }
@@ -202,6 +306,10 @@ try_close_on_opposite_ob() {
     esac
 
     local pos_info pos_dir pos_qty ob_zone
+    if declare -f sync_symbol_position_flags >/dev/null 2>&1; then
+        sync_symbol_position_flags "$symbol"
+    fi
+
     pos_info=$(futures_get_position "$symbol")
     if [ "$pos_info" = "none" ]; then
         return 1
@@ -214,43 +322,27 @@ try_close_on_opposite_ob() {
     if [ "$pos_dir" = "LONG" ] && [ "$ob_zone" = "SHORT" ]; then
         [ -n "$log_fn" ] && $log_fn "🔄 $symbol: LONG open + price at resistance OB — closing"
         futures_close_position_market "$symbol" "LONG" "$pos_qty" "$log_fn"
-        return 0
+        return $?
     fi
 
     if [ "$pos_dir" = "SHORT" ] && [ "$ob_zone" = "LONG" ]; then
         [ -n "$log_fn" ] && $log_fn "🔄 $symbol: SHORT open + price at support OB — closing"
         futures_close_position_market "$symbol" "SHORT" "$pos_qty" "$log_fn"
-        return 0
+        return $?
     fi
 
     return 1
 }
 
-# Returns 0 if futures position size != 0 for symbol
+# Returns 0 if futures position size is significant (not dust)
 futures_has_open_position() {
     local symbol="$1"
-    local positions position_amt
-
+    local pos_info
     if [ -z "$BINANCE_API_KEY" ] || [ -z "$BINANCE_SECRET_KEY" ]; then
         return 1
     fi
-
-    positions=$(_binance_fapi_signed_get "/fapi/v2/positionRisk" "symbol=${symbol}")
-    position_amt=$(echo "$positions" | jq -r ".[] | select(.symbol==\"$symbol\") | .positionAmt" 2>/dev/null \
-        | while read -r _amt; do
-            if [ -n "$_amt" ] && [ "$_amt" != "0" ] && [ "$_amt" != "null" ]; then
-                echo "$_amt"
-                break
-            fi
-        done)
-    if declare -f _bn_sanitize_num >/dev/null 2>&1; then
-        position_amt=$(_bn_sanitize_num "$position_amt")
-    fi
-
-    if [ -n "$position_amt" ] && [ "$position_amt" != "0" ] && [ "$position_amt" != "null" ]; then
-        return 0
-    fi
-    return 1
+    pos_info=$(futures_get_position "$symbol")
+    [ "$pos_info" != "none" ]
 }
 
 # Returns 0 if any open LIMIT exists for this symbol + direction (any price)
@@ -461,7 +553,12 @@ _futures_place_reduce_conditional() {
         return 0
     fi
 
-    query_string="symbol=${symbol}&side=${side}&type=${order_type}&stopPrice=${stop_price}&quantity=${quantity}&reduceOnly=true&workingType=CONTRACT_PRICE"
+    query_string="symbol=${symbol}&side=${side}&type=${order_type}&stopPrice=${stop_price}&quantity=${quantity}&workingType=CONTRACT_PRICE"
+    if declare -f append_reduce_only_param >/dev/null 2>&1; then
+        query_string=$(append_reduce_only_param "$query_string")
+    else
+        query_string="${query_string}&reduceOnly=true"
+    fi
     if declare -f append_position_side_param >/dev/null 2>&1; then
         query_string=$(append_position_side_param "$position_dir" "$query_string")
     fi
@@ -691,7 +788,12 @@ _futures_place_reduce_conditional() {
         return 0
     fi
 
-    query_string="symbol=${symbol}&side=${side}&type=${order_type}&stopPrice=${stop_price}&quantity=${quantity}&reduceOnly=true&workingType=CONTRACT_PRICE"
+    query_string="symbol=${symbol}&side=${side}&type=${order_type}&stopPrice=${stop_price}&quantity=${quantity}&workingType=CONTRACT_PRICE"
+    if declare -f append_reduce_only_param >/dev/null 2>&1; then
+        query_string=$(append_reduce_only_param "$query_string")
+    else
+        query_string="${query_string}&reduceOnly=true"
+    fi
     if declare -f append_position_side_param >/dev/null 2>&1; then
         query_string=$(append_position_side_param "$position_dir" "$query_string")
     fi
