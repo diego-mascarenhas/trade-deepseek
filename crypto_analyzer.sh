@@ -28,6 +28,7 @@ fi
 DEEPSEEK_API_KEY="${DEEPSEEK_API_KEY:-}"
 FINANDY_WEBHOOK="${FINANDY_WEBHOOK:-https://hook.finandy.com/LMEnRji-3GvFkm7wqFUK}"
 FINANDY_SECRET="${FINANDY_SECRET:-d1a01uf5uoe}"
+# TP1_PERCENT: opcional en .env (misma lógica que crypto_bot_auto.sh)
 
 # Colores
 RED='\033[0;31m'
@@ -79,6 +80,21 @@ parse_deepseek_json() {
     return 1
 }
 
+calculate_tp_price() {
+    local entry_price="$1"
+    local direction="$2"
+    local percent="$3"
+    local tp=""
+    
+    if [ "$direction" = "LONG" ]; then
+        tp=$(echo "$entry_price * (1 + $percent/100)" | bc -l)
+    else
+        tp=$(echo "$entry_price * (1 - $percent/100)" | bc -l)
+    fi
+    
+    printf "%.8f" "$tp"
+}
+
 get_tickers() {
     local response=$(curl -s "https://api.binance.com/api/v3/ticker/24hr")
     echo "$response" | jq -r '
@@ -128,12 +144,13 @@ Cambio 24h: $change_24h%
 Dirección: $direction
 
 Devuelve EXACTAMENTE este JSON válido:
-{"symbol":"$symbol","direction":"$direction","entry_price":0.0,"stop_loss":0.0,"take_profits":[0.0,0.0],"trailing_ofs":1.5,"leverage":5,"scheduler_minutes":240}
+{"symbol":"$symbol","direction":"$direction","entry_price":0.0,"stop_loss":0.0,"tp2_orderblock":0.0,"tp3_orderblock":0.0}
 
 Reemplaza:
 - entry_price: precio de entrada (si LONG < $last_price, si SHORT > $last_price)
 - stop_loss: stop loss (1.5-3% de distancia)
-- take_profits: dos objetivos
+- tp2_orderblock: Order Block intermedio (+2% a +4% desde entry)
+- tp3_orderblock: Order Block lejano (+4% a +8% desde entry, más lejos que tp2)
 
 SOLO JSON. NADA MÁS.
 EOF
@@ -164,15 +181,40 @@ EOF
 }
 
 generate_curl() {
-    local symbol="$1" direction="$2" entry="$3" sl="$4" tp1="$5" tp2="$6" trailing="$7"
+    local symbol="$1" direction="$2" entry="$3" sl="$4" tp1="$5" tp2="$6" tp3="$7"
     local side="buy"; local pos_side="long"
     [ "$direction" = "SHORT" ] && side="sell" && pos_side="short"
     
     local order_name="Deepseek Analyzer ${BOT_VERSION}"
+    local tp_orders_json
     
-    cat <<EOF
-curl -X POST "$FINANDY_WEBHOOK" -H "Content-Type: application/json" -d '{"name":"${order_name}","secret":"$FINANDY_SECRET","symbol":"$symbol","side":"$side","positionSide":"$pos_side","open":{"price":"$entry","schedulerMode":"min","schedulerValue":"240"},"tp":{"enabled":true,"orders":[{"price":"$tp1","piece":"40.0"},{"price":"$tp2","piece":"30.0"},{"ofs":"$trailing","piece":"30.0"}]},"sl":{"price":"$sl","enabled":true}}'
-EOF
+    if [ -n "$tp1" ]; then
+        tp_orders_json=$(jq -n \
+            --arg tp1 "$tp1" --arg tp2 "$tp2" --arg tp3 "$tp3" \
+            '[{price:$tp1,piece:"40.0"},{price:$tp2,piece:"30.0"},{price:$tp3,piece:"30.0"}]')
+    else
+        tp_orders_json=$(jq -n \
+            --arg tp2 "$tp2" --arg tp3 "$tp3" \
+            '[{price:$tp2,piece:"70.0"},{price:$tp3,piece:"30.0"}]')
+    fi
+    
+    local payload=$(jq -n \
+        --arg name "$order_name" \
+        --arg secret "$FINANDY_SECRET" \
+        --arg symbol "$symbol" \
+        --arg side "$side" \
+        --arg pos_side "$pos_side" \
+        --arg entry "$entry" \
+        --arg sl "$sl" \
+        --argjson tp_orders "$tp_orders_json" \
+        '{
+            name: $name, secret: $secret, symbol: $symbol, side: $side, positionSide: $pos_side,
+            open: {price: $entry, schedulerMode: "min", schedulerValue: "240"},
+            tp: {enabled: true, orders: $tp_orders},
+            sl: {price: $sl, enabled: true}
+        }')
+    
+    echo "curl -s -X POST \"$FINANDY_WEBHOOK\" -H \"Content-Type: application/json\" -d $(echo "$payload" | jq -c . | jq -Rs .)"
 }
 
 # ============================================
@@ -219,11 +261,14 @@ main() {
     
     local entry=$(echo "$analysis" | jq -r '.entry_price // empty')
     local sl=$(echo "$analysis" | jq -r '.stop_loss // empty')
-    local tp1=$(echo "$analysis" | jq -r '.take_profits[0] // empty')
-    local tp2=$(echo "$analysis" | jq -r '.take_profits[1] // empty')
-    local trailing=$(echo "$analysis" | jq -r '.trailing_ofs // 1.5')
+    local tp1=""
+    if [ -n "$TP1_PERCENT" ]; then
+        tp1=$(calculate_tp_price "$entry" "$direction" "$TP1_PERCENT")
+    fi
+    local tp2=$(echo "$analysis" | jq -r '.tp2_orderblock // .take_profits[0] // empty')
+    local tp3=$(echo "$analysis" | jq -r '.tp3_orderblock // .take_profits[1] // empty')
     
-    if [ -z "$entry" ] || [ -z "$sl" ] || [ -z "$tp1" ] || [ -z "$tp2" ]; then
+    if [ -z "$entry" ] || [ -z "$sl" ] || [ -z "$tp2" ] || [ -z "$tp3" ]; then
         echo -e "${RED}❌ Datos incompletos${NC}"
         exit 1
     fi
@@ -233,9 +278,13 @@ main() {
     echo -e "📌 Dirección: $direction"
     echo -e "🎯 Entrada: $entry"
     echo -e "🛑 Stop Loss: $sl"
-    echo -e "✅ TP1: $tp1 (40%) | TP2: $tp2 (30%) | Trailing: ${trailing}% (30%)"
+    if [ -n "$tp1" ]; then
+        echo -e "✅ TP1: $tp1 (${TP1_PERCENT}% 40%) | TP2: $tp2 (DeepSeek 30%) | TP3: $tp3 (DeepSeek 30%)"
+    else
+        echo -e "✅ TP1: desactivado | TP2: $tp2 (DeepSeek 70%) | TP3: $tp3 (DeepSeek 30%)"
+    fi
     
-    local curl_cmd=$(generate_curl "$symbol" "$direction" "$entry" "$sl" "$tp1" "$tp2" "$trailing")
+    local curl_cmd=$(generate_curl "$symbol" "$direction" "$entry" "$sl" "$tp1" "$tp2" "$tp3")
     echo -e "\n${YELLOW}📋 cURL para Finandy:${NC}\n$curl_cmd"
     
     read -p "🚀 ¿Ejecutar? (s/N): " execute

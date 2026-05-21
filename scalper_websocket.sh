@@ -36,7 +36,7 @@ fi
 # ============================================
 
 # Binance WebSocket (public - no auth)
-WS_BASE_URL="wss://fstream.binance.com/public/ws"
+WS_BASE_URL="wss://fstream.binance.com"
 SYMBOLS="${SCALPER_SYMBOLS:-BTCUSDT,ETHUSDT,SOLUSDT}"
 DEPTH="${SCALPER_OB_DEPTH:-10}"
 SPEED="${SCALPER_WS_SPEED:-500ms}"
@@ -127,6 +127,16 @@ log() {
 
 log_error() {
     echo -e "${RED}[$(date '+%Y-%m-%d %H:%M:%S')] ERROR: $1${NC}" | tee -a "$LOG_DIR/errors.log"
+}
+
+bc_safe_div() {
+    local numerator="$1"
+    local denominator="$2"
+    if [ -z "$denominator" ] || ! (( $(echo "$denominator > 0" | bc -l 2>/dev/null) )); then
+        echo "0"
+        return 0
+    fi
+    echo "scale=8; $numerator / $denominator" | bc -l 2>/dev/null || echo "0"
 }
 
 send_telegram() {
@@ -317,9 +327,13 @@ calculate_rsi() {
     if [ -z "$losses" ] || (( $(echo "$losses == 0" | bc -l 2>/dev/null) )); then
         echo "100"
     else
-        local rs=$(echo "$gains / $losses" | bc -l 2>/dev/null)
-        local rsi=$(echo "100 - (100 / (1 + $rs))" | bc -l 2>/dev/null)
-        printf "%.0f" "$rsi"
+        local rs=$(bc_safe_div "$gains" "$losses")
+        local rsi_denom=$(echo "1 + $rs" | bc -l 2>/dev/null)
+        local rsi="50"
+        if [ -n "$rsi_denom" ] && (( $(echo "$rsi_denom != 0" | bc -l 2>/dev/null) )); then
+            rsi=$(echo "100 - (100 / $rsi_denom)" | bc -l 2>/dev/null)
+        fi
+        printf "%.0f" "${rsi:-50}"
     fi
 }
 
@@ -347,8 +361,12 @@ calculate_stochastic() {
     done
     
     local current_close=$(echo "$klines" | jq -r ".[$((period - 1))][4]" 2>/dev/null)
-    local stoch=$(echo "($current_close - $lowest_low) / ($highest_high - $lowest_low) * 100" | bc -l 2>/dev/null)
-    printf "%.0f" "$stoch"
+    local stoch="50"
+    if [ -n "$current_close" ] && [ "$current_close" != "null" ] \
+        && (( $(echo "$highest_high > $lowest_low" | bc -l 2>/dev/null) )); then
+        stoch=$(bc_safe_div "($current_close - $lowest_low) * 100" "($highest_high - $lowest_low)")
+    fi
+    printf "%.0f" "${stoch:-50}"
 }
 
 calculate_adx() {
@@ -456,6 +474,11 @@ calculate_dynamic_tp_sl() {
     local sl_pct="$SL_PERCENT"
     local tp_pct="$TP_PERCENT"
     
+    if [ -z "$entry" ] || ! (( $(echo "$entry > 0" | bc -l 2>/dev/null) )); then
+        echo "0|0"
+        return 0
+    fi
+    
     # Check if volatile
     local abs_change=$(echo "$change_24h" | tr -d '-')
     if (( $(echo "$abs_change >= $VOLATILE_THRESHOLD" | bc -l 2>/dev/null) )); then
@@ -464,13 +487,16 @@ calculate_dynamic_tp_sl() {
         log "📊 Volatile market detected (|Δ24h|=${abs_change}%) - Using SL:${sl_pct}% TP:${tp_pct}%"
     fi
     
-    # Check spread multiplier
-    local min_sl_from_spread=$(echo "$spread * $MIN_SL_SPREAD_MULT" | bc -l 2>/dev/null)
-    local min_sl_pct_from_spread=$(echo "$min_sl_from_spread / $entry * 100" | bc -l 2>/dev/null)
+    # Check spread multiplier (skip if entry is zero — avoids bc divide-by-zero)
+    if [ -n "$entry" ] && (( $(echo "$entry > 0" | bc -l 2>/dev/null) )) \
+        && [ -n "$spread" ] && (( $(echo "$spread > 0" | bc -l 2>/dev/null) )); then
+        local min_sl_from_spread=$(echo "$spread * $MIN_SL_SPREAD_MULT" | bc -l 2>/dev/null)
+        local min_sl_pct_from_spread=$(bc_safe_div "$min_sl_from_spread * 100" "$entry")
     
-    if (( $(echo "$min_sl_pct_from_spread > $sl_pct" | bc -l 2>/dev/null) )); then
+    if [ -n "$min_sl_pct_from_spread" ] && (( $(echo "$min_sl_pct_from_spread > $sl_pct" | bc -l 2>/dev/null) )); then
         sl_pct="$min_sl_pct_from_spread"
         log "📊 Spread-based SL adjustment: ${sl_pct}%"
+    fi
     fi
     
     local sl=""
@@ -508,11 +534,12 @@ determine_signal() {
     local reasons=""
     local entry=0
     
-    if [ "$support" != "0" ] && [ "$resistance" != "0" ] && [ "$support" != "null" ] && [ "$resistance" != "null" ]; then
+    if [ -n "$current_price" ] && (( $(echo "$current_price > 0" | bc -l 2>/dev/null) )) \
+        && [ "$support" != "0" ] && [ "$resistance" != "0" ] && [ "$support" != "null" ] && [ "$resistance" != "null" ]; then
         local range=$(echo "$resistance - $support" | bc -l 2>/dev/null)
         
         if [ -n "$range" ] && (( $(echo "$range > 0" | bc -l 2>/dev/null) )); then
-            local position=$(echo "($current_price - $support) / $range * 100" | bc -l 2>/dev/null)
+            local position=$(bc_safe_div "($current_price - $support) * 100" "$range")
             
             if [ -n "$position" ] && (( $(echo "$position < 20" | bc -l 2>/dev/null) )); then
                 signal="LONG"
@@ -756,6 +783,7 @@ connect_websocket() {
     local ws_url=$(build_ws_url)
     
     log "🔌 Connecting to Binance WebSocket..."
+    log "   URL: $ws_url"
     log "   Order Mode: $ORDER_EXECUTION_MODE"
     
     if ! command -v websocat &> /dev/null; then
@@ -768,18 +796,16 @@ connect_websocket() {
     CURRENT_INDEX=0
     
     while true; do
-        websocat --text "$ws_url" 2>/dev/null | while read -r line; do
+        while IFS= read -r line; do
             if [ -n "$line" ]; then
                 local data=$(echo "$line" | jq -r '.data // empty' 2>/dev/null)
                 if [ -n "$data" ]; then
                     process_message "$data"
                 fi
                 run_cycle_analysis
-                
-                # Rotate to next symbol every cycle
                 rotate_symbol
             fi
-        done
+        done < <(websocat --text "$ws_url" 2>/dev/null)
         
         log_error "Connection lost. Reconnecting in 5 seconds..."
         sleep 5

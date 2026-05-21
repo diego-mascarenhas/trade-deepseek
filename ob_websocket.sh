@@ -100,6 +100,17 @@ send_telegram() {
         -d "{\"chat_id\": \"${TELEGRAM_CHAT_ID}\", \"text\": \"${msg}\"}" > /dev/null
 }
 
+# Safe division for bc (avoids "Divide by zero" on stderr)
+bc_safe_div() {
+    local numerator="$1"
+    local denominator="$2"
+    if [ -z "$denominator" ] || ! (( $(echo "$denominator > 0" | bc -l 2>/dev/null) )); then
+        echo "0"
+        return 0
+    fi
+    echo "scale=8; $numerator / $denominator" | bc -l 2>/dev/null || echo "0"
+}
+
 # ============================================
 # CHECK POSITION VIA BINANCE API
 # ============================================
@@ -172,7 +183,12 @@ calculate_quantity() {
     local symbol="$1"
     local entry_price="$2"
     
-    local raw_quantity=$(echo "$POSITION_SIZE_USDT / $entry_price" | bc -l 2>/dev/null)
+    if [ -z "$entry_price" ] || ! (( $(echo "$entry_price > 0" | bc -l 2>/dev/null) )); then
+        echo "0.001"
+        return 0
+    fi
+    
+    local raw_quantity=$(bc_safe_div "$POSITION_SIZE_USDT" "$entry_price")
     local quantity=$(printf "%.3f" "$raw_quantity")
     
     if (( $(echo "$quantity < 0.001" | bc -l 2>/dev/null) )); then
@@ -389,6 +405,24 @@ analyze_order_book() {
     RESISTANCE_LEVEL[$symbol]=$resistance
 }
 
+# REST fallback when WebSocket has not populated a symbol yet
+hydrate_missing_symbols() {
+    for symbol in "${SYMBOL_ARRAY[@]}"; do
+        local price="${CURRENT_PRICE[$symbol]:-0}"
+        if [ -n "$price" ] && [ "$price" != "0" ] && [ "$price" != "null" ]; then
+            continue
+        fi
+        local depth=$(curl -s "https://fapi.binance.com/fapi/v1/depth?symbol=${symbol}&limit=${DEPTH}" 2>/dev/null)
+        [ -z "$depth" ] && continue
+        local bids=$(echo "$depth" | jq -c '.bids // []' 2>/dev/null)
+        local asks=$(echo "$depth" | jq -c '.asks // []' 2>/dev/null)
+        if [ -n "$bids" ] && [ -n "$asks" ] && [ "$bids" != "[]" ]; then
+            analyze_order_book "$symbol" "$bids" "$asks"
+            CURRENT_PRICE[$symbol]=$(echo "$depth" | jq -r '.bids[0][0] // 0' 2>/dev/null)
+        fi
+    done
+}
+
 # ============================================
 # DETERMINE SIGNAL (with position check)
 # ============================================
@@ -413,12 +447,14 @@ determine_signal() {
     local entry="$current_price"
     local reasons=""
     
-    # Strategy 1: Order Book based
-    if [ "$support" != "0" ] && [ "$support" != "null" ] && [ "$resistance" != "0" ] && [ "$resistance" != "null" ]; then
+    # Strategy 1: Order Book based (requires valid price and range)
+    if [ -n "$current_price" ] && (( $(echo "$current_price > 0" | bc -l 2>/dev/null) )) \
+        && [ "$support" != "0" ] && [ "$support" != "null" ] \
+        && [ "$resistance" != "0" ] && [ "$resistance" != "null" ]; then
         local range=$(echo "$resistance - $support" | bc -l 2>/dev/null)
         
         if [ -n "$range" ] && (( $(echo "$range > 0" | bc -l 2>/dev/null) )); then
-            local position=$(echo "($current_price - $support) / $range * 100" | bc -l 2>/dev/null)
+            local position=$(bc_safe_div "($current_price - $support) * 100" "$range")
             
             if [ -n "$position" ] && (( $(echo "$position < 25" | bc -l 2>/dev/null) )); then
                 signal="LONG"
@@ -445,8 +481,9 @@ determine_signal() {
         fi
     fi
     
-    # Strategy 2: Fallback based on 24h change
-    if [ "$signal" = "NEUTRAL" ]; then
+    # Strategy 2: Fallback based on 24h change (needs live price)
+    if [ "$signal" = "NEUTRAL" ] && [ -n "$current_price" ] \
+        && (( $(echo "$current_price > 0" | bc -l 2>/dev/null) )); then
         if (( $(echo "$change_24h > 5" | bc -l 2>/dev/null) )); then
             signal="SHORT"
             confidence=50
@@ -483,16 +520,22 @@ calculate_tp_sl() {
     local sl_pct="$SL_PERCENT"
     local tp_pct="$TP_PERCENT"
     
+    if [ -z "$entry" ] || ! (( $(echo "$entry > 0" | bc -l 2>/dev/null) )); then
+        echo "0|0|$sl_pct|$tp_pct"
+        return 0
+    fi
+    
     local abs_change=$(echo "$change_24h" | tr -d '-')
     if (( $(echo "$abs_change >= $VOLATILE_THRESHOLD" | bc -l 2>/dev/null) )); then
         sl_pct="$SL_VOLATILE_MIN"
         tp_pct="$TP_VOLATILE_MIN"
     fi
     
-    if [ -n "$spread" ] && (( $(echo "$spread > 0" | bc -l 2>/dev/null) )); then
-        local min_sl=$(echo "$spread * $MIN_SL_SPREAD_MULT" | bc -l)
-        local min_sl_pct=$(echo "$min_sl / $entry * 100" | bc -l)
-        if (( $(echo "$min_sl_pct > $sl_pct" | bc -l 2>/dev/null) )); then
+    if [ -n "$spread" ] && [ -n "$entry" ] \
+        && (( $(echo "$spread > 0 && $entry > 0" | bc -l 2>/dev/null) )); then
+        local min_sl=$(echo "$spread * $MIN_SL_SPREAD_MULT" | bc -l 2>/dev/null)
+        local min_sl_pct=$(bc_safe_div "$min_sl * 100" "$entry")
+        if [ -n "$min_sl_pct" ] && (( $(echo "$min_sl_pct > $sl_pct" | bc -l 2>/dev/null) )); then
             sl_pct="$min_sl_pct"
         fi
     fi
@@ -580,12 +623,15 @@ draw_and_execute() {
         local entry=$(echo "$signal_data" | cut -d'|' -f3)
         local reasons=$(echo "$signal_data" | cut -d'|' -f4)
         
-        # Calculate TP/SL
-        local tp_sl_data=$(calculate_tp_sl "$entry" "$signal" "$change" "$spread")
-        local sl=$(echo "$tp_sl_data" | cut -d'|' -f1)
-        local tp=$(echo "$tp_sl_data" | cut -d'|' -f2)
-        local sl_pct=$(echo "$tp_sl_data" | cut -d'|' -f3)
-        local tp_pct=$(echo "$tp_sl_data" | cut -d'|' -f4)
+        # Calculate TP/SL (skip when entry is invalid — e.g. NEUTRAL with entry=0)
+        local sl="0" tp="0" sl_pct="$SL_PERCENT" tp_pct="$TP_PERCENT"
+        if [ -n "$entry" ] && (( $(echo "$entry > 0" | bc -l 2>/dev/null) )); then
+            local tp_sl_data=$(calculate_tp_sl "$entry" "$signal" "$change" "$spread")
+            sl=$(echo "$tp_sl_data" | cut -d'|' -f1)
+            tp=$(echo "$tp_sl_data" | cut -d'|' -f2)
+            sl_pct=$(echo "$tp_sl_data" | cut -d'|' -f3)
+            tp_pct=$(echo "$tp_sl_data" | cut -d'|' -f4)
+        fi
         
         # Display
         if [ "$signal" != "NEUTRAL" ] && [ "$confidence" -ge "$MIN_CONFIDENCE" ]; then
@@ -639,7 +685,7 @@ build_ws_url() {
             streams="${streams}/${lower}@depth${DEPTH}@${SPEED}"
         fi
     done
-    echo "wss://fstream.binance.com/public/stream?streams=${streams}"
+    echo "wss://fstream.binance.com/stream?streams=${streams}"
 }
 
 run_cycle() {
@@ -650,6 +696,7 @@ run_cycle() {
     LAST_CYCLE_TIME=$current_time
     
     update_24h_changes
+    hydrate_missing_symbols
     draw_and_execute
 }
 
@@ -657,6 +704,7 @@ connect_websocket() {
     local ws_url=$(build_ws_url)
     
     log "🔌 Connecting to Binance WebSocket..."
+    log "   URL: $ws_url"
     
     if ! command -v websocat &> /dev/null; then
         log_error "websocat not installed. Run: brew install websocat"
@@ -664,7 +712,8 @@ connect_websocket() {
     fi
     
     while true; do
-        websocat --text "$ws_url" 2>/dev/null | while read -r line; do
+        # Process substitution (not pipe) so declare -A state persists in this shell
+        while IFS= read -r line; do
             if [ -n "$line" ]; then
                 local data=$(echo "$line" | jq -r '.data // empty' 2>/dev/null)
                 if [ -n "$data" ]; then
@@ -672,7 +721,7 @@ connect_websocket() {
                 fi
                 run_cycle
             fi
-        done
+        done < <(websocat --text "$ws_url" 2>/dev/null)
         
         log_error "Connection lost. Reconnecting in 5 seconds..."
         sleep 5
